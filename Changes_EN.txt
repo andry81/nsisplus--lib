@@ -1,0 +1,6 @@
+* Changes_EN.txt
+* 2017.04.17
+* NsisSetupLib
+
+review #1 - 2017.04.17 (NsisSetupLib_rv1.zip)
+ - Initial release.

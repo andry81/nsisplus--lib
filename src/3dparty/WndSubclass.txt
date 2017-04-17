@@ -1,0 +1,6 @@
+Version History
+===============
+
+v0.0.3 - 20090111 (AndersK)
+---------------------------
+* Started over from scratch for the 3rd time.

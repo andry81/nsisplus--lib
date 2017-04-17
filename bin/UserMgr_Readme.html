@@ -1,0 +1,362 @@
+<html>
+<body>
+<div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr"><table align="right">
+<tbody><tr>
+<td><small>Author: <a href="/User:Hgerstung" title="User:Hgerstung">hgerstung</a> (<a href="/mediawiki/index.php?title=User_talk:Hgerstung&amp;action=edit&amp;redlink=1" class="new" title="User talk:Hgerstung (page does not exist)">talk</a>, <a href="/Special:Contributions/hgerstung" title="Special:Contributions/hgerstung">contrib</a>)</small>
+</td></tr></tbody></table>
+<p><br style="clear:both;">
+</p>
+<div id="toc" class="toc"><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="#Links"><span class="tocnumber">1</span> <span class="toctext">Links</span></a></li>
+<li class="toclevel-1 tocsection-2"><a href="#Description"><span class="tocnumber">2</span> <span class="toctext">Description</span></a></li>
+<li class="toclevel-1 tocsection-3"><a href="#Known_Issues"><span class="tocnumber">3</span> <span class="toctext">Known Issues</span></a></li>
+<li class="toclevel-1 tocsection-4"><a href="#Plugin_Command_Reference"><span class="tocnumber">4</span> <span class="toctext">Plugin Command Reference</span></a>
+<ul>
+<li class="toclevel-2 tocsection-5"><a href="#Return_value"><span class="tocnumber">4.1</span> <span class="toctext">Return value</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-6"><a href="#Example"><span class="tocnumber">5</span> <span class="toctext">Example</span></a></li>
+<li class="toclevel-1 tocsection-7"><a href="#Incomplete_List_of_Account_Privileges"><span class="tocnumber">6</span> <span class="toctext">Incomplete List of Account Privileges</span></a></li>
+<li class="toclevel-1 tocsection-8"><a href="#Changes"><span class="tocnumber">7</span> <span class="toctext">Changes</span></a></li>
+</ul>
+</div>
+
+<h2><span class="mw-headline" id="Links">Links</span></h2>
+<p><a href="/mediawiki/images/0/08/UserMgr.zip" style="text-decoration: none"><img src="/mediawiki/images/a/a0/Zip.gif" width="16" height="16" border="0" alt=""> UserMgr.zip</a> (49 KB)
+</p><p>Find the original plugin of the author (15.8.2006) at <a class="external free" href="http://www.meinberg.de/download/utils/UserMgr.zip">http://www.meinberg.de/download/utils/UserMgr.zip</a>
+</p><p><a class="external text" href="http://forums.winamp.com/showthread.php?s=&amp;threadid=209086">UserMgr thread on NSIS Discussion forum OLD</a>
+</p><p><a class="external text" href="http://forums.winamp.com/showthread.php?s=&amp;threadid=302322">UserMgr thread on NSIS Discussion forum</a>
+</p>
+<h2><span class="mw-headline" id="Description">Description</span></h2>
+<p>I needed to create a user account in my installer, running a service with restricted rights is something we all should try to do whenever possible.
+</p><p>In order to get this functionality, I used the UserInfo plugin as a starter and created a number of functions dealing with user accounts, privileges and groups. 
+</p><p>"'Please note: This plugin and its functions are only useful for Windows NT/2K/XP target systems."'<br>
+You should check the type of system in your installer script before trying to call one of the functions of this DLL. I did not test what happens when someone tries to use UserMgr on a Win95/Win98 system.
+</p><p>As I am currently the only one using this, I consider it in beta state and appreciate any comments and feedback, e.g. "Yes, it runs on Winxyz" or "No, no chance on Win87 etc. etc.).
+</p><p>You can reach me via PM, my forum account is hgerstung, so do not hesitate to contact me if you are experiencing difficulties.
+</p><p><b>Please note: NSIS v2.42 or higher is required for this plugin to run properly.</b>
+</p>
+<h2><span class="mw-headline" id="Known_Issues">Known Issues</span></h2>
+<dl><dt> Windows 9x support</dt>
+<dd> Untested on Windows 9x; structure is different, so probably not going to work.</dd></dl>
+<dl><dd> Any help in resolving these issues (<a class="external text" href="http://forums.winamp.com/member.php?&amp;action=getinfo&amp;userid=165633">submitting a patch</a>, etc) is appreciated.</dd></dl>
+<p><br>
+</p>
+<h2><span class="mw-headline" id="Plugin_Command_Reference">Plugin Command Reference</span></h2>
+<p>Here's a list of functions the DLL exports including the necessary parameters. 
+</p>
+<dl><dt> UserMgr::CreateAccount "USERID" "PASSWORD" "COMMENT"</dt>
+<dd> creates a new user account, returns status string</dd></dl>
+<dl><dt> UserMgr::CreateAccountEx "USERID" "PASSWORD" "COMMENT" "FULLNAME" "USERCOMMENT" "FLAGS"</dt>
+<dd> creates a new user account, including the Fullname (Shown in the Welcome screen), returns status string</dd></dl>
+<dl><dd>  where "FLAGS" can be one or more of the following, seperated by '|':
+<dl><dt> UF_ACCOUNTDISABLE</dt>
+<dd> The user's account is disabled.</dd></dl></dd></dl>
+<dl><dd><dl><dt> UF_PASSWD_NOTREQD</dt>
+<dd> No password is required.</dd></dl></dd></dl>
+<dl><dd><dl><dt> UF_PASSWD_CANT_CHANGE</dt>
+<dd> The user cannot change the password.</dd></dl></dd></dl>
+<dl><dd><dl><dt> UF_DONT_EXPIRE_PASSWD</dt>
+<dd> The password will never expire on the account.</dd></dl></dd></dl>
+<dl><dt> UserMgr::GetCurrentUserName</dt>
+<dd> returns the username of the currently logged in user</dd></dl>
+<dl><dt> UserMgr::GetCurrentDomain</dt>
+<dd> returns the domainname of the currently logged in user</dd></dl>
+<dl><dt> UserMgr::BuiltAccountEnv "USERID" "PASSWORD"</dt>
+<dd> builds the User environment of the user (Registry hive, Documents and settings etc.), returns status string</dd></dl>
+<dl><dt> UserMgr::RegLoadUserHive "USERID"</dt>
+<dd> loads the User Registry hive in HKEY_USERS\{USERID}, returns status string</dd></dl>
+<dl><dt> UserMgr::RegUnLoadUserHive "USERID"</dt>
+<dd> unloads the User Registry hive, returns status string</dd></dl>
+<dl><dt> UserMgr::DeleteAccount "USERID"</dt>
+<dd> deletes a user account, returns status string</dd></dl>
+<dl><dt> UserMgr::AddToGroup "USERID" "GROUPID"</dt>
+<dd> adds a user to a group, returns status string</dd></dl>
+<dl><dt> UserMgr::RemoveFromGroup "USERID" "GROUPID"</dt>
+<dd> removes group membership from a user, returns status string</dd></dl>
+<dl><dt> UserMgr::IsMemberOfGroup "USERID" "GROUPID"</dt>
+<dd> returns "TRUE" if the user is a member of the specified group, else returns "FALSE"</dd></dl>
+<dl><dt> UserMgr::AddPrivilege "USERID" "PRIVILEGE"</dt>
+<dd> adds a privilege to the user account, returns status string. You can find a list of privileges below.</dd></dl>
+<dl><dt> UserMgr::RemovePrivilege "USERID" "PRIVILEGE"</dt>
+<dd> removes a privilege from an account, returns status string. You can find a list of privileges below.</dd></dl>
+<dl><dt> UserMgr::HasPrivilege "USERID" "PRIVILEGE"</dt>
+<dd> returns "TRUE" if the user has the specified privilege, else returns "FALSE".</dd></dl>
+<dl><dt> UserMgr::CreateGroup "GROUPID" "COMMENT"</dt>
+<dd> creates a new user group, returns status string</dd></dl>
+<dl><dt> UserMgr::DeleteGroup "GROUPID"</dt>
+<dd> deletes a user group, returns status string</dd></dl>
+<dl><dt> UserMgr::GetUserInfo "USERID" "FIELD"</dt>
+<dd> returns a specific information for the given user-ID</dd></dl>
+<dl><dd> where "FIELD" can be one of the following:
+<dl><dt> EXISTS</dt>
+<dd> returns "OK", if the user exists on the system, otherwise an error is returned (string "ERROR xxxx")</dd></dl></dd></dl>
+<dl><dd><dl><dt> NAME</dt>
+<dd> returns the user name</dd></dl></dd></dl>
+<dl><dd><dl><dt> FULLNAME</dt>
+<dd> returns the full user name (e.g. firstname surname)</dd></dl></dd></dl>
+<dl><dd><dl><dt> HOMEDIR</dt>
+<dd> returns the path to the users home directory</dd></dl></dd></dl>
+<dl><dd><dl><dt> COMMENT</dt>
+<dd> returns a comment stored for the user</dd></dl></dd></dl>
+<dl><dd><dl><dt> PASSWD_STATUS</dt>
+<dd> returns the Password status for the user (either NEVEREXPIRES or CANTCHANGE)</dd></dl></dd></dl>
+<dl><dt> UserMgr::SetUserInfo "USERID" "FIELD" "VALUE"</dt>
+<dd> sets a specific information for the given user-ID</dd></dl>
+<dl><dd> where "FIELD" can be one of the following:
+<dl><dt> NAME</dt>
+<dd> sets the user name</dd></dl></dd></dl>
+<dl><dd><dl><dt> FULLNAME</dt>
+<dd> sets the full user name (e.g. firstname surname)</dd></dl></dd></dl>
+<dl><dd><dl><dt> HOMEDIR</dt>
+<dd> sets the path to the users home directory</dd></dl></dd></dl>
+<dl><dd><dl><dt> COMMENT</dt>
+<dd> sets a comment stored for the user</dd></dl></dd></dl>
+<dl><dd><dl><dt> PASSWD_NEVER_EXPIRES ["YES"/"NO"]</dt>
+<dd> enables/disables password expiration</dd></dl></dd></dl>
+<dl><dd><dl><dt> PASSWORD</dt>
+<dd> sets the user password (Admin rights required)</dd></dl></dd></dl>
+<dl><dt> UserMgr::ChangeUserPassword "USERID" "OLDPASSWORD" "NEWPASSWORD"</dt>
+<dd> changes the user password (Admin rights not required)</dd></dl>
+<dl><dt> UserMgr::GetLocalizedStdAccountName "STDACCOUNTSID"</dt>
+<dd> returns the localized Standard Account name </dd>
+<dd> (e.g. "NT AUTHORITY\SYSTEM" for "S-1-5-18" on a English system</dd>
+<dd> and "NT-AUTORITA„T\NETZWERKDIENST" for "S-1-5-20" on a German system)</dd>
+<dd> The most often used SID's are defined in the included SpecialGroupsSIDs.nsh</dd></dl>
+<dl><dt> UserMgr::GetUserNameFromSID "SID"</dt>
+<dd> returns the username for the specified SID</dd>
+<dd> (returns both domain and username: "{domain}\{username}")</dd></dl>
+<dl><dt> UserMgr::GetSIDFromUserName "DOMAIN" "USERID"</dt>
+<dd> returns the SID for the specified USERID and DOMAIN</dd>
+<dd> (use an empty string for the domain for a local user)</dd></dl>
+<dl><dt> UserMgr::SetRegKeyAccess "USERID" "ROOTKEY" "REGKEY" "ACCESSMASK"</dt>
+<dd> adds/sets/revokes/denies access rights for registry keys</dd></dl>
+<dl><dd> where "ROOTKEY" can be one of these: HKLM, HKU, HKCU, HKCR</dd>
+<dd> where "ACCESSMASK" starts with a '+' to grant rights, "-" to deny rights, "=" to set rights, afterwards the rights can be listed: 'r' for read access, 'w' for write access, 'x' for execute access, 'a' for full access.</dd></dl>
+<dl><dd><dl><dt> BEWARE</dt>
+<dd> If ACCESSMASK is empty, all of the the users access rights will be removed! This is used to delete an access list entry from a registry key.</dd></dl></dd></dl>
+<dl><dd> example:</dd>
+<dd> <pre class="nsis" style="font-family:monospace;"> <span style="color: #000099;">UserMgr</span>::<span style="color: #003399;">SetRegKeyAccess </span><span style="color: #660066;">"myuser"</span> <span style="color: #660066;">"HKLM"</span> <span style="color: #660066;">"SYSTEM\CurrentControlSet\Services\Blabla"</span> <span style="color: #660066;">"=a"</span></pre></dd>
+<dd> grants full access for "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Blabla" to user "myuser"</dd></dl>
+<h4><span class="mw-headline" id="Return_value">Return value</span></h4>
+<p>"'A status string can look like this:"'
+</p>
+<dl><dt> "OK"</dt>
+<dd> Function has been completed successfully</dd></dl>
+<dl><dt> "ERROR xxxx"</dt>
+<dd> An error occurred. Please see <a class="external text" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/netmgmt/netmgmt/network_management_error_codes.asp">MSDN</a> or the LMERR.H file (comes with Visual Studio) to find out about possible error codes.  You may also find the <a class="external text" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/netmgmt/netmgmt/network_management.asp">Network Management</a> page on MSDN to be useful.</dd></dl>
+<h2><span class="mw-headline" id="Example">Example</span></h2>
+<p>Here is a short example of how to use the functions in an Installer script:
+</p>
+<pre class="nsis" style="font-family:monospace;"><span style="color: #000066;">Name</span> <span style="color: #660066;">"UserMgr.dll Sample Installation Script"</span>
+&nbsp;
+<span style="color: #000066;">OutFile</span> <span style="color: #660066;">"usermgr-sample.exe"</span>
+&nbsp;
+<span style="color: #666666; font-style: italic;">#</span>
+<span style="color: #666666; font-style: italic;"># Be careful when using these functions, especially the "Remove" and "Delete"</span>
+<span style="color: #666666; font-style: italic;"># commands!!!</span>
+<span style="color: #666666; font-style: italic;">#</span>
+&nbsp;
+<span style="color: #000066;">Function</span> <span style="color: #006600;">.onInit</span>
+        <span style="color: #666666; font-style: italic;"># the plugins dir is automatically deleted when the installer exits</span>
+        <span style="color: #000099;">InitPluginsDir</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::<span style="color: #003399;">CreateAccount </span><span style="color: #660066;">"myuser"</span> <span style="color: #660066;">"mypassword"</span> <span style="color: #660066;">"A test user created by the UserMgr plugin"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"CreateUser Result&nbsp;: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::<span style="color: #003399;">AddToGroup </span> <span style="color: #660066;">"myuser"</span> <span style="color: #660066;">"Administrators"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"AddToGroup Result&nbsp;: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::<span style="color: #003399;">SetRegKeyAccess </span><span style="color: #660066;">"myuser"</span> <span style="color: #660066;">"HKLM"</span> <span style="color: #660066;">"SYSTEM\CurrentControlSet\Services\EventLog\Application\NTP"</span> <span style="color: #660066;">"=a"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"GrantAccess Result&nbsp;: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::<span style="color: #003399;">SetRegKeyAccess </span><span style="color: #660066;">"myuser"</span> <span style="color: #660066;">"HKLM"</span> <span style="color: #660066;">"SYSTEM\CurrentControlSet\Services\EventLog\Application\NTP"</span> <span style="color: #660066;">"=r"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"RevokeWriteAccess Result&nbsp;: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::<span style="color: #003399;">SetRegKeyAccess </span><span style="color: #660066;">"myuser"</span> <span style="color: #660066;">"HKLM"</span> <span style="color: #660066;">"SYSTEM\CurrentControlSet\Services\EventLog\Application\NTP"</span> <span style="color: #660066;">""</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"RevokeAccess Result&nbsp;: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::<span style="color: #003399;">DeleteAccount </span><span style="color: #660066;">"myuser"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"DeleteUser Result: $0"</span>
+&nbsp;
+        <span style="color: #666666; font-style: italic;">#######################################################################</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::CreateAccountEx <span style="color: #660066;">"myuserA"</span> <span style="color: #660066;">"mypassword"</span> <span style="color: #660066;">"A test user created by the UserMgr plugin"</span> <span style="color: #660066;">"My User A"</span> <span style="color: #660066;">"A test user created by the UserMgr plugin"</span> <span style="color: #660066;">"UF_PASSWD_NOTREQD|UF_DONT_EXPIRE_PASSWD"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"CreateUser Result&nbsp;: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::BuiltAccountEnv <span style="color: #660066;">"myuserA"</span> <span style="color: #660066;">"mypassword"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"BuiltAccountEnv Result&nbsp;: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::<span style="color: #003399;">RegLoadUserHive </span><span style="color: #660066;">"myuserA"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"RegLoadUserHive Result&nbsp;: $0"</span>
+&nbsp;
+        <span style="color: #000099;">WriteRegStr</span> <span style="color: #ff6600;">HKEY_USERS</span> <span style="color: #660066;">"myuserA\Software\My Company\My Software"</span> <span style="color: #660066;">"String Value"</span> <span style="color: #660066;">"dead beef"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::<span style="color: #003399;">RegUnLoadUserHive </span><span style="color: #660066;">"myuserA"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"RegUnLoadUserHive Result&nbsp;: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::ChangeUserPassword <span style="color: #660066;">"myuserA"</span> <span style="color: #660066;">"mypassword"</span> <span style="color: #660066;">"mypasswordb"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"ChangeUserPassword Result&nbsp;: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::SetUserInfo <span style="color: #660066;">"myuserA"</span> <span style="color: #660066;">"PASSWORD"</span> <span style="color: #660066;">"mypasswordc"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"SetUserInfo PASSWORD Result&nbsp;: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::<span style="color: #003399;">DeleteAccount </span><span style="color: #660066;">"myuserA"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"DeleteUser Result: $0"</span>
+&nbsp;
+        <span style="color: #666666; font-style: italic;">#######################################################################</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::<span style="color: #003399;">GetCurrentUserName
+</span>	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"GetCurrentUserName Result: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::GetSIDFromUserName <span style="color: #660066;">""</span> <span style="color: #660066;">"$0"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"GetSIDFromUserName Result: $0"</span>
+&nbsp;
+	<span style="color: #000099;">UserMgr</span>::GetUserNameFromSID <span style="color: #660066;">"$0"</span>
+	<span style="color: #000099;">Pop</span> <span style="color: #660000;">$0</span>
+        <span style="color: #000099;">MessageBox</span> <span style="color: #ff6600;">MB_OK</span> <span style="color: #660066;">"GetUserNameFromSID Result: $0"</span>
+&nbsp;
+<span style="color: #000066;">FunctionEnd</span>
+&nbsp;
+<span style="color: #000066;">Section</span>
+<span style="color: #000066;">SectionEnd</span></pre>
+<h2><span class="mw-headline" id="Incomplete_List_of_Account_Privileges">Incomplete List of Account Privileges</span></h2>
+<p>This list was taken from a web site and surely is not complete. You may have to ask Google or whoever to find out about certain privileges. 
+</p><p>"'Side note:"'
+On my machine I needed to "grant" a user the SeDenyInteractiveLogonRight to deny the account to log in interactively - although it did not possess the SeInteractiveLogonRight privilege and was not a a member of any group. This is the same with SeDenyBatchLogonRight, SeDenyNetworkLogonRight and SeDenyServiceLogonRight. You can clearly see that the "i" in Micro$oft stands for "inconsistency"&nbsp;:-)
+</p>
+<dl><dt> SeAssignPrimaryTokenPrivilege&nbsp;</dt>
+<dd>Replace a process level token</dd>
+<dt> SeAuditPrivilege&nbsp;</dt>
+<dd> Generate security audits</dd>
+<dt> SeBackupPrivilege&nbsp;</dt>
+<dd> Back up files and directories</dd>
+<dt> SeBatchLogonRight&nbsp;</dt>
+<dd> Log on as a batch job</dd>
+<dt> SeChangeNotifyPrivilege&nbsp;</dt>
+<dd> Bypass traverse checking</dd>
+<dt> SeCreatePagefilePrivilege&nbsp;</dt>
+<dd> Create a pagefile</dd>
+<dt> SeCreatePermanentPrivilege&nbsp;</dt>
+<dd> Create permanent shared objects</dd>
+<dt> SeCreateTokenPrivilege&nbsp;</dt>
+<dd> Create a token object</dd>
+<dt> SeDebugPrivilege&nbsp;</dt>
+<dd> Debug programs</dd>
+<dt> SeIncreaseBasePriorityPrivilege&nbsp;</dt>
+<dd> Increase scheduling priority</dd>
+<dt> SeIncreaseQuotaPrivilege&nbsp;</dt>
+<dd> Increase quotas</dd>
+<dt> SeInteractiveLogonRight&nbsp;</dt>
+<dd> Log on locally</dd>
+<dt> SeLoadDriverPrivilege&nbsp;</dt>
+<dd> Load and unload device drivers</dd>
+<dt> SeLockMemoryPrivilege&nbsp;</dt>
+<dd> Lock pages in memory</dd>
+<dt> SeMachineAccountPrivilege&nbsp;</dt>
+<dd> Add workstations to domain</dd>
+<dt> SeNetworkLogonRight&nbsp;</dt>
+<dd> Access this computer from the network</dd>
+<dt> SeProfileSingleProcessPrivilege&nbsp;</dt>
+<dd> Profile single process</dd>
+<dt> SeRemoteShutdownPrivilege&nbsp;</dt>
+<dd> Force shutdown from a remote system</dd>
+<dt> SeRestorePrivilege&nbsp;</dt>
+<dd> Restore files and directories</dd>
+<dt> SeSecurityPrivilege&nbsp;</dt>
+<dd> Manage auditing and security log</dd>
+<dt> SeServiceLogonRight&nbsp;</dt>
+<dd> Log on as a service</dd>
+<dt> SeShutdownPrivilege&nbsp;</dt>
+<dd> Shut down the system</dd>
+<dt> SeSystemEnvironmentPrivilege&nbsp;</dt>
+<dd> Modify firmware environment values</dd>
+<dt> SeSystemProfilePrivilege&nbsp;</dt>
+<dd> Profile system performance</dd>
+<dt> SeSystemtimePrivilege&nbsp;</dt>
+<dd> Change the system time</dd>
+<dt> SeTakeOwnershipPrivilege&nbsp;</dt>
+<dd> Take ownership of files or other objects</dd>
+<dt> SeTcbPrivilege&nbsp;</dt>
+<dd> Act as part of the operating system</dd>
+<dt> SeUnsolicitedInputPrivilege&nbsp;</dt>
+<dd> Read unsolicited input from a terminal device</dd></dl>
+<h2><span class="mw-headline" id="Changes">Changes</span></h2>
+<p>JPR 01 Jan 2008:
+</p>
+<ul><li> NetLocalGroupAddMembers used instead of NetGroupAddUser in the AddToGroup function to make it work. (Thanks to the article of CancerFace (<a class="external free" href="http://nsis.sourceforge.net/User_Management_using_API_calls">http://nsis.sourceforge.net/User_Management_using_API_calls</a>))</li>
+<li> PASSWORD added as possible FIELD for the SetUserInfo function. With this field the user password can be changed</li>
+<li> The function ChangeUserPassword is added to be able to change a user password</li>
+<li> The function CreateAccountEx is added to be able to add a fullname of a user (Shown in the Welcome Screen) and add flags to the user (Password never expires etc.)</li>
+<li> The function BuiltAccountEnv is added. This function creates the User Environment (Documents and settings\{User} folder, User Registry Hive etc. to be able to do something there without the need to login as the new created user first</li>
+<li> The function RegLoadUserHive is added. This function loads the User Registry hive in HKEY_USERS\{USERID} to be able to add keys and values to the HKEY_CURRENT_USER of this user</li>
+<li> The function RegUnLoadUserHive is added. This function unloads the User Registry hive</li></ul>
+<p>JPR 14 Jan 2008:
+</p>
+<ul><li> Fixed a small bug in GetUserInfo function</li>
+<li> Fixed 2 small bugs in SetUserInfo function</li>
+<li> Added GetCurrentUserName function</li>
+<li> Added GetLocalizedStdAccountName function</li>
+<li> Added IsMemberOfGroup function</li></ul>
+<p>JPR 15 Jan 2008:
+</p>
+<ul><li> Fixed a small bug in RegLoadUserHive function</li></ul>
+<p>JPR 01 Feb 2008:
+</p>
+<ul><li> Fixed a bug in SetUserInfo function when using for "FULLNAME"</li>
+<li> Added HasPrivilege function</li></ul>
+<p>JPR 22 Jan 2009:
+</p>
+<ul><li> Added GetCurrentDomain function</li></ul>
+<p>JPR 23 Jan 2009:
+</p>
+<ul><li> Fixed a bug crashing the installer</li></ul>
+<p>JPR 25 Jan 2009:
+</p>
+<ul><li> Return errorcode (WinError if available, else NTStatus) for LsaEnumerateAccountRights in function HasPrivilege</li>
+<li> Return FALSE if user has no privileges in function HasPrivilege</li></ul>
+<p>JPR 2 Sep 2009:
+</p>
+<ul><li> Added GetUserNameFromSID function</li>
+<li> Added GetSIDFromUserName function</li>
+<li> Fixed a problem in the RegLoadUserHive function when a user was deleted and then recreated</li></ul>
+
+<!-- 
+NewPP limit report
+CPU time usage: 0.269 seconds
+Real time usage: 0.305 seconds
+Preprocessor visited node count: 277/1000000
+Preprocessor generated node count: 606/1000000
+Post?expand include size: 191/2097152 bytes
+Template argument size: 36/2097152 bytes
+Highest expansion depth: 2/40
+Expensive parser function count: 0/100
+-->
+
+<!-- 
+Transclusion expansion time report (%,ms,calls,template)
+100.00%   27.233      1 - -total
+100.00%   27.233      1 - Template:PageAuthor
+-->
+
+<!-- Saved in parser cache with key n22049_wiki-wiki_:pcache:idhash:1070-0!*!0!!en!*!* and timestamp 20161214070846 and revision id 17609
+ -->
+</div>
+</body>
+</html>

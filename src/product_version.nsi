@@ -1,0 +1,24 @@
+!ifndef _NSIS_SETUP_LIB_PRODUCT_VERSION_NSI
+!define _NSIS_SETUP_LIB_PRODUCT_VERSION_NSI
+
+VIProductVersion "${PRODUCT_VERSION}"
+!ifdef LANG_ENGLISH
+  VIAddVersionKey /LANG=${LANG_ENGLISH} ProductVersion "${PRODUCT_VERSION}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} SpecialBuild "${BUILD_NUMBER}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} FileVersion "${PRODUCT_VERSION}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} ProductName "${PRODUCT_NAME_LANG_ENGLISH}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} CompanyName "${COMPANY_NAME_LANG_ENGLISH}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} FileDescription "${PRODUCT_FILE_DESC_LANG_ENGLISH}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} LegalCopyright "${LEGAL_COPYRIGHT_TEXT_LANG_ENGLISH}"
+!endif
+!ifdef LANG_RUSSIAN
+  VIAddVersionKey /LANG=${LANG_RUSSIAN} ProductVersion "${PRODUCT_VERSION}"
+  VIAddVersionKey /LANG=${LANG_RUSSIAN} SpecialBuild "${BUILD_NUMBER}"
+  VIAddVersionKey /LANG=${LANG_RUSSIAN} FileVersion "${PRODUCT_VERSION}"
+  VIAddVersionKey /LANG=${LANG_RUSSIAN} ProductName "${PRODUCT_NAME_LANG_RUSSIAN}"
+  VIAddVersionKey /LANG=${LANG_RUSSIAN} CompanyName "${COMPANY_NAME_LANG_RUSSIAN}"
+  VIAddVersionKey /LANG=${LANG_RUSSIAN} FileDescription "${PRODUCT_FILE_DESC_LANG_RUSSIAN}"
+  VIAddVersionKey /LANG=${LANG_RUSSIAN} LegalCopyright "${LEGAL_COPYRIGHT_TEXT_LANG_RUSSIAN}"
+!endif
+
+!endif
