@@ -88,4 +88,12 @@ src/winbase.nsi -text
 src/winctrl.nsi -text
 src/wingdi.nsi -text
 src/winuser.nsi -text
+tools/7zip/7-zip.chm -text
+tools/7zip/7z.exe -text
+tools/7zip/7za.dll -text
+tools/7zip/7za.exe -text
+tools/7zip/7zxa.dll -text
+tools/7zip/history.txt -text
+tools/7zip/license.txt -text
+tools/7zip/readme.txt -text
 tools/uuidgen.exe -text
