@@ -91,7 +91,7 @@ Function ${un}PostInitUserWin32
 
   #${PushShellVarContext} current
 
-  ; not all, see nsis/v3/include/WinCore.nsh for complete list
+  ; not all, see ${NSIS_ROOT}/include/WinCore.nsh for complete list
   System::Call "shell32::SHGetSpecialFolderPath(i $HWNDPARENT, t .R1, i ${CSIDL_APPDATA}, i 0) i.R9"
   StrCpy $APPDATA_CURRENT $R1
   System::Call "shell32::SHGetSpecialFolderPath(i $HWNDPARENT, t .R1, i ${CSIDL_LOCAL_APPDATA}, i 0) i.R9"
@@ -105,7 +105,7 @@ Function ${un}PostInitUserWin32
   
   #${PushShellVarContext} all
   
-  ; not all, see nsis/v3/include/WinCore.nsh for complete list
+  ; not all, see ${NSIS_ROOT}/include/WinCore.nsh for complete list
   System::Call "shell32::SHGetSpecialFolderPath(i $HWNDPARENT, t .R1, i ${CSIDL_COMMON_APPDATA}, i 0) i.R9"
   StrCpy $APPDATA_ALL $R1
   System::Call "shell32::SHGetSpecialFolderPath(i $HWNDPARENT, t .R1, i ${CSIDL_COMMON_DESKTOPDIRECTORY}, i 0) i.R9"
