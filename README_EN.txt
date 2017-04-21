@@ -13,8 +13,8 @@
 1. DESCRIPTION
 -------------------------------------------------------------------------------
 This is an all-in-one library for a setup project under the NSIS 3.x.
-Includes 3dparty libraries with set of forks, conversions, adoptations,
-bug fixes and new implementation.
+Includes 3dparty forked libraries recompiled with the latest NSIS SDK under the
+Microsoft Visual Studio 2010 including bug fix and new implementation.
 
 The latest version is here: sf.net/p/nsisplus
 
