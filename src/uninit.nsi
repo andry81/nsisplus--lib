@@ -1,7 +1,7 @@
 !ifndef _NSIS_SETUP_LIB_UNINIT_NSI
 !define _NSIS_SETUP_LIB_UNINIT_NSI
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\init.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\init.nsi"
 
 ; CAUTION:
 ;   * DO NOT unload/uninit plugins on non system event messages, overwise Access Violation may happen.
@@ -67,10 +67,14 @@ ${If} $QUITTING = 0
   DetailPrint "!ExitCall: ${msg}"
   StrCpy $MSG_ABORT "${msg}"
   !endif
-  !ifndef __UNINSTALL__
-  ${UninitInstall} "Exit"
-  !else
-  ${UninitUninstall} "Exit"
+  !ifdef Init_INCLUDED
+  ${If} $INITED <> 0 ; ignore uninit if is not inited
+    !ifndef __UNINSTALL__
+    ${UninitInstall} "Exit"
+    !else
+    ${UninitUninstall} "Exit"
+    !endif
+  ${EndIf}
   !endif
 ${EndIf}
 
@@ -96,7 +100,7 @@ StrCpy $QUIT_CMD "Quit" ; we are not in a section, quit immediately, otherwise a
 ${If} $QUITTING = 0
   StrCpy $QUITTING 1
 
-  DetailPrint "!AbortCall: event=${event}: aborting..."
+  DetailPrint "!AbortCall: cmd=$\"$QUIT_CMD$\" event=$\"${event}$\": aborting..."
 
   ; system won't call anything after Abort, so we must call UninitInstall/UninistUninstall at least with special exit code
   !if "${msg}" != ""
@@ -104,10 +108,14 @@ ${If} $QUITTING = 0
   MessageBox MB_OK|MB_TOPMOST|MB_SETFOREGROUND "${msg}" /SD IDOK
   StrCpy $MSG_ABORT "${msg}"
   !endif
-  !ifndef __UNINSTALL__
-  ${UninitInstall} "${event}"
-  !else
-  ${UninitUninstall} "${event}"
+  !ifdef Init_INCLUDED
+  ${If} $INITED <> 0 ; ignore uninit if is not inited
+    !ifndef __UNINSTALL__
+    ${UninitInstall} "${event}"
+    !else
+    ${UninitUninstall} "${event}"
+    !endif
+  ${EndIf}
   !endif
 ${EndIf}
 
@@ -166,10 +174,15 @@ ${Func_Abort} "${prefix}"
 
 !define !Abort "!insertmacro !Abort"
 !macro !Abort
-!ifndef __UNINSTALL__
-Call !Abort
+!ifdef Init_INCLUDED
+  !ifndef __UNINSTALL__
+  Call !Abort
+  !else
+  Call un.!Abort
+  !endif
 !else
-Call un.!Abort
+  Abort
+  Quit ; if not aborted
 !endif
 !macroend
 
@@ -187,10 +200,14 @@ ${Func_Quit} "${prefix}"
 
 !define !Quit "!insertmacro !Quit"
 !macro !Quit
-!ifndef __UNINSTALL__
-Call !Quit
+!ifdef Init_INCLUDED
+  !ifndef __UNINSTALL__
+  Call !Quit
+  !else
+  Call un.!Quit
+  !endif
 !else
-Call un.!Quit
+  Quit
 !endif
 !macroend
 
@@ -272,6 +289,7 @@ Function Uninit
   ${ExchStack1} $R0
   ;R0 - event_msg
 
+  StrCpy $INITED 0
   StrCpy $UNINIT_EVENT $R0
 
   ${If} $UNINITING = 0
@@ -373,6 +391,7 @@ Function un.Uninit
   ${ExchStack1} $R0
   ;R0 - event_msg
 
+  StrCpy $INITED 0
   StrCpy $UNINIT_EVENT $R0
 
   ${If} $UNINITING = 0

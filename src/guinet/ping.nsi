@@ -1,8 +1,8 @@
 !ifndef _NSIS_SETUP_LIB_GUINET_PING_NSI
 !define _NSIS_SETUP_LIB_GUINET_PING_NSI
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\net.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\gui.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\net.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\gui.nsi"
 
 ; UserMgr IP ping + status label + handler variables
 !define DeclareAddressPingGUIStatusLabelVariables "!insertmacro DeclareAddressPingGUIStatusLabelVariables"

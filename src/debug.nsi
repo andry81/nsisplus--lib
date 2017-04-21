@@ -1,9 +1,9 @@
 !ifndef _NSIS_SETUP_LIB_DEBUG_NSI
 !define _NSIS_SETUP_LIB_DEBUG_NSI
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\preprocessor.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\builtin.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\stack.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\preprocessor.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\builtin.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\stack.nsi"
 
 !define DBGID_STR_PREFIX "DBGID"
 !define WNDPROCID_STR_PREFIX "WNDPROCID"
@@ -189,10 +189,16 @@ Function ${un}DebugStackCheckFrameImpl_ImplAskAbort
     ${EndIf}
   ${EndIf}
 
-  !ifndef __UNINSTALL__
-  Call !Abort
+  !ifdef Init_INCLUDED
+    ; !AbortCall macro is not yet defined here
+    !ifndef __UNINSTALL__
+    Call !Abort
+    !else
+    Call un.!Abort
+    !endif
   !else
-  Call un.!Abort
+    Abort
+    Quit ; if not aborted
   !endif
 FunctionEnd
 
@@ -645,10 +651,16 @@ Function ${un}DebugStackPopAllRegsAndCheck_ImplAskAbort
     ${EndIf}
   ${EndIf}
 
-  !ifndef __UNINSTALL__
-  Call !Abort
+  !ifdef Init_INCLUDED
+    ; !AbortCall macro is not yet defined here
+    !ifndef __UNINSTALL__
+    Call !Abort
+    !else
+    Call un.!Abort
+    !endif
   !else
-  Call un.!Abort
+    Abort
+    Quit ; if not aborted
   !endif
 FunctionEnd
 

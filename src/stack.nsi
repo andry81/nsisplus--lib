@@ -3,8 +3,8 @@
 !ifndef _NSIS_SETUP_LIB_STACK_NSI
 !define _NSIS_SETUP_LIB_STACK_NSI
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\preprocessor.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\builtin.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\preprocessor.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\builtin.nsi"
 
 !define Func_DebugStackImpl "!insertmacro Func_DebugStackImpl"
 !macro Func_DebugStackImpl un
@@ -28,10 +28,16 @@ Function ${un}DebugStackPopExchOutOfStack_ImplAskAbort
     ${EndIf}
   ${EndIf}
 
-  !ifndef __UNINSTALL__
-  Call !Abort
+  !ifdef Init_INCLUDED
+    ; !AbortCall macro is not yet defined here
+    !ifndef __UNINSTALL__
+    Call !Abort
+    !else
+    Call un.!Abort
+    !endif
   !else
-  Call un.!Abort
+    Abort
+    Quit ; if not aborted
   !endif
 FunctionEnd
 
@@ -55,10 +61,16 @@ Function ${un}DebugStackInvalidCall_ImplAskAbort
     ${EndIf}
   ${EndIf}
 
-  !ifndef __UNINSTALL__
-  Call !Abort
+  !ifdef Init_INCLUDED
+    ; !AbortCall macro is not yet defined here
+    !ifndef __UNINSTALL__
+    Call !Abort
+    !else
+    Call un.!Abort
+    !endif
   !else
-  Call un.!Abort
+    Abort
+    Quit ; if not aborted
   !endif
 FunctionEnd
 !macroend

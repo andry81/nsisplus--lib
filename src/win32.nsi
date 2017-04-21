@@ -11,16 +11,16 @@
 !include "LogicLib.nsh"
 !endif
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\3dparty\UAC.nsh"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\3dparty\CommCtrl.nsh"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\3dparty\UAC.nsh"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\3dparty\CommCtrl.nsh"
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\preprocessor.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\stack.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\debug.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\winbase.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\winuser.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\wingdi.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\winctrl.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\preprocessor.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\stack.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\debug.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\winbase.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\winuser.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\wingdi.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\winctrl.nsi"
 
 ; -1 - UAC_RunElevation is not called
 ;  0 - UAC_RunElevation is not created new forked setup process

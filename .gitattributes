@@ -88,6 +88,13 @@ src/winbase.nsi -text
 src/winctrl.nsi -text
 src/wingdi.nsi -text
 src/winuser.nsi -text
+tests/_testlib/common.nsi -text
+tests/_testlib/config.nsi -text
+tests/build.impl.bat -text
+tests/configure.bat -text
+tests/test_RegAddRemovePathGUI/build.bat -text
+tests/test_RegAddRemovePathGUI/main.nsi -text
+tests/test_RegAddRemovePathGUI/test.bin -text
 tools/7zip/7-zip.chm -text
 tools/7zip/7z.exe -text
 tools/7zip/7za.dll -text

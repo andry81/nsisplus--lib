@@ -1,7 +1,7 @@
 !ifndef USER_MGR_INCLUDED
 !define USER_MGR_INCLUDED
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\win32.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\win32.nsi"
 
 !define SG_ADMINISTRATORS                 "S-1-5-32-544"
 !define SG_USERS                          "S-1-5-32-545"

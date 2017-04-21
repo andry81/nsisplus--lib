@@ -4,8 +4,8 @@
 !include "LogicLib.nsh"
 !include "WordFunc.nsh"
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\stack.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\ppcmd.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\stack.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\ppcmd.nsi"
 
 !define StrCpyIfEmpty "!insertmacro StrCpyIfEmpty"
 !macro StrCpyIfEmpty var str args_N
@@ -1505,7 +1505,7 @@ FunctionEnd
 !macro Include_UnquoteString un
 !ifndef ${un}UnquoteString_INCLUDED
 !define ${un}UnquoteString_INCLUDED
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\3dparty\NSISpcre.nsh"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\3dparty\NSISpcre.nsh"
 !insertmacro ${un}REMatches
 ${Func_UnquoteString} "${un}"
 !endif

@@ -1,7 +1,7 @@
 !ifndef _NSIS_SETUP_LIB_INIT_NSI
 !define _NSIS_SETUP_LIB_INIT_NSI
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\preprocessor.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\preprocessor.nsi"
 
 ; for enable/disable overall setup parameters
 ${!define_by_disable_flag} APP_DIR_INSTALL 0 ; to disable install/uninstall files from APP_DIR directory
@@ -30,7 +30,8 @@ Var /GLOBAL Missed_call_to_InitInstall_function
 Var /GLOBAL NULL
 Var /GLOBAL LAST_ERROR
 Var /GLOBAL LAST_STATUS_STR
-Var /GLOBAL UNINITING ; UninitInstall/UninitUnstall functions being called flag
+Var /GLOBAL INITED ; InitInstall/InitUninstall functions has been called and UninitInstall/UinitInstall is not
+Var /GLOBAL UNINITING ; UninitInstall/UninitInstall functions has being called flag
 Var /GLOBAL UNINIT_EVENT ; Uninit event message
 Var /GLOBAL QUITTING ; quit "in progress" flag
 Var /GLOBAL QUITCALLED ; specific flag to flag the Abort/Quit first time call ONLY
@@ -175,13 +176,13 @@ ${!define_guid16} _NSIS_SETUP_LIB_BUILD_GUID16
 !define _NSIS_SETUP_LIB_BUILD_DATE "${__DATE__}"
 !define _NSIS_SETUP_LIB_BUILD_TIME "${__TIME__}"
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\builtin.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\stack.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\debug.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\notify.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\uninit.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\win32.nsi"
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\utils.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\builtin.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\stack.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\debug.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\notify.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\uninit.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\win32.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\utils.nsi"
 
 ${Include_BeginMacroBodyFunction} ""
 ${Include_EndMacroBodyFunction} ""
@@ -248,6 +249,7 @@ Function Init_ImplBegin
   StrCpy $ERRORS_STACK ""
   StrCpy $LAST_ERROR 0
   StrCpy $LAST_STATUS_STR ""
+  StrCpy $INITED 0
   StrCpy $UNINITING 0
   StrCpy $UNINIT_EVENT ""
   StrCpy $QUITTING 0
@@ -560,6 +562,8 @@ Function Init_ImplEnd
 
   ${If} $ADMINISTRATIVE_INSTALL <> 0
   ${AndIf} $RAW_PARAM <> 0
+    StrCpy $INITED 1
+
     ; Extract files from setup executable via external 7-zip command line tool (must be UNICODE version, not ANSI version!)
     ; The result will be raw NSIS archive file system.
     File "/oname=$PluginsDir\7z.exe" "${TOOLS_PATH}\7zip\7z.exe"
@@ -584,6 +588,8 @@ Function Init_ImplEnd
   ; create handles from plugins here
   ${stack::dll_create} $WNDPROC_STACK_HANDLE
 
+  StrCpy $INITED 1
+
   ${DebugStackExitFrame} Init 1 0
 
   ${PopStack10} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9
@@ -592,6 +598,10 @@ FunctionEnd
 
 !define Include_InitInstall "!insertmacro Include_InitInstall"
 !macro Include_InitInstall
+!ifndef InitInstall_INCLUDED
+!define InitInstall_INCLUDED
+!define /redef Init_INCLUDED
+
 !ifndef StrRep_INCLUDED
 ${StrRep}
 !endif
@@ -610,6 +620,25 @@ ${Include_UnquoteString} ""
 ${Include_RebootStatus} ""
 ${Func_InitInstall}
 ${Func_InitInstallGUI}
+
+${Include_Exit} ""
+${Include_Exit} "un."
+${Include_Abort} ""
+${Include_Abort} "un."
+${Include_Quit} ""
+${Include_Quit} "un."
+
+${Include_GetLastNsisSetupExitStatus} ""
+${Include_ProcessLastNsisSetupExitStatus} ""
+${Include_Exec} ""
+${Include_ExecWait} ""
+${Include_ExecShell} ""
+${Include_ExecWaitNsisSetup} ""
+${Include_ExecWaitNoStdout} ""
+${Include_ExecWaitStdoutToLog} ""
+${Include_ExecWaitWusaSetup} ""
+
+!endif
 !macroend
 
 !define Func_InitUninstall "!insertmacro Func_InitUninstall"
@@ -631,6 +660,7 @@ Function un.Init
   StrCpy $ERRORS_STACK ""
   StrCpy $LAST_ERROR 0
   StrCpy $LAST_STATUS_STR ""
+  StrCpy $INITED 0
   StrCpy $UNINITING 0
   StrCpy $UNINIT_EVENT ""
   StrCpy $QUITTING 0
@@ -828,6 +858,8 @@ Function un.Init
   ; create handles from plugins here
   ${stack::dll_create} $WNDPROC_STACK_HANDLE
 
+  StrCpy $INITED 1
+
   ${DebugStackExitFrame} un.Init 1 0
 
   ${PopStack10} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9
@@ -836,6 +868,10 @@ FunctionEnd
 
 !define Include_InitUninstall "!insertmacro Include_InitUninstall"
 !macro Include_InitUninstall
+!ifndef InitUninstall_INCLUDED
+!define InitUninstall_INCLUDED
+!define /redef Init_INCLUDED
+
 !ifndef UnStrRep_INCLUDED
 ${UnStrRep}
 !endif
@@ -853,6 +889,8 @@ ${Include_UAC} "un."
 ${Include_UnquoteString} "un."
 ${Include_RebootStatus} "un."
 ${Func_InitUninstall}
+
+!endif
 !macroend
 
 !define Func_InitInstallGUI "!insertmacro Func_InitInstallGUI"
@@ -1484,7 +1522,7 @@ ${DeclareInstallFromArchiveImpl_Recur} "${def_if_var_list}" \
 
 !if ${ENABLE_INSTALL_FROM_ARCHIVE} <> 0
   !ifdef NSIS_WIN32_MAKENSIS
-    ${!define_iff_exist} _NSIS_SETUP_LIB_TOOLS_7ZIP_7ZA_EXIST 1 "${SETUP_LIBS_ROOT}\_NsisSetupLib\tools\7zip\7za.exe"
+    ${!define_iff_exist} _NSIS_SETUP_LIB_TOOLS_7ZIP_7ZA_EXIST 1 "${_NSIS_SETUP_LIB_ROOT}\tools\7zip\7za.exe"
   !else
     !error "7zip/7za executable call does not supported on this platform!"
   !endif
@@ -1516,7 +1554,7 @@ ${UnfoldMacroArgumentList} "${def_if_var_list}" ${current_elem_def} ${next_elems
 
 ; $Temp directory is shared between other installers, but $PluginsDir directory is unique
 CreateDirectory "$PluginsDir\7zip"
-File "/oname=$PluginsDir\7zip\7za.exe" "${SETUP_LIBS_ROOT}\_NsisSetupLib\tools\7zip\7za.exe"
+File "/oname=$PluginsDir\7zip\7za.exe" "${_NSIS_SETUP_LIB_ROOT}\tools\7zip\7za.exe"
 !macroend
 
 !define EndInstallFromArchive "!insertmacro EndInstallFromArchive"
@@ -1557,22 +1595,5 @@ ${EndIf}
 
 !undef InstallFromArchive__flag_IGNORE_ABSENT
 !macroend
-
-${Include_Exit} ""
-${Include_Exit} "un."
-${Include_Abort} ""
-${Include_Abort} "un."
-${Include_Quit} ""
-${Include_Quit} "un."
-
-${Include_GetLastNsisSetupExitStatus} ""
-${Include_ProcessLastNsisSetupExitStatus} ""
-${Include_Exec} ""
-${Include_ExecWait} ""
-${Include_ExecShell} ""
-${Include_ExecWaitNsisSetup} ""
-${Include_ExecWaitNoStdout} ""
-${Include_ExecWaitStdoutToLog} ""
-${Include_ExecWaitWusaSetup} ""
 
 !endif

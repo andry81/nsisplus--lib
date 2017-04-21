@@ -1,7 +1,7 @@
 !ifndef _NSIS_SETUP_LIB_BASIC_INSTALL_TMPL1_NSI
 !define _NSIS_SETUP_LIB_BASIC_INSTALL_TMPL1_NSI
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\uninit.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\uninit.nsi"
 
 !define MUI_CUSTOMFUNCTION_ABORT customUserAbort
 
@@ -120,22 +120,22 @@ ComponentText "$(COMPONENT_TEXT0)" "$(COMPONENT_TEXT1)" "$(COMPONENT_TEXT2)"
 ; Reserve files
 ReserveFile /plugin "InstallOptions.dll"
 ReserveFile /plugin "nsDialogs.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\LogEx.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\dumpstate.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\stack.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\StdUtils.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\UAC.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\registry.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\ShellLink.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\nsResize.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\NSISpcre.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\Locate.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\NotifyIcon.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\FindProcDLL.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\SimpleSC.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\SimpleFC.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\liteFirewall.dll"
-ReserveFile /plugin "${SETUP_LIBS_ROOT}\_NsisSetupLib\bin\UserMgr.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\LogEx.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\dumpstate.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\stack.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\StdUtils.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\UAC.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\registry.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\ShellLink.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\nsResize.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\NSISpcre.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\Locate.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\NotifyIcon.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\FindProcDLL.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\SimpleSC.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\SimpleFC.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\liteFirewall.dll"
+ReserveFile /plugin "${_NSIS_SETUP_LIB_ROOT}\bin\UserMgr.dll"
 
 # Installer attributes
 InstProgressFlags smooth colored

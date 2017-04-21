@@ -3,7 +3,7 @@
 !ifndef _NSIS_SETUP_LIB_BUILTIN_NSI
 !define _NSIS_SETUP_LIB_BUILTIN_NSI
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\preprocessor.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\preprocessor.nsi"
 
 Var /GLOBAL ERRORS
 Var /GLOBAL ERRORS_STACK ; to save/load the errors flag to/from variable

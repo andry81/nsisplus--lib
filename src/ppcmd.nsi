@@ -1,7 +1,7 @@
 !ifndef _NSIS_SETUP_LIB_PP_COMMAND_NSI
 !define _NSIS_SETUP_LIB_PP_COMMAND_NSI
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\preprocessor.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\preprocessor.nsi"
 
 !define SETUP_PP_KILL_PROC_EMPTY "!insertmacro SETUP_PP_KILL_PROC_EMPTY"
 !macro SETUP_PP_KILL_PROC_EMPTY proc_index

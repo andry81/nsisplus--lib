@@ -1,7 +1,7 @@
 !ifndef _NSIS_SETUP_LIB_SECTIONS_NSI
 !define _NSIS_SETUP_LIB_SECTIONS_NSI
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\utils.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\utils.nsi"
 
 #!define SECTIONS_INTERNAL_DEBUG 1
 !ifdef SECTIONS_INTERNAL_DEBUG

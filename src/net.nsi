@@ -1,7 +1,7 @@
 !ifndef _NSIS_SETUP_LIB_NET_NSI
 !define _NSIS_SETUP_LIB_NET_NSI
 
-!include "${SETUP_LIBS_ROOT}\_NsisSetupLib\src\utils.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\utils.nsi"
 
 !define ERROR_NETWORK_UNREACHABLE 1231
 !define ERROR_HOST_UNREACHABLE 1232
