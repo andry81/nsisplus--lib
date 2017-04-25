@@ -39,6 +39,7 @@ bin/liteFirewall_Readme.txt -text
 bin/locate.dll -text
 bin/nsResize.dll -text
 bin/nsResize_Readme.txt -text
+bin/nsisFile.dll -text
 bin/registry.dll -text
 bin/stack.dll -text
 bin/stack_readme.txt -text

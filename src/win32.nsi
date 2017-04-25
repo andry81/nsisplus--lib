@@ -2180,7 +2180,15 @@ Function ${un}CopyInstallFiles
     StrCpy $R1 "$R1\"
   ${EndIf}
 
-  ${If} ${FileExists} "$R1$R2"
+  ; convert path_from to absolute path
+  ${If} $R2 != ""
+    StrCpy $R4 $R2 1 1
+    ${If} $R4 != ":"
+      StrCpy $R2 "$R1$R2"
+    ${EndIf}
+  ${EndIf}
+
+  ${If} ${FileExists} "$R2"
     ${ReadRegDWORD} $R9 HKLM "$R0\InstallFilesCopy" "NumItems"
     ${If} "$R9" == ""
       StrCpy $R9 0
@@ -2194,7 +2202,7 @@ Function ${un}CopyInstallFiles
     ${WriteRegDWORD} HKLM "$R0\InstallFilesCopy" "NumItems" "$R9"
 
     ClearErrors
-    CopyFiles "$R1$R2" "$R1$R3"
+    CopyFiles "$R2" "$R1$R3"
     ${If} ${NoErrors}
       StrCpy $R4 0
     ${Else}
