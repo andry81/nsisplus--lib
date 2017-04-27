@@ -56,9 +56,11 @@ Function ${prefix}KillProc
       Goto Retry
     ${ElseIf} $KILLPROC_ERR <> 0
       DetailPrint "$(MSG_KILLPROC_PROC_CLOSE_ERROR)"
+      IntOp $KILLPROC_RETRY_NUM $KILLPROC_RETRY_NUM + 1
       Goto Retry
     ${Else}
       DetailPrint "$(MSG_KILLPROC_PROC_NOT_FOUND)"
+      IntOp $KILLPROC_RETRY_NUM $KILLPROC_RETRY_NUM + 1
       Goto Retry
     ${EndIf}
   ${Else}

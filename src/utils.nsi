@@ -216,12 +216,6 @@ ${Push} `${name}`
 Call ValidateRemoteHostName
 !macroend
 
-!define ValidateCrossFlowEnvName "!insertmacro ValidateCrossFlowEnvName"
-!macro ValidateCrossFlowEnvName name
-${Push} `${name}`
-Call ValidateCrossFlowEnvName
-!macroend
-
 !define Call_RemoveEmptyDirectoryPathImpl "!insertmacro Call_RemoveEmptyDirectoryPathImpl"
 !macro Call_RemoveEmptyDirectoryPathImpl prefix persistent_path remove_path
 ${Push} `${persistent_path}`
@@ -905,46 +899,6 @@ Function ValidateRemoteHostName
 
   StrLen $R1 $R0
   ${If} $R1 > 15
-  ${OrIf} $R1 < 1
-    ; invalid host name length
-    Goto error
-  ${EndIf}
-
-  ${StrFilter} $R0 "" "" "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789-" $R1
-  StrLen $R2 $R1
-  ${If} $R2 > 0
-    ; invalid characters used
-    ;   example: myhost!
-    Goto error
-  ${EndIf}
-
-  StrCpy $R1 $R0 1
-  ${StrFilter} $R1 "" "" "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_" $R2
-  StrLen $R1 $R2
-  ${If} $R1 > 0
-    ; invalid first character used
-    ;   example: 1myhost
-    Goto error
-  ${EndIf}
-
-  Goto end
-
-  error:
-  SetErrors
-
-  end:
-  ${PopStack3} $R0 $R1 $R2
-FunctionEnd
-
-Function ValidateCrossFlowEnvName
-  ClearErrors
-
-  ${ExchStack1} $R0
-  ; R0 - name
-  ${PushStack2} $R1 $R2
-
-  StrLen $R1 $R0
-  ${If} $R1 > 32
   ${OrIf} $R1 < 1
     ; invalid host name length
     Goto error
