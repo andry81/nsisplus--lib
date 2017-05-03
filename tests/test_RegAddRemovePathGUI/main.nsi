@@ -15,14 +15,29 @@
 !include "${_NSIS_SETUP_LIB_ROOT}\src\init.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\stack.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\utils.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\guiext.nsi"
 
 RequestExecutionLevel admin ; for all users
 
 Page Custom Show Leave
 
+Var /GLOBAL VariableName_EditID
+Var /GLOBAL VariableName_Edit
+Var /GLOBAL VariableValue_EditID
+Var /GLOBAL VariableValue_Edit ; TODO: replace by MessageBox macro with memory allocated strings support
+Var /GLOBAL VariableRead_ButtonID
+Var /GLOBAL VariableInfo_ValueLen
+Var /GLOBAL VariableInfo_ValueTypeStr
+Var /GLOBAL VariableInfo_ValueSize
+Var /GLOBAL VariableInfo_ValueAddr
+Var /GLOBAL VariableInfo_ValueType
+Var /GLOBAL VariableInfo_LabelID
+Var /GLOBAL VariableInfo_ButtonID
+
 Var /GLOBAL AddPath_EditID
 Var /GLOBAL AddPath_Edit
 Var /GLOBAL AddPath_ButtonID
+
 Var /GLOBAL IncludePathListToRemovePath_EditID
 Var /GLOBAL IncludePathListToRemovePath_Edit
 Var /GLOBAL ExcludePathListToRemovePath_EditID
@@ -31,50 +46,85 @@ Var /GLOBAL FileListToRemovePath_EditID
 Var /GLOBAL FileListToRemovePath_Edit
 Var /GLOBAL RemovePath_ButtonID
 
+Var /GLOBAL Update_IgnoreUpdate
+
 ; include for install only
 ${Include_RegAddPathToVar} ""
 ${Include_RegRemovePathFromVar} ""
+${Include_RegReadAllocValue} ""
 
 Function Show
+  StrCpy $VariableInfo_ValueAddr 0
+  StrCpy $Update_IgnoreUpdate 0
+  StrCpy $VariableInfo_ValueLen 0
+  StrCpy $VariableInfo_ValueTypeStr "<undefined>"
+
   nsDialogs::Create 1018
   Pop $DialogID
 
-  ${NSD_CreateLabel} 0 3u 12% 8u "Path:"
+  ${NSD_CreateLabel} 0 3u 12% 8u "Variable:"
   Pop $NULL
 
-  ${NSD_CreateText} 12% 0 68% 14u "C:\NewInstall\bin"
+  ${NSD_CreateText} 12% 0u 68% 14u "PATH"
+  Pop $VariableName_EditID
+  ${NSD_OnChange} $VariableName_EditID WndProc
+
+  ${NSD_CreateButton} 80% 0u 20% 14u "Read"
+  Pop $VariableRead_ButtonID
+  ${NSD_OnClick} $VariableRead_ButtonID WndProc
+
+  ${NSD_CreateLabel} 0 18u 12% 8u "Value:"
+  Pop $NULL
+
+  ${NSD_CreateText} 12% 15u 68% 14u ""
+  Pop $VariableValue_EditID
+  ${NSD_OnChange} $VariableValue_EditID WndProc
+
+  ${NSD_CreateButton} 80% 15u 20% 14u "Info"
+  Pop $VariableInfo_ButtonID
+  ${NSD_OnClick} $VariableInfo_ButtonID WndProc
+
+  ${NSD_CreateLabel} 12% 30u 88% 8u "Length: $VariableInfo_ValueLen; Type: $VariableInfo_ValueTypeStr"
+  Pop $VariableInfo_LabelID
+
+
+  ${NSD_CreateLabel} 0 53u 12% 8u "Path:"
+  Pop $NULL
+
+  ${NSD_CreateText} 12% 50u 68% 14u "C:\NewInstall\bin"
   Pop $AddPath_EditID
   ${NSD_OnChange} $AddPath_EditID WndProc
 
-  ${NSD_CreateButton} 80% 0 20% 14u "Append"
+  ${NSD_CreateButton} 80% 50u 20% 14u "Append"
   Pop $AddPath_ButtonID
   ${NSD_OnClick} $AddPath_ButtonID WndProc
 
 
-  ${NSD_CreateLabel} 0 43u 12% 8u "Includes:"
+  ${NSD_CreateLabel} 0 73u 12% 8u "Includes:"
   Pop $NULL
 
-  ${NSD_CreateText} 12% 40u 88% 14u "c:\NotExistedInstall\bin|c:\IncludedInstall\bin"
+  ${NSD_CreateText} 12% 70u 88% 14u "c:\NotExistedInstall\bin|c:\IncludedInstall\bin"
   Pop $IncludePathListToRemovePath_EditID
   ${NSD_OnChange} $IncludePathListToRemovePath_EditID WndProc
 
-  ${NSD_CreateLabel} 0 58u 12% 8u "Excludes:"
+  ${NSD_CreateLabel} 0 88u 12% 8u "Excludes:"
   Pop $NULL
 
-  ${NSD_CreateText} 12% 55u 88% 14u "%SystemRoot%|c:\ExcludedInstall"
+  ${NSD_CreateText} 12% 85u 88% 14u "%SystemRoot%|c:\ExcludedInstall"
   Pop $ExcludePathListToRemovePath_EditID
   ${NSD_OnChange} $ExcludePathListToRemovePath_EditID WndProc
 
-  ${NSD_CreateLabel} 0 73u 12% 8u "Files:"
+  ${NSD_CreateLabel} 0 103u 12% 8u "Files:"
   Pop $NULL
 
-  ${NSD_CreateText} 12% 70u 68% 14u "nonexisted.bin|test.bin"
+  ${NSD_CreateText} 12% 100u 68% 14u "nonexisted.bin|test.bin"
   Pop $FileListToRemovePath_EditID
   ${NSD_OnChange} $FileListToRemovePath_EditID WndProc
 
-  ${NSD_CreateButton} 80% 70u 20% 14u "Remove"
+  ${NSD_CreateButton} 80% 100u 20% 14u "Remove"
   Pop $RemovePath_ButtonID
   ${NSD_OnClick} $RemovePath_ButtonID WndProc
+
 
   StrCpy $R0 -1
   Call Update
@@ -83,6 +133,9 @@ Function Show
 FunctionEnd
 
 Function Leave
+  ${If} $VariableInfo_ValueAddr <> 0 ; deallocate buffer on page leave
+    ${SystemFree} $VariableInfo_ValueAddr
+  ${EndIf}
 FunctionEnd
 
 Function WndProc
@@ -92,7 +145,16 @@ Function WndProc
 FunctionEnd
 
 Function Update
+  ${If} $Update_IgnoreUpdate <> 0
+    Return
+  ${EndIf}
+
   ; read values
+  ${If} $R0 = $VariableName_EditID
+  ${OrIf} $R0 = -1
+    ${NSD_GetText} $VariableName_EditID $VariableName_Edit
+  ${EndIf}
+
   ${If} $R0 = $AddPath_EditID
   ${OrIf} $R0 = -1
     ${NSD_GetText} $AddPath_EditID $AddPath_Edit
@@ -113,15 +175,56 @@ Function Update
     ${NSD_GetText} $FileListToRemovePath_EditID $FileListToRemovePath_Edit
   ${EndIf}
 
+  ${If} $R0 = $VariableRead_ButtonID
+  ${AndIf} $VariableName_Edit != ""
+    ${If} $VariableInfo_ValueAddr <> 0 ; deallocate previous buffer
+      ${SystemFree} $VariableInfo_ValueAddr
+    ${EndIf}
+
+    #${RegReadAllocValue} HKCU "Environment" $VariableName_Edit $VariableInfo_ValueSize $VariableInfo_ValueAddr $VariableInfo_ValueType ; for current user
+    ${RegReadAllocValue} HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" $VariableName_Edit $VariableInfo_ValueSize $VariableInfo_ValueAddr $VariableInfo_ValueType ; for all users
+
+    StrCpy $VariableInfo_ValueLen 0
+    ${If} $VariableInfo_ValueSize > ${NSIS_CHAR_SIZE}
+      IntOp $VariableInfo_ValueLen $VariableInfo_ValueSize - ${NSIS_CHAR_SIZE}
+    ${EndIf}
+    IntOp $VariableInfo_ValueLen $VariableInfo_ValueLen / ${NSIS_CHAR_SIZE}
+    
+    ${RegGetValueTypeMap} $VariableInfo_ValueTypeStr $VariableInfo_ValueType
+    ${If} $VariableInfo_ValueTypeStr == ""
+      StrCpy $VariableInfo_ValueTypeStr "<undefined>"
+    ${EndIf}
+
+    StrCpy $Update_IgnoreUpdate 1 ; ignore any recursion
+    ${If} $VariableInfo_ValueAddr <> 0
+      ${NSD_SetTextAddr} $VariableValue_EditID $VariableInfo_ValueAddr
+    ${Else}
+      ${NSD_SetText} $VariableValue_EditID "<null>"
+    ${EndIf}
+
+    ShowWindow $VariableInfo_LabelID ${SW_HIDE}
+    ${NSD_SetText} $VariableInfo_LabelID "Length: $VariableInfo_ValueLen; Type: ($VariableInfo_ValueType) $VariableInfo_ValueTypeStr"
+    ShowWindow $VariableInfo_LabelID ${SW_SHOW} ; to force label update
+    StrCpy $Update_IgnoreUpdate 0
+
+    ${NSD_GetText} $VariableValue_EditID $VariableValue_Edit
+  ${EndIf}
+
+  ${If} $R0 = $VariableInfo_ButtonID
+    MessageBox MB_OK "Variable$\t: $VariableName_Edit$\nType$\t: ($VariableInfo_ValueType) $VariableInfo_ValueTypeStr$\nLength$\t: $VariableInfo_ValueLen$\nValue$\t: $\"$VariableValue_Edit$\""
+  ${EndIf}
+
   ${If} $R0 = $AddPath_ButtonID
+  ${AndIf} $VariableName_Edit != ""
     ${If} $AddPath_Edit != ""
-      #${RegAddPathToVar} "$AddPath_Edit" HKCU "Environment" PATH ; for current user
-      ${RegAddPathToVar} "$AddPath_Edit" HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" PATH ; for all users
+      #${RegAddPathToVar} "$AddPath_Edit" HKCU "Environment" $VariableName_Edit ; for current user
+      ${RegAddPathToVar} "$AddPath_Edit" HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" $VariableName_Edit ; for all users
     ${EndIf}
   ${EndIf}
 
   ${If} $R0 = $RemovePath_ButtonID
-    ${RegRemovePathFromVar} "$FileListToRemovePath_Edit" HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" PATH "$IncludePathListToRemovePath_Edit" "$ExcludePathListToRemovePath_Edit"
+  ${AndIf} $VariableName_Edit != ""
+    ${RegRemovePathFromVar} "$FileListToRemovePath_Edit" HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" $VariableName_Edit "$IncludePathListToRemovePath_Edit" "$ExcludePathListToRemovePath_Edit"
   ${EndIf}
 FunctionEnd
 

@@ -184,13 +184,13 @@ FunctionEnd
 
 Function ${page_name_prefix}_${ctrl_name_prefix}LogonStatus_CancelLogonAsync_Callback
   ${!define_list_value_by_index} "" \
-    ${page_name_prefix}_${ctrl_name_prefix}LogonStatus_CancelLongAsync_Callback__value_def \
+    ${page_name_prefix}_${ctrl_name_prefix}LogonStatus_CancelLogonAsync_Callback__value_def \
     3 "${callback_funcs}" "" ":"
-  !if "${${page_name_prefix}_${ctrl_name_prefix}LogonStatus_CancelLongAsync_Callback__value_def}" != ""
+  !if "${${page_name_prefix}_${ctrl_name_prefix}LogonStatus_CancelLogonAsync_Callback__value_def}" != ""
     #${PushStack4} "${page_name_prefix}" "${ctrl_name_prefix}" "Logon" "CancelLogonAsync"
-    Call ${${page_name_prefix}_${ctrl_name_prefix}LogonStatus_CancelLongAsync_Callback__value_def}
+    Call ${${page_name_prefix}_${ctrl_name_prefix}LogonStatus_CancelLogonAsync_Callback__value_def}
   !endif
-  !undef ${page_name_prefix}_${ctrl_name_prefix}LogonStatus_CancelLongAsync_Callback__value_def
+  !undef ${page_name_prefix}_${ctrl_name_prefix}LogonStatus_CancelLogonAsync_Callback__value_def
 FunctionEnd
 
 Function ${page_name_prefix}_${ctrl_name_prefix}LogonStatus_UpdateTimer

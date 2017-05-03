@@ -56,6 +56,15 @@ Var /GLOBAL SMPROGRAMS_ALL
 !define RDW_FRAME 0x0400
 !define RDW_NOFRAME 0x0800
 
+!define SystemFree "!insertmacro SystemFree"
+!macro SystemFree buf_var
+${If} "${buf_var}" != ""
+${AndIf} ${buf_var} <> 0
+  System::Free ${buf_var}
+  StrCpy ${buf_var} 0
+${EndIf}
+!macroend
+
 !define Func_PreInitUserWin32 "!insertmacro Func_PreInitUserWin32"
 !macro Func_PreInitUserWin32 un
 Function ${un}PreInitUserWin32
@@ -385,7 +394,7 @@ Function SelectListViewRow
   IntOp $R3 $R3 | ${LVIS_SELECTED}
   System::Call "*$R2(i,i,i,i,i) (${LVIF_STATE}, $R1, 0, $R3, $R3)"
   ${GUISendMessage} $R0 ${LVM_SETITEMSTATE} $R1 $R2
-  System::Free $R2
+  ${SystemFree} $R2
   #System::Call user32::InvalidateRect(p,p,i)i ($R0, 0, 1)"
   
   ${DebugStackExitFrame} SelectListViewRow 1 0
@@ -446,6 +455,46 @@ FunctionEnd
   ${EndSwitch}
 
   ${DebugStackExitFrame} RegGetKeyMap 1 0
+!macroend
+
+!define RegGetValueTypeMap "!insertmacro RegGetValueTypeMap"
+!macro RegGetValueTypeMap var type
+  ${DebugStackEnterFrame} RegGetValueTypeMap 1 0
+
+  ${Switch} ${type}
+    ${Case} "${REG_NONE}"
+      StrCpy ${var} "REG_NONE"
+    ${Break}
+    ${Case} "${REG_SZ}"
+      StrCpy ${var} "REG_SZ"
+    ${Break}
+    ${Case} "${REG_EXPAND_SZ}"
+      StrCpy ${var} "REG_EXPAND_SZ"
+    ${Break}
+    ${Case} "${REG_BINARY}"
+      StrCpy ${var} "REG_BINARY"
+    ${Break}
+    ${Case} "${REG_DWORD}"
+      StrCpy ${var} "REG_DWORD"
+    ${Break}
+    ${Case} "${REG_DWORD_LITTLE_ENDIAN}"
+      StrCpy ${var} "REG_DWORD_LITTLE_ENDIAN"
+    ${Break}
+    ${Case} "${REG_DWORD_BIG_ENDIAN}"
+      StrCpy ${var} "REG_DWORD_BIG_ENDIAN"
+    ${Break}
+    ${Case} "${REG_LINK}"
+      StrCpy ${var} "REG_LINK"
+    ${Break}
+    ${Case} "${REG_MULTI_SZ}"
+      StrCpy ${var} "REG_MULTI_SZ"
+    ${Break}
+    ${Default}
+      StrCpy ${var} ""
+    ${Break}
+  ${EndSwitch}
+
+  ${DebugStackExitFrame} RegGetValueTypeMap 1 0
 !macroend
 
 !define RegCallSysFuncPred "!insertmacro RegCallSysFuncPred"
@@ -544,6 +593,92 @@ __IfRegHiveIsUserProfiled_TRUE_${__IfRegHiveIsNotUserProfiled_CURRENT_MACRO_LINE
 
 ; Usage:
 ; All users:
+;   ${Push} "HKLM"
+;   ${Push} "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+;   ${Push} "<var_name>"
+;   Call RegReadAllocValue
+; Current user only:
+;   ${Push} "HKCU"
+;   ${Push} "Environment"
+;   ${Push} "<var_name>"
+;   Call RegReadAllocValue
+!macro Func_RegReadAllocValue un
+Function ${un}RegReadAllocValue
+  ${ExchStack3} $R0 $R1 $R2
+
+  ${PushStack7} $R3 $R4 $R5 $R6 $R7 $R8 $0
+
+  ; handles and pointers init
+  StrCpy $R5 0
+  StrCpy $R7 0
+  StrCpy $0 0
+
+  ; keys map
+  ${RegGetKeyMap} $R3 $R0
+
+  System::Call "advapi32::RegOpenKey(i R3, t R1, *i.R6) i.R4"
+  ${If} $R4 <> 0
+    DetailPrint "RegReadAllocValue: advapi32::RegOpenKey error: code=$R4 hive=$\"$R0$\" key=$\"$R1$\""
+    MessageBox MB_OK "RegReadAllocValue: advapi32::RegOpenKey error: code=$R4 hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
+    Goto exit
+  ${EndIf}
+
+  System::Call "advapi32::RegQueryValueEx(i R6, t R2, i 0, *i .R5, p 0, *i 0 R7) i.R4"
+  ${If} $R4 <> 0
+    DetailPrint "RegReadAllocValue: advapi32::RegQueryValueEx (1) is failed, unexpected error code: code=$R4 length=$\"$R7$\""
+    MessageBox MB_OK "RegReadAllocValue: advapi32::RegQueryValueEx (1) is failed, unexpected error code: code=$R4 length=$\"$R7$\"" /SD IDOK
+    Goto exit
+  ${EndIf}
+
+  StrCpy $R8 $R7
+
+  ; allocate dynamic buffer
+  System::Alloc $R8
+  Pop $0
+  ${If} $0 = 0
+    DetailPrint "RegReadAllocValue: System::Alloc (1) is failed: size=$R8"
+    MessageBox MB_OK "RegReadAllocValue: System::Alloc (1) is failed: size=$R8" /SD IDOK
+    Goto exit
+  ${EndIf}
+
+  System::Call "advapi32::RegQueryValueEx(i R6, t R2, i 0, i 0, p r0, *i R8 R7) i.R4"
+  ${If} $R4 <> 0
+    DetailPrint "RegReadAllocValue: advapi32::RegQueryValueEx (2) is failed, unexpected error: code=$R4 length=$\"$R7$\""
+    MessageBox MB_OK "RegReadAllocValue: advapi32::RegQueryValueEx (2) is failed, unexpected error: code=$R4 length=$\"$R7$\"" /SD IDOK
+    Goto exit
+  ${EndIf}
+
+exit:
+  System::Call "advapi32::RegCloseKey(i $R6)"
+
+  ${PushStack3} $R5 $0 $R7
+  ${ExchStackStack3} 7
+
+  ${PopStack10} $R3 $R4 $R5 $R6 $R7 $R8 $0 $R0 $R1 $R2
+FunctionEnd
+!macroend
+
+!define RegReadAllocValue "!insertmacro RegReadAllocValue"
+!macro RegReadAllocValue hkey hkey_path var_name value_size_var value_var value_type_var
+${PushStack3} `${hkey}` `${hkey_path}` `${var_name}`
+!ifndef __UNINSTALL__
+Call RegReadAllocValue
+!else
+Call un.RegReadAllocValue
+!endif
+${PopStack3} `${value_type_var}` `${value_var}` `${value_size_var}`
+!macroend
+
+!define Include_RegReadAllocValue "!insertmacro Include_RegReadAllocValue"
+!macro Include_RegReadAllocValue un
+!ifndef ${un}RegReadAllocValue_INCLUDED
+!define ${un}RegReadAllocValue_INCLUDED
+!insertmacro Func_RegReadAllocValue "${un}"
+!endif
+!macroend
+
+; Usage:
+; All users:
 ;   ${Push} "<path>"
 ;   ${Push} "HKLM"
 ;   ${Push} "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
@@ -604,8 +739,8 @@ Function ${un}RegAddPathToVar
 
   System::Call "advapi32::RegOpenKey(i R8, t R2, *i.R6) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegAddPathToVar: advapi32::RegOpenKey error: code=$R4 hive=$\"$R8$\" key=$\"$R2$\""
-    MessageBox MB_OK "RegAddPathToVar: advapi32::RegOpenKey error: code=$R4 hive=$\"$R8$\" key=$\"$R2$\"" /SD IDOK
+    DetailPrint "RegAddPathToVar: advapi32::RegOpenKey error: code=$R4 hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegAddPathToVar: advapi32::RegOpenKey error: code=$R4 hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -777,15 +912,9 @@ empty:
 exit:
   System::Call "advapi32::RegCloseKey(i $R6)"
 
-  ${If} $0 <> 0
-    System::Free $0
-  ${EndIf}
-  ${If} $1 <> 0
-    System::Free $1
-  ${EndIf}
-  ${If} $2 <> 0
-    System::Free $2
-  ${EndIf}
+  ${SystemFree} $0
+  ${SystemFree} $1
+  ${SystemFree} $2
 
   ${PopStack15} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $8 $9
 FunctionEnd
@@ -866,8 +995,8 @@ Function ${un}RegRemovePathFromVar
 
   System::Call "advapi32::RegOpenKey(i R8, t R2, *i.R6) i.R9"
   ${If} $R9 <> 0
-    DetailPrint "RegRemovePathFromVar: advapi32::RegOpenKey error: code=$R9 hive=$\"$R8$\" key=$\"$R2$\""
-    MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegOpenKey error: code=$R9 hive=$\"$R8$\" key=$\"$R2$\"" /SD IDOK
+    DetailPrint "RegRemovePathFromVar: advapi32::RegOpenKey error: code=$R9 hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegOpenKey error: code=$R9 hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -1177,12 +1306,8 @@ ready_to_update:
 exit:
   System::Call "advapi32::RegCloseKey(i $R6)"
 
-  ${If} $0 <> 0
-    System::Free $0
-  ${EndIf}
-  ${If} $1 <> 0
-    System::Free $1
-  ${EndIf}
+  ${SystemFree} $0
+  ${SystemFree} $1
 
   ${PopStack20} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
 FunctionEnd
@@ -3729,15 +3854,6 @@ ${Pop} $NULL
 System::Call "user32::SetWindowLong(p,i,l)l (${id}, ${GWL_USERDATA}, ${userdata_var})"
 StrCpy ${userdata_var} 0
 !endif
-!macroend
-
-!define SystemFree "!insertmacro SystemFree"
-!macro SystemFree buf_var
-${If} "${buf_var}" != ""
-${AndIf} ${buf_var} <> 0
-  System::Free ${buf_var}
-  StrCpy ${buf_var} 0
-${EndIf}
 !macroend
 
 !define GetWin32ErrorMesssage "!insertmacro GetWin32ErrorMesssage"

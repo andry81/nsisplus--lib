@@ -63,6 +63,7 @@ src/basic_lang_ru.nsi -text
 src/builtin.nsi -text
 src/debug.nsi -text
 src/gui.nsi -text
+src/guiext.nsi -text
 src/guinet.nsi -text
 src/guinet/logon.nsi -text
 src/guinet/ping.nsi -text
