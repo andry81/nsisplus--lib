@@ -1581,4 +1581,59 @@ ${EndIf}
 !verbose pop
 !macroend
 
+!define SystemCallRegisterStaticMap "!insertmacro SystemCallRegisterStaticMap"
+!macro SystemCallRegisterStaticMap var_def value
+!if "${value}" == "$R0"
+  !define ${var_def} "R0"
+!else if "${value}" == "$R1"
+  !define ${var_def} "R1"
+!else if "${value}" == "$R2"
+  !define ${var_def} "R2"
+!else if "${value}" == "$R3"
+  !define ${var_def} "R3"
+!else if "${value}" == "$R4"
+  !define ${var_def} "R4"
+!else if "${value}" == "$R5"
+  !define ${var_def} "R5"
+!else if "${value}" == "$R6"
+  !define ${var_def} "R6"
+!else if "${value}" == "$R7"
+  !define ${var_def} "R7"
+!else if "${value}" == "$R8"
+  !define ${var_def} "R8"
+!else if "${value}" == "$R9"
+  !define ${var_def} "R9"
+!else if "${value}" == "$0"
+  !define ${var_def} "r0"
+!else if "${value}" == "$1"
+  !define ${var_def} "r1"
+!else if "${value}" == "$2"
+  !define ${var_def} "r2"
+!else if "${value}" == "$3"
+  !define ${var_def} "r3"
+!else if "${value}" == "$4"
+  !define ${var_def} "r4"
+!else if "${value}" == "$5"
+  !define ${var_def} "r5"
+!else if "${value}" == "$6"
+  !define ${var_def} "r6"
+!else if "${value}" == "$7"
+  !define ${var_def} "r7"
+!else if "${value}" == "$8"
+  !define ${var_def} "r8"
+!else if "${value}" == "$9"
+  !define ${var_def} "r9"
+!else
+  !define ${var_def} ""
+!endif
+!macroend
+
+!define SystemCallRegisterStaticMapOrError "!insertmacro SystemCallRegisterStaticMapOrError"
+!macro SystemCallRegisterStaticMapOrError var_def value
+${SystemCallRegisterStaticMap} "${var_def}" "${value}"
+!if "${${var_def}}" == ""
+  !error "SystemCallRegisterStaticMap: register is unknown: register=$\"${value}$\""
+!endif
+!macroend
+
 !endif

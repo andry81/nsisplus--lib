@@ -1,3 +1,5 @@
+; functions uses win32 API as a dependency or rely on win32 API as a base
+
 !ifndef _NSIS_SETUP_LIB_WIN32_NSI
 !define _NSIS_SETUP_LIB_WIN32_NSI
 
@@ -21,6 +23,7 @@
 !include "${_NSIS_SETUP_LIB_ROOT}\src\winuser.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\wingdi.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\winctrl.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\win32util.nsi"
 
 ; -1 - UAC_RunElevation is not called
 ;  0 - UAC_RunElevation is not created new forked setup process
@@ -404,8 +407,6 @@ FunctionEnd
 
 !define RegGetKeyMap "!insertmacro RegGetKeyMap"
 !macro RegGetKeyMap var value
-  ${DebugStackEnterFrame} RegGetKeyMap 1 0
-
   ${Switch} ${value}
     ${Case} "HKCR"
       StrCpy ${var} ${HKEY_CLASSES_ROOT}
@@ -453,14 +454,10 @@ FunctionEnd
       StrCpy ${var} ${HKEY_CURRENT_USER}
     ${Break}
   ${EndSwitch}
-
-  ${DebugStackExitFrame} RegGetKeyMap 1 0
 !macroend
 
 !define RegGetValueTypeMap "!insertmacro RegGetValueTypeMap"
 !macro RegGetValueTypeMap var type
-  ${DebugStackEnterFrame} RegGetValueTypeMap 1 0
-
   ${Switch} ${type}
     ${Case} "${REG_NONE}"
       StrCpy ${var} "REG_NONE"
@@ -493,8 +490,6 @@ FunctionEnd
       StrCpy ${var} ""
     ${Break}
   ${EndSwitch}
-
-  ${DebugStackExitFrame} RegGetValueTypeMap 1 0
 !macroend
 
 !define RegCallSysFuncPred "!insertmacro RegCallSysFuncPred"
@@ -2833,6 +2828,53 @@ FunctionEnd
 !define Include_GetAbsolutePath "!insertmacro Include_GetAbsolutePath"
 !macro Include_GetAbsolutePath prefix
 ${Func_GetAbsolutePath} "${prefix}"
+!macroend
+
+!define GetLongPathName "!insertmacro GetLongPathName"
+!macro GetLongPathName var path
+!ifndef __UNINSTALL__
+${Call_GetLongPathName} "" `${var}` `${path}`
+!else
+${Call_GetLongPathName} "un." `${var}` `${path}`
+!endif
+!macroend
+
+!define Call_GetLongPathName "!insertmacro Call_GetLongPathName"
+!macro Call_GetLongPathName prefix var path
+${DebugStackEnterFrame} Call_GetLongPathName 0 1
+
+${Push} `${path}`
+Call ${prefix}GetLongPathName
+${Pop} $DEBUG_RET0
+
+${DebugStackExitFrame} Call_GetLongPathName 0 1
+
+StrCpy `${var}` $DEBUG_RET0
+!macroend
+
+!define Func_GetLongPathName "!insertmacro Func_GetLongPathName"
+!macro Func_GetLongPathName un
+Function ${un}GetLongPathName
+  ${ExchStack1} $R0
+  ;R0 - path
+  ${PushStack3} $R1 $R2 $R9
+
+  ${DebugStackEnterFrame} `${un}GetLongPathName` 1 0
+
+  System::Call "kernel32::GetLongPathName(t R0, t .R9, i ${NSIS_MAX_STRLEN}, p 0) i"
+
+  ${DebugStackExitFrame} `${un}GetLongPathName` 1 0
+
+  ${Push} $R9
+  ${Exch} 4
+
+  ${PopStack4} $R1 $R2 $R9 $R0
+FunctionEnd
+!macroend
+
+!define Include_GetLongPathName "!insertmacro Include_GetLongPathName"
+!macro Include_GetLongPathName prefix
+${Func_GetLongPathName} "${prefix}"
 !macroend
 
 ; ReadRegStr

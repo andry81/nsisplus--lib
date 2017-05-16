@@ -74,7 +74,29 @@ Var /GLOBAL DEBUG_ST2
 
 Var /GLOBAL GOTO_R0 ; temporary value before Goto operation to avoid Push/Pop operation over the real 0-9/R0-R9 registers
 
-; temporary registers to return values into 0-9/R0-R9 registers from macroses by register name
+; temporary storage to store macro arguments
+Var /GLOBAL MACRO_ARG0
+Var /GLOBAL MACRO_ARG1
+Var /GLOBAL MACRO_ARG2
+Var /GLOBAL MACRO_ARG3
+Var /GLOBAL MACRO_ARG4
+Var /GLOBAL MACRO_ARG5
+Var /GLOBAL MACRO_ARG6
+Var /GLOBAL MACRO_ARG7
+Var /GLOBAL MACRO_ARG8
+Var /GLOBAL MACRO_ARG9
+Var /GLOBAL MACRO_ARG10
+Var /GLOBAL MACRO_ARG11
+Var /GLOBAL MACRO_ARG12
+Var /GLOBAL MACRO_ARG13
+Var /GLOBAL MACRO_ARG14
+Var /GLOBAL MACRO_ARG15
+Var /GLOBAL MACRO_ARG16
+Var /GLOBAL MACRO_ARG17
+Var /GLOBAL MACRO_ARG18
+Var /GLOBAL MACRO_ARG19
+
+; temporary registers to pop/return values into/from 0-9/R0-R9 registers in a macros by a register name
 Var /GLOBAL MACRO_POP_VAR0
 Var /GLOBAL MACRO_POP_VAR1
 Var /GLOBAL MACRO_POP_VAR2

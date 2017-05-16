@@ -86,6 +86,7 @@ src/stack.nsi -text
 src/uninit.nsi -text
 src/utils.nsi -text
 src/win32.nsi -text
+src/win32util.nsi -text
 src/winbase.nsi -text
 src/winctrl.nsi -text
 src/wingdi.nsi -text
