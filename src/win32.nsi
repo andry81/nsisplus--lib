@@ -591,14 +591,20 @@ __IfRegHiveIsUserProfiled_TRUE_${__IfRegHiveIsNotUserProfiled_CURRENT_MACRO_LINE
 ;   ${Push} "HKLM"
 ;   ${Push} "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
 ;   ${Push} "<var_name>"
-;   Call RegReadAllocValue
+;   Call RegReadToAllocValue
+;   ${Pop} "<value_type>"
+;   ${Pop} "<value_addr>"
+;   ${Pop} "<value_size>"
 ; Current user only:
 ;   ${Push} "HKCU"
 ;   ${Push} "Environment"
 ;   ${Push} "<var_name>"
-;   Call RegReadAllocValue
-!macro Func_RegReadAllocValue un
-Function ${un}RegReadAllocValue
+;   Call RegReadToAllocValue
+;   ${Pop} "<value_type>"
+;   ${Pop} "<value_addr>"
+;   ${Pop} "<value_size>"
+!macro Func_RegReadToAllocValue un
+Function ${un}RegReadToAllocValue
   ${ExchStack3} $R0 $R1 $R2
 
   ${PushStack7} $R3 $R4 $R5 $R6 $R7 $R8 $0
@@ -613,15 +619,15 @@ Function ${un}RegReadAllocValue
 
   System::Call "advapi32::RegOpenKey(i R3, t R1, *i.R6) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegReadAllocValue: advapi32::RegOpenKey error: code=$R4 hive=$\"$R0$\" key=$\"$R1$\""
-    MessageBox MB_OK "RegReadAllocValue: advapi32::RegOpenKey error: code=$R4 hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
+    DetailPrint "RegReadToAllocValue: advapi32::RegOpenKey error: code=$R4 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    MessageBox MB_OK "RegReadToAllocValue: advapi32::RegOpenKey error: code=$R4 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R2, i 0, *i .R5, p 0, *i 0 R7) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegReadAllocValue: advapi32::RegQueryValueEx (1) is failed, unexpected error code: code=$R4 length=$\"$R7$\""
-    MessageBox MB_OK "RegReadAllocValue: advapi32::RegQueryValueEx (1) is failed, unexpected error code: code=$R4 length=$\"$R7$\"" /SD IDOK
+    DetailPrint "RegReadToAllocValue: advapi32::RegQueryValueEx (1) error: code=$R4 size=$R7 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    MessageBox MB_OK "RegReadToAllocValue: advapi32::RegQueryValueEx (1) error: code=$R4 size=$R7 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -631,15 +637,15 @@ Function ${un}RegReadAllocValue
   System::Alloc $R8
   Pop $0
   ${If} $0 = 0
-    DetailPrint "RegReadAllocValue: System::Alloc (1) is failed: size=$R8"
-    MessageBox MB_OK "RegReadAllocValue: System::Alloc (1) is failed: size=$R8" /SD IDOK
+    DetailPrint "RegReadToAllocValue: System::Alloc (1) error: size=$R8 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    MessageBox MB_OK "RegReadToAllocValue: System::Alloc (1) error: size=$R8 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R2, i 0, i 0, p r0, *i R8 R7) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegReadAllocValue: advapi32::RegQueryValueEx (2) is failed, unexpected error: code=$R4 length=$\"$R7$\""
-    MessageBox MB_OK "RegReadAllocValue: advapi32::RegQueryValueEx (2) is failed, unexpected error: code=$R4 length=$\"$R7$\"" /SD IDOK
+    DetailPrint "RegReadToAllocValue: advapi32::RegQueryValueEx (2) error: code=$R4 size=$R7 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    MessageBox MB_OK "RegReadToAllocValue: advapi32::RegQueryValueEx (2) error: code=$R4 size=$R7 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -653,22 +659,91 @@ exit:
 FunctionEnd
 !macroend
 
-!define RegReadAllocValue "!insertmacro RegReadAllocValue"
-!macro RegReadAllocValue hkey hkey_path var_name value_size_var value_var value_type_var
+!define RegReadToAllocValue "!insertmacro RegReadToAllocValue"
+!macro RegReadToAllocValue hkey hkey_path var_name value_size_var value_addr_var value_type_var
 ${PushStack3} `${hkey}` `${hkey_path}` `${var_name}`
 !ifndef __UNINSTALL__
-Call RegReadAllocValue
+Call RegReadToAllocValue
 !else
-Call un.RegReadAllocValue
+Call un.RegReadToAllocValue
 !endif
-${PopStack3} `${value_type_var}` `${value_var}` `${value_size_var}`
+${PopStack3} `${value_type_var}` `${value_addr_var}` `${value_size_var}`
 !macroend
 
-!define Include_RegReadAllocValue "!insertmacro Include_RegReadAllocValue"
-!macro Include_RegReadAllocValue un
-!ifndef ${un}RegReadAllocValue_INCLUDED
-!define ${un}RegReadAllocValue_INCLUDED
-!insertmacro Func_RegReadAllocValue "${un}"
+!define Include_RegReadToAllocValue "!insertmacro Include_RegReadToAllocValue"
+!macro Include_RegReadToAllocValue un
+!ifndef ${un}RegReadToAllocValue_INCLUDED
+!define ${un}RegReadToAllocValue_INCLUDED
+!insertmacro Func_RegReadToAllocValue "${un}"
+!endif
+!macroend
+
+; Usage:
+; All users:
+;   ${Push} "HKLM"
+;   ${Push} "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+;   ${Push} "<var_name>"
+;   ${Push} "<value_size>"
+;   ${Push} "<value_addr>"
+;   ${Push} "<value_type>"
+;   Call RegSetAllocValue
+; Current user only:
+;   ${Push} "HKCU"
+;   ${Push} "Environment"
+;   ${Push} "<var_name>"
+;   ${Push} "<value_size>"
+;   ${Push} "<value_addr>"
+;   ${Push} "<value_type>"
+;   Call RegSetAllocValue
+!macro Func_RegSetAllocValue un
+Function ${un}RegSetAllocValue
+  ${ExchStack6} $R0 $R1 $R2 $R3 $R4 $R5
+
+  ${PushStack3} $R6 $R8 $R9
+
+  ; keys map
+  ${RegGetKeyMap} $R8 $R0
+
+  System::Call "advapi32::RegOpenKey(i R8, t R1, *i.R6) i.R9"
+  ${If} $R9 <> 0
+    DetailPrint "RegSetAllocValue: advapi32::RegOpenKey error: code=$R9 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    MessageBox MB_OK "RegSetAllocValue: advapi32::RegOpenKey error: code=$R9 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
+    Goto exit
+  ${EndIf}
+
+  ${If} $R4 <> 0
+    System::Call "advapi32::RegSetValueEx(i R6, t R2, i 0, i R5, p R4, i R3) i.R9"
+  ${ElseIf} $R3 = 1 ; to clear the key in case of null address the size must be 1
+    System::Call "advapi32::RegSetValueEx(i R6, t R2, i 0, i R5, t '', i ${NSIS_CHAR_SIZE}) i.R9"
+  ${EndIf}
+  ${If} $R9 <> 0
+    DetailPrint "RegSetAllocValue: advapi32::RegSetValueEx error: code=$R9 size=$R3 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    MessageBox MB_OK "RegSetAllocValue: advapi32::RegSetValueEx error: code=$R9 size=$R3 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
+    Goto exit
+  ${EndIf}
+
+exit:
+  System::Call "advapi32::RegCloseKey(i $R6)"
+
+  ${PopStack9} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R8 $R9
+FunctionEnd
+!macroend
+
+!define RegSetAllocValue "!insertmacro RegSetAllocValue"
+!macro RegSetAllocValue hkey hkey_path var_name value_size value_addr value_type
+${PushStack6} `${hkey}` `${hkey_path}` `${var_name}` `${value_size}` `${value_addr}` `${value_type}`
+!ifndef __UNINSTALL__
+Call RegSetAllocValue
+!else
+Call un.RegSetAllocValue
+!endif
+!macroend
+
+!define Include_RegSetAllocValue "!insertmacro Include_RegSetAllocValue"
+!macro Include_RegSetAllocValue un
+!ifndef ${un}RegSetAllocValue_INCLUDED
+!define ${un}RegSetAllocValue_INCLUDED
+!insertmacro Func_RegSetAllocValue "${un}"
 !endif
 !macroend
 
@@ -698,7 +773,7 @@ Function ${un}RegAddPathToVar
 
   ; The IDEAL algorithm for any length long PATH variable, where each subpath and function paramaters is not longer than ${NSIS_MAX_STRLEN}-${NSIS_CHAR_SIZE} bytes:
   ;   1. Init current string list if does not have any before or take as current has created after the previous algorithm run.
-  ;   2. Read string of ${NSIS_MAX_STRLEN}-${NSIS_CHAR_SIZE} bytes length into the array of ${NSIS_MAX_STRLEN} bytes length from the input address, add NSIS_CHAR_SIZE nulls at the end.
+  ;   2. Read string of ${NSIS_MAX_STRLEN}-${NSIS_CHAR_SIZE} bytes length into the array of ${NSIS_MAX_STRLEN} bytes length from the input address, add NSIS_CHAR_SIZE null at the end.
   ;   3. Go to 20 if empty or nothing else except the ; characters in the array.
   ;   4. Truncate all in the array after the last ; character, where the ; character has found not under " character quoted string (see description in the 6).
   ;   5. Split strings in the array by the ; character if it has found not under " character quoted string into the list.
@@ -734,15 +809,15 @@ Function ${un}RegAddPathToVar
 
   System::Call "advapi32::RegOpenKey(i R8, t R2, *i.R6) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegAddPathToVar: advapi32::RegOpenKey error: code=$R4 hive=$\"$R1$\" key=$\"$R2$\""
+    DetailPrint "RegAddPathToVar: advapi32::RegOpenKey error: code=$R4 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegAddPathToVar: advapi32::RegOpenKey error: code=$R4 hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R3, i 0, *i .r9, p 0, *i 0 R7) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegAddPathToVar: advapi32::RegQueryValueEx (1) is failed, unexpected error code: code=$R4 length=$\"$R7$\""
-    MessageBox MB_OK "RegAddPathToVar: advapi32::RegQueryValueEx (1) is failed, unexpected error code: code=$R4 length=$\"$R7$\"" /SD IDOK
+    DetailPrint "RegAddPathToVar: advapi32::RegQueryValueEx (1) error: code=$R4 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegAddPathToVar: advapi32::RegQueryValueEx (1) error: code=$R4 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -759,15 +834,15 @@ Function ${un}RegAddPathToVar
   System::Alloc $R5
   Pop $0
   ${If} $0 = 0
-    DetailPrint "RegAddPathToVar: System::Alloc (1) is failed: size=$R5"
-    MessageBox MB_OK "RegAddPathToVar: System::Alloc (1) is failed: size=$R5" /SD IDOK
+    DetailPrint "RegAddPathToVar: System::Alloc (1) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegAddPathToVar: System::Alloc (1) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R3, i 0, i 0, p r0, *i R5 R7) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegAddPathToVar: advapi32::RegQueryValueEx (2) is failed, unexpected error: code=$R4 length=$\"$R7$\""
-    MessageBox MB_OK "RegAddPathToVar: advapi32::RegQueryValueEx (2) is failed, unexpected error: code=$R4 length=$\"$R7$\"" /SD IDOK
+    DetailPrint "RegAddPathToVar: advapi32::RegQueryValueEx (2) error: code=$R4 size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegAddPathToVar: advapi32::RegQueryValueEx (2) error: code=$R4 size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -801,8 +876,8 @@ strip_loop1:
   System::Alloc $R5
   Pop $1
   ${If} $1 = 0
-    DetailPrint "RegAddPathToVar: System::Alloc (2) is failed: size=$R5"
-    MessageBox MB_OK "RegAddPathToVar: System::Alloc (2) is failed: size=$R5" /SD IDOK
+    DetailPrint "RegAddPathToVar: System::Alloc (2) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegAddPathToVar: System::Alloc (2) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -811,8 +886,8 @@ strip_loop1:
   IntOp $R9 $1 + ${NSIS_CHAR_SIZE}
   System::Call "kernel32::lstrcpyn(p R9, p r0, i R7) p.R4"
   ${If} $R4 = 0
-    DetailPrint "RegAddPathToVar: kernel32::lstrcpyn (1) is failed"
-    MessageBox MB_OK "RegAddPathToVar: kernel32::lstrcpyn (1) is failed" /SD IDOK
+    DetailPrint "RegAddPathToVar: kernel32::lstrcpyn (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegAddPathToVar: kernel32::lstrcpyn (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -830,8 +905,8 @@ strip_loop1:
   System::Alloc $R5
   Pop $2
   ${If} $2 = 0
-    DetailPrint "RegAddPathToVar: System::Alloc (3) is failed: size=$R5"
-    MessageBox MB_OK "RegAddPathToVar: System::Alloc (3) is failed: size=$R5" /SD IDOK
+    DetailPrint "RegAddPathToVar: System::Alloc (3) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegAddPathToVar: System::Alloc (3) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -844,8 +919,8 @@ strip_loop1:
   IntOp $R9 $2 + ${NSIS_CHAR_SIZE}
   System::Call "kernel32::lstrcpy(p R9, t R0) p.R4"
   ${If} $R4 = 0
-    DetailPrint "RegAddPathToVar: kernel32::lstrcpy (2) is failed"
-    MessageBox MB_OK "RegAddPathToVar: kernel32::lstrcpy (2) is failed" /SD IDOK
+    DetailPrint "RegAddPathToVar: kernel32::lstrcpy (2) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegAddPathToVar: kernel32::lstrcpy (2) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -883,8 +958,8 @@ empty:
 
   System::Call "kernel32::lstrcpy(p R9, t R0) p.R4"
   ${If} $R4 = 0
-    DetailPrint "RegAddPathToVar: kernel32::lstrcpy (3) is failed"
-    MessageBox MB_OK "RegAddPathToVar: kernel32::lstrcpy (3) is failed" /SD IDOK
+    DetailPrint "RegAddPathToVar: kernel32::lstrcpy (3) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegAddPathToVar: kernel32::lstrcpy (3) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -896,8 +971,8 @@ empty:
 
   System::Call "advapi32::RegSetValueEx(i R6, t R3, i 0, i r9, p r0, i R5) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegAddPathToVar: advapi32::RegSetValueEx (1) is failed"
-    MessageBox MB_OK "RegAddPathToVar: advapi32::RegSetValueEx (1) is failed" /SD IDOK
+    DetailPrint "RegAddPathToVar: advapi32::RegSetValueEx (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegAddPathToVar: advapi32::RegSetValueEx (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -990,15 +1065,15 @@ Function ${un}RegRemovePathFromVar
 
   System::Call "advapi32::RegOpenKey(i R8, t R2, *i.R6) i.R9"
   ${If} $R9 <> 0
-    DetailPrint "RegRemovePathFromVar: advapi32::RegOpenKey error: code=$R9 hive=$\"$R1$\" key=$\"$R2$\""
-    MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegOpenKey error: code=$R9 hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
+    DetailPrint "RegRemovePathFromVar: advapi32::RegOpenKey error: code=$R9 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegOpenKey error: code=$R9 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R3, i 0, *i .r9, p 0, *i 0 R7) i.R9"
   ${If} $R9 <> 0
-    DetailPrint "RegRemovePathFromVar: advapi32::RegQueryValueEx (1) is failed, unexpected error code: code=$R9 length=$\"$R7$\""
-    MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegQueryValueEx (1) is failed, unexpected error code: code=$R9 length=$\"$R7$\"" /SD IDOK
+    DetailPrint "RegRemovePathFromVar: advapi32::RegQueryValueEx (1) error: code=$R9 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegQueryValueEx (1) error: code=$R9 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -1015,8 +1090,8 @@ Function ${un}RegRemovePathFromVar
   System::Alloc $5
   Pop $0
   ${If} $0 = 0
-    DetailPrint "RegRemovePathFromVar: System::Alloc (1) is failed: size=$5"
-    MessageBox MB_OK "RegRemovePathFromVar: System::Alloc (1) is failed: size=$5" /SD IDOK
+    DetailPrint "RegRemovePathFromVar: System::Alloc (1) error: size=$5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegRemovePathFromVar: System::Alloc (1) error: size=$5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -1024,8 +1099,8 @@ Function ${un}RegRemovePathFromVar
   System::Alloc $5
   Pop $1
   ${If} $1 = 0
-    DetailPrint "RegRemovePathFromVar: System::Alloc (2) is failed: size=$5"
-    MessageBox MB_OK "RegRemovePathFromVar: System::Alloc (2) is failed: size=$5" /SD IDOK
+    DetailPrint "RegRemovePathFromVar: System::Alloc (2) error: size=$5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegRemovePathFromVar: System::Alloc (2) error: size=$5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -1035,8 +1110,8 @@ Function ${un}RegRemovePathFromVar
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R3, i 0, i 0, p R9, *i r5 R7) i.r4"
   ${If} $4 <> 0
-    DetailPrint "RegRemovePathFromVar: advapi32::RegQueryValueEx (2) is failed, unexpected error: code=$4 length=$\"$R7$\""
-    MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegQueryValueEx (2) is failed, unexpected error: code=$4 length=$\"$R7$\"" /SD IDOK
+    DetailPrint "RegRemovePathFromVar: advapi32::RegQueryValueEx (2) error: code=$4 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegQueryValueEx (2) error: code=$4 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -1084,15 +1159,15 @@ Function ${un}RegRemovePathFromVar
       ; string move through the double copy
       System::Call "kernel32::lstrcpy(p r1, p r8) p.r4"
       ${If} $4 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (1) is failed"
-        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (1) is failed" /SD IDOK
+        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
 
       System::Call "kernel32::lstrcpy(p R9, p r1) p.r4"
       ${If} $4 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (2) is failed"
-        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (2) is failed" /SD IDOK
+        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (2) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (2) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
 
@@ -1113,15 +1188,15 @@ Function ${un}RegRemovePathFromVar
       ; string move through the double copy
       System::Call "kernel32::lstrcpy(p r1, p r8) p.r4"
       ${If} $4 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (3) is failed"
-        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (3) is failed" /SD IDOK
+        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (3) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (3) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
 
       System::Call "kernel32::lstrcpy(p R9, p r1) p.r4"
       ${If} $4 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (4) is failed"
-        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (4) is failed" /SD IDOK
+        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (4) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (4) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
 
@@ -1245,15 +1320,15 @@ excludes_check_end:
       ; string move through the double copy
       System::Call "kernel32::lstrcpy(p r1, p R7) p.r6"
       ${If} $6 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (5) is failed"
-        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (5) is failed" /SD IDOK
+        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (5) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (5) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
 
       System::Call "kernel32::lstrcpy(p R9, p r1) p.r6"
       ${If} $6 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (6) is failed"
-        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (6) is failed" /SD IDOK
+        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (6) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (6) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
 
@@ -1290,8 +1365,8 @@ ready_to_update:
 
   System::Call "advapi32::RegSetValueEx(i R6, t R3, i 0, i r9, p R9, i r4) i.r6"
   ${If} $6 <> 0
-    DetailPrint "RegRemovePathFromVar: advapi32::RegSetValueEx (1) is failed"
-    MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegSetValueEx (1) is failed" /SD IDOK
+    DetailPrint "RegRemovePathFromVar: advapi32::RegSetValueEx (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegSetValueEx (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
@@ -2861,8 +2936,15 @@ Function ${un}GetLongPathName
 
   ${DebugStackEnterFrame} `${un}GetLongPathName` 1 0
 
+  StrCpy $R9 ""
+
+  ${If} $R0 == ""
+    Goto end ; ignore empty paths
+  ${EndIf}
+
   System::Call "kernel32::GetLongPathName(t R0, t .R9, i ${NSIS_MAX_STRLEN}, p 0) i"
 
+  end:
   ${DebugStackExitFrame} `${un}GetLongPathName` 1 0
 
   ${Push} $R9
