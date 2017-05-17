@@ -18,7 +18,6 @@
   StrCpy $R0 0 ; size
   StrCpy $R9 0 ; address
 
-  # System::Call "user32::SendMessage "
   System::Call "user32::GetWindowTextLength(p ${ctrl}) i.R0"
   ${If} $R0 = 0
     Goto ${__NSD_GetTextAlloc__LABELID_EXIT}
