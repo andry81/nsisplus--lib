@@ -78,4 +78,36 @@ StrCpy $0 0
 !undef StrIndexOf__LABELID_QUIT
 !macroend
 
+!define DerefUint32 "!insertmacro DerefUint32"
+!macro DerefUint32 value_var addr offset
+${PushStack2} `${addr}` `${offset}`
+!ifdef NSIS_UNICODE
+nsisPlus::_DerefUint32W
+!else
+nsisPlus::_DerefUint32A
+!endif
+${PopStack1} `${value_var}`
+!macroend
+
+!define CommandLineToArgv "!insertmacro CommandLineToArgv"
+!macro CommandLineToArgv addr status_var argv_addr_var argc_var
+${PushStack1} `${addr}`
+!ifdef NSIS_UNICODE
+nsisPlus::_CommandLineToArgvW
+!else
+nsisPlus::_CommandLineToArgvA
+!endif
+${PopStack3} `${argc_var}` `${argv_addr_var}` `${status_var}`
+!macroend
+
+!define LocalFree "!insertmacro LocalFree"
+!macro LocalFree addr
+${PushStack1} `${addr}`
+!ifdef NSIS_UNICODE
+nsisPlus::_LocalFreeW
+!else
+nsisPlus::_LocalFreeA
+!endif
+!macroend
+
 !endif

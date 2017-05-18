@@ -43,6 +43,16 @@ bin/nsisFile.dll -text
 bin/registry.dll -text
 bin/stack.dll -text
 bin/stack_readme.txt -text
+build/libs/nsis/include/api.h -text
+build/libs/nsis/include/nsis_tchar.h -text
+build/libs/nsis/include/pluginapi.h -text
+build/libs/nsis/lib/pluginapi-x86-ansi.lib -text
+build/libs/nsis/lib/pluginapi-x86-unicode.lib -text
+build/nsisPlus.dll -text
+build/nsisPlus.sln -text
+build/nsisPlus.vcxproj -text
+build/src/nsisPlus.cpp -text
+build/src/nsisPlus.h -text
 /license.txt -text
 src/3dparty/CommCtrl.nsh -text
 src/3dparty/CommCtrl.txt -text
@@ -98,6 +108,8 @@ tests/configure.bat -text
 tests/test_RegAddRemovePathGUI/build.bat -text
 tests/test_RegAddRemovePathGUI/main.nsi -text
 tests/test_RegAddRemovePathGUI/test.bin -text
+tests/test_cmd_line_ansi/build.bat -text
+tests/test_cmd_line_ansi/main.nsi -text
 tools/7zip/7-zip.chm -text
 tools/7zip/7z.exe -text
 tools/7zip/7za.dll -text
