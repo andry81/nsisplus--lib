@@ -17,6 +17,8 @@
 !include "${_NSIS_SETUP_LIB_ROOT}\src\utils.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\guiext.nsi"
 
+Name "${TEST_TITLE}"
+
 RequestExecutionLevel admin ; for all users
 
 Page Custom Show Leave

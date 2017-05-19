@@ -10,6 +10,8 @@
 !include "${_NSIS_SETUP_LIB_ROOT}\src\stack.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\win32util.nsi"
 
+Name "${TEST_TITLE}"
+
 !insertmacro MUI_PAGE_INSTFILES
 
 !ifdef NSIS_UNICODE
