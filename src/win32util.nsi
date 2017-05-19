@@ -89,6 +89,17 @@ nsisPlus::_DerefUint32A
 ${PopStack1} `${value_var}`
 !macroend
 
+!define GetArgv "!insertmacro GetArgv"
+!macro GetArgv value_var addr offset
+${PushStack2} `${addr}` `${offset}`
+!ifdef NSIS_UNICODE
+nsisPlus::_GetArgvW
+!else
+nsisPlus::_GetArgvA
+!endif
+${PopStack1} `${value_var}`
+!macroend
+
 !define CommandLineToArgv "!insertmacro CommandLineToArgv"
 !macro CommandLineToArgv addr status_var argv_addr_var argc_var
 ${PushStack1} `${addr}`

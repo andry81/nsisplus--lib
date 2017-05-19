@@ -175,6 +175,74 @@ NSISFunction(_DerefUint32W)
 	}
 }
 
+NSISFunction(_GetArgvA)
+{
+	EXDLL_INIT();
+	extra->RegisterPluginCallback(g_hInstance, PluginCallback);
+	{
+		char ** ptr = 0;
+		unsigned int offset = 0;
+
+		// buffers at the end
+		char buf_ptr[32] = {0};
+		char buf_offset[32] = {0};
+
+		g_hwndParent = hwndParent;
+
+		PopStringA(buf_offset);
+		PopStringA(buf_ptr);
+
+		ptr = (char **)atoi(buf_ptr);
+		if (!ptr) {
+			PushStringA("");
+			return;
+		}
+
+		offset = atoi(buf_offset);
+
+		if (!ptr[offset]) {
+			PushStringA("");
+			return;
+		}
+
+		PushStringA(ptr[offset]);
+	}
+}
+
+NSISFunction(_GetArgvW)
+{
+	EXDLL_INIT();
+	extra->RegisterPluginCallback(g_hInstance, PluginCallback);
+	{
+		WCHAR ** ptr = 0;
+		unsigned int offset = 0;
+
+		// buffers at the end
+		WCHAR buf_ptr[32] = {0};
+		WCHAR buf_offset[32] = {0};
+
+		g_hwndParent = hwndParent;
+
+		PopStringW(buf_offset);
+		PopStringW(buf_ptr);
+
+		ptr = (WCHAR **)_wtoi(buf_ptr);
+		if (!ptr) {
+			PushStringW(L"");
+			return;
+		}
+
+		offset = _wtoi(buf_offset);
+
+		if (!ptr[offset]) {
+			PushStringW(L"");
+			return;
+		}
+
+		PushStringW(ptr[offset]);
+	}
+}
+
 NSISFunction(_CommandLineToArgvW)
 {
 	EXDLL_INIT();
