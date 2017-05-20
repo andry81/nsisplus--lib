@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2017.04.18
+* 2017.05.20
 * NsisSetupLib
 
 1. DESCRIPTION
@@ -25,8 +25,8 @@ WARNING:
 -------------------------------------------------------------------------------
 2. LICENSE
 -------------------------------------------------------------------------------
-The Boost license (see included text file "license.txt" or
-http://www.boost.org/users/license.html)
+The MIT license (see included text file "license.txt" or
+https://en.wikipedia.org/wiki/MIT_License)
 
 -------------------------------------------------------------------------------
 3. PREREQUISITES
