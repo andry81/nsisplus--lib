@@ -35,10 +35,10 @@ Var /GLOBAL NUM_TESTS_PASSED
 	StrCpy $0 0
 	StrCpy $R1 0
 
-	System::Alloc 4
+	System::Alloc 128
 	Pop $0
 	IntCmp $0 0 ${TestImpl__LABEL_ID_FAILED}
-	System::Call "*$0(&t128 '$TEST_ARG0')" ; CAUTION: may crash here because of too big size in &t argument
+	System::Call "*$0(&t128 '$TEST_ARG0')"
 	DetailPrint "Test $NUM_TESTS: $0: $TEST_ARG0"
 	DetailPrint "$\t* Ethalon: `$TEST_SEQ0`"
 
