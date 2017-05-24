@@ -60,11 +60,11 @@ StrCpy $QUIT_CMD "Quit"
 ${If} $QUITTING = 0
   StrCpy $QUITTING 1
 
-  DetailPrint "!ExitCall: exiting..."
+  ${DetailPrint} "!ExitCall: exiting..."
 
   ; system won't call anything after Abort, so we must call UninitInstall/UninistUninstall at least with special exit code
   !if "${msg}" != ""
-  DetailPrint "!ExitCall: ${msg}"
+  ${DetailPrint} "!ExitCall: ${msg}"
   StrCpy $MSG_ABORT "${msg}"
   !endif
   !ifdef Init_INCLUDED
@@ -100,11 +100,11 @@ StrCpy $QUIT_CMD "Quit" ; we are not in a section, quit immediately, otherwise a
 ${If} $QUITTING = 0
   StrCpy $QUITTING 1
 
-  DetailPrint "!AbortCall: cmd=$\"$QUIT_CMD$\" event=$\"${event}$\": aborting..."
+  ${DetailPrint} "!AbortCall: cmd=$\"$QUIT_CMD$\" event=$\"${event}$\": aborting..."
 
   ; system won't call anything after Abort, so we must call UninitInstall/UninistUninstall at least with special exit code
   !if "${msg}" != ""
-  DetailPrint "!AbortCall: ${msg}"
+  ${DetailPrint} "!AbortCall: ${msg}"
   MessageBox MB_OK|MB_TOPMOST|MB_SETFOREGROUND "${msg}" /SD IDOK
   StrCpy $MSG_ABORT "${msg}"
   !endif
@@ -147,8 +147,11 @@ FunctionEnd
 !macroend
 
 !define Include_Exit "!insertmacro Include_Exit"
-!macro Include_Exit prefix
-${Func_Exit} "${prefix}"
+!macro Include_Exit un
+!ifndef ${un}Exit_INCLUDED
+!define ${un}Exit_INCLUDED
+${Func_Exit} "${un}"
+!endif
 !macroend
 
 !define !Exit "!insertmacro !Exit"
@@ -168,8 +171,11 @@ FunctionEnd
 !macroend
 
 !define Include_Abort "!insertmacro Include_Abort"
-!macro Include_Abort prefix
-${Func_Abort} "${prefix}"
+!macro Include_Abort un
+!ifndef ${un}Abort_INCLUDED
+!define ${un}Abort_INCLUDED
+${Func_Abort} "${un}"
+!endif
 !macroend
 
 !define !Abort "!insertmacro !Abort"
@@ -194,8 +200,11 @@ FunctionEnd
 !macroend
 
 !define Include_Quit "!insertmacro Include_Quit"
-!macro Include_Quit prefix
-${Func_Quit} "${prefix}"
+!macro Include_Quit un
+!ifndef ${un}Quit_INCLUDED
+!define ${un}Quit_INCLUDED
+${Func_Quit} "${un}"
+!endif
 !macroend
 
 !define !Quit "!insertmacro !Quit"
@@ -275,6 +284,9 @@ StrCpy $PLUGINS_UNLOADED 1
 !ifndef __UNINSTALL__
 RMDir "$SETUP_SESSION_DIR_PATH_LOCAL"
 !endif
+
+StrCmp $INSTDIR_TMP "" +2
+RMDir /r "$INSTDIR_TMP" ; user temporary install directory
 
 ; in case of abortion we must cleanup PluginsDir recursively
 RMDir /r "$PluginsDir"
@@ -381,8 +393,11 @@ FunctionEnd
 
 !define Include_UninitInstall "!insertmacro Include_UninitInstall"
 !macro Include_UninitInstall
+!ifndef ${un}UninitInstall_INCLUDED
+!define ${un}UninitInstall_INCLUDED
 ${Func_UninitInstall}
 ${Func_UninitInstallGUI}
+!endif
 !macroend
 
 !define Func_UninitUninstall "!insertmacro Func_UninitUninstall"
@@ -467,7 +482,10 @@ FunctionEnd
 
 !define Include_UninitUninstall "!insertmacro Include_UninitUninstall"
 !macro Include_UninitUninstall
+!ifndef ${un}UninitUninstall_INCLUDED
+!define ${un}UninitUninstall_INCLUDED
 ${Func_UninitUninstall}
+!endif
 !macroend
 
 !define Func_UninitInstallGUI "!insertmacro Func_UninitInstallGUI"
@@ -488,7 +506,7 @@ Function AskSetupInstallAbort
 
   ${IfNot} ${Silent}
   ${OrIf} $COMPONENTS_SILENT_INSTALL = 0
-    DetailPrint "$(MSG_SETUP_INSTALL_ABORT_LOG)"
+    ${DetailPrint} "$(MSG_SETUP_INSTALL_ABORT_LOG)"
     MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$(MSG_SETUP_INSTALL_ABORT_ASKING)" /SD IDNO IDYES abort
   ${EndIf}
   Goto end
@@ -502,12 +520,9 @@ FunctionEnd
 
 !define ProcessLastNsisSetupExitStatus "!insertmacro ProcessLastNsisSetupExitStatus"
 !macro ProcessLastNsisSetupExitStatus cmd args setup_ini_out return_code_inout_var
-${Call_BeginMacroBodyFunction} "" ; macro currently available in installation section ONLY
-
 ${DebugStackEnterFrame} ProcessLastNsisSetupExitStatus 0 1
 
 ${PushStack4} `${cmd}` `${args}` `${setup_ini_out}` `${return_code_inout_var}`
-
 !ifndef __UNINSTALL__
 Call ProcessLastNsisSetupExitStatus
 !else
@@ -532,7 +547,7 @@ Function ${un}ProcessLastNsisSetupExitStatus
 
   ${DebugStackEnterFrame} ProcessLastNsisSetupExitStatus 1 0
 
-  DetailPrint "Last error code: $LAST_ERROR"
+  ${DetailPrint} "Last error code: $LAST_ERROR"
   ${UpdateSilentSetupNotify}
 
   ${If} $R2 != ""
@@ -547,13 +562,13 @@ Function ${un}ProcessLastNsisSetupExitStatus
       ${Case} "Exit"
         ${Break}
       ${Default}
-        DetailPrint "$R9"
+        ${DetailPrint} $R9
         ${IfNot} ${Silent}
         ${OrIf} $COMPONENTS_SILENT_INSTALL = 0
           ; set return_code as last error level
           SetErrorLevel $R3
 
-          DetailPrint "$(MSG_SETUP_INSTALL_ABORT_LOG)"
+          ${DetailPrint} "$(MSG_SETUP_INSTALL_ABORT_LOG)"
           MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$R9$\n$\n$(MSG_SETUP_INSTALL_ABORT_ASKING)" /SD IDNO IDYES 0 IDNO continue
 
           ${!AbortCall} Abort $R8 ""
@@ -570,7 +585,7 @@ Function ${un}ProcessLastNsisSetupExitStatus
       ; set return_code as last error level
       SetErrorLevel $R3
 
-      DetailPrint "$(MSG_SETUP_INSTALL_ABORT_LOG)"
+      ${DetailPrint} "$(MSG_SETUP_INSTALL_ABORT_LOG)"
       MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$(MSG_SETUP_INSTALL_ABORT_ASKING)" /SD IDNO IDYES 0 IDNO continue
 
       ${!Abort}
@@ -580,16 +595,17 @@ Function ${un}ProcessLastNsisSetupExitStatus
   continue:
   ${DebugStackExitFrame} ProcessLastNsisSetupExitStatus 1 0
 
-  ${PushStack1} $R3
-  ${ExchStack1} 6
-
-  ${PopStack6} $R1 $R2 $R3 $R8 $R9 $R0
+  ${PopPushStack6} "$R3" " " $R0 $R1 $R2 $R3 $R8 $R9
 FunctionEnd
 !macroend
 
 !define Include_ProcessLastNsisSetupExitStatus "!insertmacro Include_ProcessLastNsisSetupExitStatus"
-!macro Include_ProcessLastNsisSetupExitStatus prefix
-${Func_ProcessLastNsisSetupExitStatus} "${prefix}"
+!macro Include_ProcessLastNsisSetupExitStatus un
+!ifndef ${un}ProcessLastNsisSetupExitStatus_INCLUDED
+!define ${un}ProcessLastNsisSetupExitStatus_INCLUDED
+${Include_DetailPrint} "${un}"
+${Func_ProcessLastNsisSetupExitStatus} "${un}"
+!endif
 !macroend
 
 !endif

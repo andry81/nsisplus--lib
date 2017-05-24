@@ -4,6 +4,10 @@
 !include "${_NSIS_SETUP_LIB_ROOT}\src\preprocessor.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\builtin.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\stack.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\log.nsi"
+
+${Include_DetailPrint} ""
+${Include_DetailPrint} "un."
 
 !define DBGID_STR_PREFIX "DBGID"
 !define WNDPROCID_STR_PREFIX "WNDPROCID"
@@ -55,7 +59,7 @@
 ${DebugMessageBoxImpl_DumpStateRecur} "${flags}" ${DebugMessageBox__SD_used} \
   DebugMessageBox_DumpStateRecur__current_elem_def DebugMessageBox_DumpStateRecur__next_elems_def
 
-DetailPrint "${func_name}: ${msg_header}$\n$\n|cur_src_id=$\"${current_src_id}$\"$\n|prev_src_id=$\"${prev_src_id}$\"$\n$\n${msg_body}"
+${DetailPrint} "${func_name}: ${msg_header}$\n$\n|cur_src_id=$\"${current_src_id}$\"$\n|prev_src_id=$\"${prev_src_id}$\"$\n$\n${msg_body}"
 ${If} $DEBUG <> 0 ; if debug then always show, even in silent mode
   MessageBox "${DebugMessageBox__flags}" \
     "${msg_header}$\n$\n|Executable: $\"$EXEPATH$\"$\n|PluginsDir: $\"$PluginsDir$\"$\n|Function: ${func_name}$\n|Current Src ID: $\"${current_src_id}$\"$\n|Previous Src ID: $\"${prev_src_id}$\"$\n$\n${msg_body}" \
@@ -206,8 +210,11 @@ FunctionEnd
 !macroend
 
 !define Include_DebugStackCheckFrameImpl "!insertmacro Include_DebugStackCheckFrameImpl"
-!macro Include_DebugStackCheckFrameImpl prefix
-${Func_DebugStackCheckFrameImpl} "${prefix}"
+!macro Include_DebugStackCheckFrameImpl un
+!ifndef ${un}DebugStackCheckFrameImpl_INCLUDED
+!define ${un}DebugStackCheckFrameImpl_INCLUDED
+${Func_DebugStackCheckFrameImpl} "${un}"
+!endif
 !macroend
 
 ; implementation core procedure to pop from a stack and parse for the marker
@@ -265,8 +272,11 @@ FunctionEnd
 !macroend
 
 !define Include_DebugStackPopForMarkerFrameImpl "!insertmacro Include_DebugStackPopForMarkerFrameImpl"
-!macro Include_DebugStackPopForMarkerFrameImpl prefix
-${Func_DebugStackPopForMarkerFrameImpl} "${prefix}"
+!macro Include_DebugStackPopForMarkerFrameImpl un
+!ifndef ${un}DebugStackPopForMarkerFrameImpl_INCLUDED
+!define ${un}DebugStackPopForMarkerFrameImpl_INCLUDED
+${Func_DebugStackPopForMarkerFrameImpl} "${un}"
+!endif
 
 !verbose pop
 !macroend
@@ -668,8 +678,11 @@ FunctionEnd
 !macroend
 
 !define Include_DebugStackPopAllRegsAndCheckImpl "!insertmacro Include_DebugStackPopAllRegsAndCheckImpl"
-!macro Include_DebugStackPopAllRegsAndCheckImpl prefix
-${Func_DebugStackPopAllRegsAndCheckImpl} "${prefix}"
+!macro Include_DebugStackPopAllRegsAndCheckImpl un
+!ifndef ${un}DebugStackPopAllRegsAndCheckImpl_INCLUDED
+!define ${un}DebugStackPopAllRegsAndCheckImpl_INCLUDED
+${Func_DebugStackPopAllRegsAndCheckImpl} "${un}"
+!endif
 !macroend
 
 !define DebugStackPopAllRegsAndCheckImpl "!insertmacro DebugStackPopAllRegsAndCheckImpl"
@@ -694,7 +707,7 @@ IntCmp $DEBUG_R9 0 ${DebugStackPopAllRegsAndCheckImpl__LABELID_EXIT} ${DebugStac
   StrCpy $DEBUG_R3 "${current_func_name}"
   StrCpy $DEBUG_R4 "${${current_func_name}__SRCID_${code_id}_${frame_id}}"
   StrCpy $DEBUG_R5 "${${prev_func_name}__SRCID_${code_id}_${frame_id}}"
-  StrCpy $DEBUG_R6 "|Register: $\"$DEBUG_R1$\"$\n|Found Value: $\"$DEBUG_R0$\"$\n|Expected Value: $\"$DEBUG_R2$\"$\n$\n$(MSG_SETUP_INSTALL_ABORT_ASKING)"
+  StrCpy $DEBUG_R6 "|Register: $\"$DEBUG_R1$\"$\n|Found Value: $\"$DEBUG_R2$\"$\n|Expected Value: $\"$DEBUG_R0$\"$\n$\n$(MSG_SETUP_INSTALL_ABORT_ASKING)"
 
   ; macro compilation optimization
   !ifndef __UNINSTALL__
@@ -1160,9 +1173,12 @@ FunctionEnd
 !macroend
 
 !define Include_DebugStackRestoreMainStackByMarkerFrameImpl "!insertmacro Include_DebugStackRestoreMainStackByMarkerFrameImpl"
-!macro Include_DebugStackRestoreMainStackByMarkerFrameImpl prefix
-${Func_DebugStackRestoreMainStackByMarkerFrameImpl_Revert} "${prefix}"
-${Func_DebugStackRestoreMainStackByMarkerFrameImpl_Cleanup} "${prefix}"
+!macro Include_DebugStackRestoreMainStackByMarkerFrameImpl un
+!ifndef ${un}DebugStackRestoreMainStackByMarkerFrameImpl_INCLUDED
+!define ${un}DebugStackRestoreMainStackByMarkerFrameImpl_INCLUDED
+${Func_DebugStackRestoreMainStackByMarkerFrameImpl_Revert} "${un}"
+${Func_DebugStackRestoreMainStackByMarkerFrameImpl_Cleanup} "${un}"
+!endif
 !macroend
 
 !define DebugStackRestoreMainStackByMarkerFrame "!insertmacro DebugStackRestoreMainStackByMarkerFrame"

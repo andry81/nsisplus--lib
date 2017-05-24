@@ -119,6 +119,7 @@ nsisPlus::_LocalFreeW
 !else
 nsisPlus::_LocalFreeA
 !endif
+StrCpy ${addr} 0 ; just in case
 !macroend
 
 !endif

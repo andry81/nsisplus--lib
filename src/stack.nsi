@@ -76,8 +76,11 @@ FunctionEnd
 !macroend
 
 !define Include_DebugStackImpl "!insertmacro Include_DebugStackImpl"
-!macro Include_DebugStackImpl prefix
-${Func_DebugStackImpl} "${prefix}"
+!macro Include_DebugStackImpl un
+!ifndef ${un}DebugStackImpl_INCLUDED
+!define ${un}DebugStackImpl_INCLUDED
+${Func_DebugStackImpl} "${un}"
+!endif
 !macroend
 
 ; Push/Pop/Exch macroses with private stack support, logging and out-of-stack debugging
@@ -93,7 +96,7 @@ ${Func_DebugStackImpl} "${prefix}"
 
 !if ${ENABLE_DEBUG_PUSHPOP_LOGGING} <> 0
 IntCmp $ENABLE_DEBUG_PUSHPOP_LOGGING 0 +2
-DetailPrint '${push_macro}: "${__CURRENT_MACRO_DEF_PushImpl_exp_ESCAPED}" = "${exp}" (${__CURRENT_MACRO_SRCID_PushImpl})'
+${DetailPrint} '${push_macro}: "${__CURRENT_MACRO_DEF_PushImpl_exp_ESCAPED}" = "${exp}" (${__CURRENT_MACRO_SRCID_PushImpl})'
 #MessageBox MB_OK '${push_macro}: "${__CURRENT_MACRO_DEF_PushImpl_exp_ESCAPED}" = "${exp}" ($\t${__CURRENT_MACRO_SRCID_PushImpl})'
 !endif
 
@@ -266,7 +269,7 @@ ${pop_macro} `${exp}` ; buildin Pop interface
 
 !if ${ENABLE_DEBUG_PUSHPOP_LOGGING} <> 0
 IntCmp $ENABLE_DEBUG_PUSHPOP_LOGGING 0 +2
-DetailPrint '${pop_macro}: $DEBUG_ST0 -> "${exp}" (${__CURRENT_MACRO_SRCID_PopImpl})'
+${DetailPrint} '${pop_macro}: $DEBUG_ST0 -> "${exp}" (${__CURRENT_MACRO_SRCID_PopImpl})'
 #MessageBox MB_OK '${pop_macro}: $DEBUG_ST0 -> "${exp}" (${__CURRENT_MACRO_SRCID_PopImpl})'
 !endif
 
@@ -416,7 +419,7 @@ ${__CURRENT_MACRO_LABELID_ExchImpl_END}:
 
 !if ${ENABLE_DEBUG_PUSHPOP_LOGGING} <> 0
 IntCmp $ENABLE_DEBUG_PUSHPOP_LOGGING 0 +2
-DetailPrint 'Exch: $DEBUG_ST0 <-> "$DEBUG_ST1" (${__CURRENT_MACRO_SRCID_ExchImpl})'
+${DetailPrint} 'Exch: $DEBUG_ST0 <-> "$DEBUG_ST1" (${__CURRENT_MACRO_SRCID_ExchImpl})'
 #MessageBox MB_OK 'Exch: $DEBUG_ST0 <-> "$DEBUG_ST1" (${__CURRENT_MACRO_SRCID_ExchImpl})'
 !endif
 
@@ -1649,6 +1652,9 @@ ${PopErrors}
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
 
+; save errors flag
+${PushErrors}
+
 ; pop into intermediate variables
 ${PopStack1} $MACRO_POP_VAR0
 ; copy internal variables used for return
@@ -1658,6 +1664,9 @@ ${StrCpyIfNotInList} ${var0} $MACRO_POP_VAR0 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1665,6 +1674,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0" " "
 !macro MacroPopStack2 ret_vars_list_ext ret_vars_list_int var0 var1
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack2} $MACRO_POP_VAR0 $MACRO_POP_VAR1
@@ -1676,6 +1688,9 @@ ${StrCpyIfNotInList} ${var1} $MACRO_POP_VAR1 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1683,6 +1698,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1" " "
 !macro MacroPopStack3 ret_vars_list_ext ret_vars_list_int var0 var1 var2
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack3} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2
@@ -1695,6 +1713,9 @@ ${StrCpyIfNotInList} ${var2} $MACRO_POP_VAR2 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1702,6 +1723,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack4 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack4} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3
@@ -1715,6 +1739,9 @@ ${StrCpyIfNotInList} ${var3} $MACRO_POP_VAR3 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1722,6 +1749,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack5 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack5} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4
@@ -1736,6 +1766,9 @@ ${StrCpyIfNotInList} ${var4} $MACRO_POP_VAR4 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1743,6 +1776,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack6 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack6} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5
@@ -1758,6 +1794,9 @@ ${StrCpyIfNotInList} ${var5} $MACRO_POP_VAR5 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1765,6 +1804,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack7 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack7} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6
@@ -1781,6 +1823,9 @@ ${StrCpyIfNotInList} ${var6} $MACRO_POP_VAR6 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1788,6 +1833,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack8 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack8} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7
@@ -1805,6 +1853,9 @@ ${StrCpyIfNotInList} ${var7} $MACRO_POP_VAR7 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1812,6 +1863,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack9 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack9} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8
@@ -1830,6 +1884,9 @@ ${StrCpyIfNotInList} ${var8} $MACRO_POP_VAR8 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1837,6 +1894,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack10 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8 var9
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack10} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9
@@ -1856,6 +1916,9 @@ ${StrCpyIfNotInList} ${var9} $MACRO_POP_VAR9 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8 $MACRO_RET_VAR9" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1863,6 +1926,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack11 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack11} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10
@@ -1883,6 +1949,9 @@ ${StrCpyIfNotInList} ${var10} $MACRO_POP_VAR10 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8 $MACRO_RET_VAR9 $MACRO_RET_VAR10" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1890,6 +1959,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack12 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack12} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11
@@ -1911,6 +1983,9 @@ ${StrCpyIfNotInList} ${var11} $MACRO_POP_VAR11 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8 $MACRO_RET_VAR9 $MACRO_RET_VAR10 $MACRO_RET_VAR11" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1918,6 +1993,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack13 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack13} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12
@@ -1940,6 +2018,9 @@ ${StrCpyIfNotInList} ${var12} $MACRO_POP_VAR12 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8 $MACRO_RET_VAR9 $MACRO_RET_VAR10 $MACRO_RET_VAR11 $MACRO_RET_VAR12" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1947,6 +2028,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack14 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack14} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13
@@ -1970,6 +2054,9 @@ ${StrCpyIfNotInList} ${var13} $MACRO_POP_VAR13 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8 $MACRO_RET_VAR9 $MACRO_RET_VAR10 $MACRO_RET_VAR11 $MACRO_RET_VAR12 $MACRO_RET_VAR13" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -1977,6 +2064,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack15 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack15} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14
@@ -2001,6 +2091,9 @@ ${StrCpyIfNotInList} ${var14} $MACRO_POP_VAR14 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8 $MACRO_RET_VAR9 $MACRO_RET_VAR10 $MACRO_RET_VAR11 $MACRO_RET_VAR12 $MACRO_RET_VAR13 $MACRO_RET_VAR14" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -2008,6 +2101,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack16 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14 var15
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack16} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15
@@ -2033,6 +2129,9 @@ ${StrCpyIfNotInList} ${var15} $MACRO_POP_VAR15 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8 $MACRO_RET_VAR9 $MACRO_RET_VAR10 $MACRO_RET_VAR11 $MACRO_RET_VAR12 $MACRO_RET_VAR13 $MACRO_RET_VAR14 $MACRO_RET_VAR15" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -2040,6 +2139,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack17 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14 var15 var16
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack17} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16
@@ -2066,6 +2168,9 @@ ${StrCpyIfNotInList} ${var16} $MACRO_POP_VAR16 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8 $MACRO_RET_VAR9 $MACRO_RET_VAR10 $MACRO_RET_VAR11 $MACRO_RET_VAR12 $MACRO_RET_VAR13 $MACRO_RET_VAR14 $MACRO_RET_VAR15 $MACRO_RET_VAR16" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -2073,6 +2178,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack18 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14 var15 var16 var17
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack18} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16 $MACRO_POP_VAR17
@@ -2100,6 +2208,9 @@ ${StrCpyIfNotInList} ${var17} $MACRO_POP_VAR17 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8 $MACRO_RET_VAR9 $MACRO_RET_VAR10 $MACRO_RET_VAR11 $MACRO_RET_VAR12 $MACRO_RET_VAR13 $MACRO_RET_VAR14 $MACRO_RET_VAR15 $MACRO_RET_VAR16 $MACRO_RET_VAR17" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -2107,6 +2218,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack19 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14 var15 var16 var17 var18
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack19} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16 $MACRO_POP_VAR17 $MACRO_POP_VAR18
@@ -2135,6 +2249,9 @@ ${StrCpyIfNotInList} ${var18} $MACRO_POP_VAR18 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8 $MACRO_RET_VAR9 $MACRO_RET_VAR10 $MACRO_RET_VAR11 $MACRO_RET_VAR12 $MACRO_RET_VAR13 $MACRO_RET_VAR14 $MACRO_RET_VAR15 $MACRO_RET_VAR16 $MACRO_RET_VAR17 $MACRO_RET_VAR18" " "
 
+; restore errors flag
+${PopErrors}
+
 !verbose pop
 !macroend
 
@@ -2142,6 +2259,9 @@ ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_R
 !macro MacroPopStack20 ret_vars_list_ext ret_vars_list_int var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14 var15 var16 var17 var18 var19
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
 
 ; pop into intermediate variables
 ${PopStack20} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16 $MACRO_POP_VAR17 $MACRO_POP_VAR18 $MACRO_POP_VAR19
@@ -2170,6 +2290,9 @@ ${StrCpyIfNotInList} ${var18} $MACRO_POP_VAR18 "${ret_vars_list_ext}" " "
 ${StrCpyIfNotInList} ${var19} $MACRO_POP_VAR19 "${ret_vars_list_ext}" " "
 ; copy saved internal variables used for return into external
 ${StrCpyByList} "${ret_vars_list_ext}" "$MACRO_RET_VAR0 $MACRO_RET_VAR1 $MACRO_RET_VAR2 $MACRO_RET_VAR3 $MACRO_RET_VAR4 $MACRO_RET_VAR5 $MACRO_RET_VAR6 $MACRO_RET_VAR7 $MACRO_RET_VAR8 $MACRO_RET_VAR9 $MACRO_RET_VAR10 $MACRO_RET_VAR11 $MACRO_RET_VAR12 $MACRO_RET_VAR13 $MACRO_RET_VAR14 $MACRO_RET_VAR15 $MACRO_RET_VAR16 $MACRO_RET_VAR17 $MACRO_RET_VAR18 $MACRO_RET_VAR19" " "
+
+; restore errors flag
+${PopErrors}
 
 !verbose pop
 !macroend
@@ -3066,6 +3189,12 @@ ${PopErrors}
 !verbose pop
 !macroend
 
+; CAUTION:
+;   Sequence of PushStack*+ExchStack*+PopStack* is replaced by the PopPushStack* because has potential exchange value corruption
+;   (the stack inside a frame exchange corruption, the stack outside a frame exchange is protected by followed DebugStackExitFrame macro call).
+;   The PopPushStack* is safer because push-after-pop is safer than exchange-with-frame-bottom-before-pop-the-top.
+;
+
 ; Stack self exchange.
 ; Format: ExchStackStackN offset_to
 ;   N - top N items to exchange with
@@ -3141,6 +3270,476 @@ ${PopErrors}
 !undef ExchStackStack3_offset0_to
 !undef ExchStackStack3_offset1_to
 !undef ExchStackStack3_offset2_to
+
+!verbose pop
+!macroend
+
+; PushStackByList
+
+!define PushStackByList "!insertmacro PushStackByList"
+!macro PushStackByList vars_list separator
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+!insertmacro PushStackByList__impl_recur "${vars_list}" "${separator}" PushStackByList__current_var_def PushStackByList__next_vars_def
+
+${!undef_ifdef} PushStackByList__current_var_def
+${!undef_ifdef} PushStackByList__next_vars_def
+
+!verbose pop
+!macroend
+
+!macro PushStackByList__impl_recur vars_list separator current_var_def next_var_def
+${UnfoldMacroArgumentList} "${vars_list}" ${current_var_def} ${next_vars_def} "" "${separator}" "" ; space separated list w/o prefix
+
+!verbose pop
+
+!ifdef ${current_var_def}
+  Push `${${current_var_def}}`
+!endif
+
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; recursive macro call
+!ifdef ${current_var_def}
+!if "${${next_vars_def}}" != ""
+  !insertmacro PushStackByList__impl_recur "${${next_vars_def}}" "${separator}" ${current_var_def} ${next_var_def}
+!endif
+!endif
+!macroend
+
+!define PopPushStack1 "!insertmacro PopPushStack1"
+!macro PopPushStack1 push_vars_list separator var0
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack1} $MACRO_POP_VAR0
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0}" "$MACRO_POP_VAR0" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack2 "!insertmacro PopPushStack2"
+!macro PopPushStack2 push_vars_list separator var0 var1
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack2} $MACRO_POP_VAR0 $MACRO_POP_VAR1
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1}" "$MACRO_POP_VAR0 $MACRO_POP_VAR1" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack3 "!insertmacro PopPushStack3"
+!macro PopPushStack3 push_vars_list separator var0 var1 var2
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack3} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2}" "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack4 "!insertmacro PopPushStack4"
+!macro PopPushStack4 push_vars_list separator var0 var1 var2 var3
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack4} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3}" "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack5 "!insertmacro PopPushStack5"
+!macro PopPushStack5 push_vars_list separator var0 var1 var2 var3 var4
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack5} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4}" "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack6 "!insertmacro PopPushStack6"
+!macro PopPushStack6 push_vars_list separator var0 var1 var2 var3 var4 var5
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack6} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack7 "!insertmacro PopPushStack7"
+!macro PopPushStack7 push_vars_list separator var0 var1 var2 var3 var4 var5 var6
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack7} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack8 "!insertmacro PopPushStack8"
+!macro PopPushStack8 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack8} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack9 "!insertmacro PopPushStack9"
+!macro PopPushStack9 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack9} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack10 "!insertmacro PopPushStack10"
+!macro PopPushStack10 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8 var9
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack10} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8} ${var9}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack11 "!insertmacro PopPushStack11"
+!macro PopPushStack11 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack11} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8} ${var9} ${var10}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack12 "!insertmacro PopPushStack12"
+!macro PopPushStack12 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack12} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8} ${var9} ${var10} ${var11}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack13 "!insertmacro PopPushStack13"
+!macro PopPushStack13 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack13} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8} ${var9} ${var10} ${var11} ${var12}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack14 "!insertmacro PopPushStack14"
+!macro PopPushStack14 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack14} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8} ${var9} ${var10} ${var11} ${var12} ${var13}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack15 "!insertmacro PopPushStack15"
+!macro PopPushStack15 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack15} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8} ${var9} ${var10} ${var11} ${var12} ${var13} ${var14}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack16 "!insertmacro PopPushStack16"
+!macro PopPushStack16 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14 var15
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack16} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8} ${var9} ${var10} ${var11} ${var12} ${var13} ${var14} ${var15}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack17 "!insertmacro PopPushStack17"
+!macro PopPushStack17 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14 var15 var16
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack17} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8} ${var9} ${var10} ${var11} ${var12} ${var13} ${var14} ${var15} ${var16}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack18 "!insertmacro PopPushStack18"
+!macro PopPushStack18 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14 var15 var16 var17
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack18} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16 $MACRO_POP_VAR17
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8} ${var9} ${var10} ${var11} ${var12} ${var13} ${var14} ${var15} ${var16} ${var17}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16 $MACRO_POP_VAR17" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack19 "!insertmacro PopPushStack19"
+!macro PopPushStack19 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14 var15 var16 var17 var18
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack19} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16 $MACRO_POP_VAR17 $MACRO_POP_VAR18
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8} ${var9} ${var10} ${var11} ${var12} ${var13} ${var14} ${var15} ${var16} ${var17} ${var18}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16 $MACRO_POP_VAR17 $MACRO_POP_VAR18" " "
+
+; restore errors flag
+${PopErrors}
+
+!verbose pop
+!macroend
+
+!define PopPushStack20 "!insertmacro PopPushStack20"
+!macro PopPushStack20 push_vars_list separator var0 var1 var2 var3 var4 var5 var6 var7 var8 var9 var10 var11 var12 var13 var14 var15 var16 var17 var18 var19
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
+
+; save errors flag
+${PushErrors}
+
+; pop into intermediate variables
+${PopStack20} $MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16 $MACRO_POP_VAR17 $MACRO_POP_VAR18 $MACRO_POP_VAR19
+; push internal variables used for return
+${PushStackByList} "${push_vars_list}" "${separator}"
+; copy saved internal variables
+${StrCpyByList} "${var0} ${var1} ${var2} ${var3} ${var4} ${var5} ${var6} ${var7} ${var8} ${var9} ${var10} ${var11} ${var12} ${var13} ${var14} ${var15} ${var16} ${var17} ${var18} ${var19}" \
+  "$MACRO_POP_VAR0 $MACRO_POP_VAR1 $MACRO_POP_VAR2 $MACRO_POP_VAR3 $MACRO_POP_VAR4 $MACRO_POP_VAR5 $MACRO_POP_VAR6 $MACRO_POP_VAR7 $MACRO_POP_VAR8 $MACRO_POP_VAR9 $MACRO_POP_VAR10 $MACRO_POP_VAR11 $MACRO_POP_VAR12 $MACRO_POP_VAR13 $MACRO_POP_VAR14 $MACRO_POP_VAR15 $MACRO_POP_VAR16 $MACRO_POP_VAR17 $MACRO_POP_VAR18 $MACRO_POP_VAR19" " "
+
+; restore errors flag
+${PopErrors}
 
 !verbose pop
 !macroend

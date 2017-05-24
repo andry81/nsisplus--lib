@@ -26,7 +26,7 @@ ${Switch} "${ctx}"
     StrCpy $SHELL_VAR_CTX "current"
   ${Break}
   ${Default}
-    DetailPrint "SetShellVarContext: unknown shell variable context: $\"${ctx}$\""
+    ${DetailPrint} "SetShellVarContext: unknown shell variable context: $\"${ctx}$\""
     MessageBox MB_OK "SetShellVarContext: unknown shell variable context: $\"${ctx}$\" (${__FILE__}:${__LINE__})" /SD IDOK
     ; force context to "current" as most safe or more private
     SetShellVarContext current
@@ -92,8 +92,11 @@ FunctionEnd
 !macroend
 
 !define Include_Rnd "!insertmacro Include_Rnd"
-!macro Include_Rnd prefix
-!insertmacro Func_Rnd "${prefix}"
+!macro Include_Rnd un
+!ifndef ${un}Rnd_INCLUDED
+!define ${un}Rnd_INCLUDED
+!insertmacro Func_Rnd "${un}"
+!endif
 !macroend
 
 !define AdvReplaceInFile "!insertmacro AdvReplaceInFile"
@@ -133,39 +136,33 @@ Function ${un}GetLanguageStrings
       StrCpy $R2 ""
       StrCpy $R3 ""
 
-      DetailPrint "GetLanguageStrings: unsupported language code: $\"$R0$\""
+      ${DetailPrint} "GetLanguageStrings: unsupported language code: $\"$R0$\""
       MessageBox MB_OK "GetLanguageStrings: unsupported language code: $\"$R0$\" (${__FILE__}:${__LINE__})" /SD IDOK
   ${EndSwitch}
 
-  ${PushStack3} $R1 $R2 $R3
-
-  ${ExchStackStack3} 1
-
-  ${PopStack4} $R3 $R0 $R1 $R2
+  ${PopPushStack4} "$R1 $R2 $R3" " " $R0 $R1 $R2 $R3
 FunctionEnd
 !macroend
 
-!define Call_GetLanguageStrings "!insertmacro Call_GetLanguageStrings"
-!macro Call_GetLanguageStrings prefix var_group_country var_short var_long lcid
+!define GetLanguageStrings "!insertmacro GetLanguageStrings"
+!macro GetLanguageStrings var_group_country var_short var_long lcid
 ${Push} `${lcid}`
-Call ${prefix}GetLanguageStrings
+!ifndef __UNINSTALL__
+Call GetLanguageStrings
+!else
+Call un.GetLanguageStrings
+!endif
 ${Pop} `${var_long}`
 ${Pop} `${var_short}`
 ${Pop} `${var_group_country}`
 !macroend
 
-!define GetLanguageStrings "!insertmacro GetLanguageStrings"
-!macro GetLanguageStrings
-!insertmacro Func_GetLanguageStrings ""
-!undef GetLanguageStrings
-!define GetLanguageStrings "!insertmacro Call_GetLanguageStrings ''"
-!macroend
-
-!define un.GetLanguageStrings "!insertmacro un.GetLanguageStrings"
-!macro un.GetLanguageStrings
-!insertmacro Func_GetLanguageStrings "un."
-!undef un.GetLanguageStrings
-!define un.GetLanguageStrings "!insertmacro Call_GetLanguageStrings 'un.'"
+!define Include_GetLanguageStrings "!insertmacro Include_GetLanguageStrings"
+!macro Include_GetLanguageStrings un
+!ifndef ${un}GetLanguageStrings_INCLUDED
+!define ${un}GetLanguageStrings_INCLUDED
+${Func_GetLanguageStrings} "${un}"
+!endif
 !macroend
 
 !define ValidateIP "!insertmacro ValidateIP"
@@ -216,24 +213,24 @@ ${Push} `${name}`
 Call ValidateRemoteHostName
 !macroend
 
-!define Call_RemoveEmptyDirectoryPathImpl "!insertmacro Call_RemoveEmptyDirectoryPathImpl"
-!macro Call_RemoveEmptyDirectoryPathImpl prefix persistent_path remove_path
-${Push} `${persistent_path}`
-${Push} `${remove_path}`
-Call ${prefix}RemoveEmptyDirectoryPath
+!define RemoveEmptyDirectoryPathImpl "!insertmacro RemoveEmptyDirectoryPathImpl"
+!macro RemoveEmptyDirectoryPathImpl persistent_path remove_path
+${PushStack2} `${persistent_path}` `${remove_path}`
+!ifndef __UNINSTALL__
+Call RemoveEmptyDirectoryPath
+!else
+Call un.RemoveEmptyDirectoryPath
+!endif
 !macroend
 
-!define Call_RemoveEmptyDirectoryPath "!insertmacro Call_RemoveEmptyDirectoryPath"
-!macro Call_RemoveEmptyDirectoryPath prefix shell_ctx persistent_path remove_path
+!define RemoveEmptyDirectoryPath "!insertmacro RemoveEmptyDirectoryPath"
+!macro RemoveEmptyDirectoryPath shell_ctx persistent_path remove_path
 ${PushShellVarContext} "${shell_ctx}"
 
-${Call_RemoveEmptyDirectoryPathImpl} "${prefix}" "${persistent_path}" "${remove_path}"
+${RemoveEmptyDirectoryPathImpl} "${persistent_path}" "${remove_path}"
 
 ${PopShellVarContext}
 !macroend
-
-!define RemoveEmptyDirectoryPath "${Call_RemoveEmptyDirectoryPath} ''"
-!define un.RemoveEmptyDirectoryPath "${Call_RemoveEmptyDirectoryPath} 'un.'"
 
 !define IsEqualInetIP4 "!insertmacro IsEqualInetIP4"
 !macro IsEqualInetIP4 ip1 ip2 res_num
@@ -335,9 +332,7 @@ TrimLeft:
   Goto Loop
 
 end:
-  ${Push} $R0
-  ${Exch} 3
-  ${PopStack3} $R1 $R2 $R0
+  ${PopPushStack3} "$R0" " " $R0 $R1 $R2
 FunctionEnd
 !macroend
 
@@ -383,10 +378,7 @@ TrimRight:
   Goto Loop
 
 end:
-  ${Push} $R0
-  ${Exch} 3
-
-  ${PopStack3} $R1 $R2 $R0
+  ${PopPushStack3} "$R0" " " $R0 $R1 $R2
 FunctionEnd
 !macroend
 
@@ -421,7 +413,7 @@ Function ${un}TrimLeadingZeros
     StrCpy $R0 0
   ${EndIf}
 
-  ${Exch} $R0
+  ${PopPushStack1} "$R0" " " $R0
 FunctionEnd
 !macroend
 
@@ -481,10 +473,7 @@ repeat_search:
 
   StrCpy $R9 "$R9$R0"
 
-  ${Push} $R9
-  ${Exch} 7
-
-  ${PopStack7} $R1 $R2 $R3 $R4 $R5 $R6 $R0
+  ${PopPushStack7} "$R0" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6
 FunctionEnd
 !macroend
 
@@ -496,17 +485,15 @@ FunctionEnd
 !include "StrFunc.nsh"
 !endif
 
-!if "${un}" == ""
-!ifndef StrLoc_INCLUDED
-${StrLoc}
-!endif
-!endif
-
-!if "${un}" == "un."
-!ifndef UnStrLoc_INCLUDED
-${UnStrLoc}
-!define un.StrLoc ${UnStrLoc}
-!endif
+!if "${un}" != "un."
+  !ifndef StrLoc_INCLUDED
+  ${StrLoc}
+  !endif
+!else
+  !ifndef UnStrLoc_INCLUDED
+  ${UnStrLoc}
+  !define un.StrLoc ${UnStrLoc}
+  !endif
 !endif
 
 ${Func_ExpandEnvironmentString} "${un}"
@@ -518,15 +505,13 @@ ${Func_ExpandEnvironmentString} "${un}"
 ; save registers to stack
 ${PushStack10} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9
 
-${Push} `${type}`
-${Push} `${num}`
-${Push} `${file}`
+${PushStack3} `${type}` `${num}` `${file}`
 Call ApplyStartOptions
 
 ${PopStack10} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9
 !macroend
 
-!define Func_GetSysDrive "!insertmacro GetSysDrive"
+!define Func_GetSysDrive "!insertmacro Func_GetSysDrive"
 !macro Func_GetSysDrive un
 Function ${un}GetSysDrive
   ${PushStack1} $R0
@@ -536,30 +521,29 @@ Function ${un}GetSysDrive
     StrCpy $R0 "$SYSDIR" 3
   ${EndIf}
 
-  ${Exch} $R0
+  ${PopPushStack1} "$R0" " " $R0
 FunctionEnd
 !macroend
 
-!define Call_GetSysDrive "!insertmacro Call_GetSysDrive"
-!macro Call_GetSysDrive prefix var
-  Call ${prefix}GetSysDrive
-  ${Pop} `${var}`
-!macroend
-
 !define GetSysDrive "!insertmacro GetSysDrive"
-!macro GetSysDrive
-!insertmacro Func_GetSysDrive ""
-!undef GetSysDrive
-!define GetSysDrive "${Call_GetSysDrive} ''"
+!macro GetSysDrive var
+!ifndef __UNINSTALL__
+Call GetSysDrive
+!else
+Call un.GetSysDrive
+!endif
+${Pop} `${var}`
 !macroend
 
-!define un.GetSysDrive "!insertmacro un.GetSysDrive"
-!macro un.GetSysDrive
-!insertmacro Func_GetSysDrive "un."
-!undef un.GetSysDrive
-!define un.GetSysDrive "${Call_GetSysDrive} 'un.'"
+!define Include_GetSysDrive "!insertmacro Include_GetSysDrive"
+!macro Include_GetSysDrive un
+!ifndef ${un}GetSysDrive_INCLUDED
+!define ${un}GetSysDrive_INCLUDED
+${Func_GetSysDrive} "${un}"
+!endif
 !macroend
 
+!define Func_AdvReplaceInFile "!insertmacro Func_AdvReplaceInFile"
 !macro Func_AdvReplaceInFile un
 Function ${un}AdvReplaceInFile
   ${ExchStack5} $4 $3 $2 $1 $0
@@ -647,8 +631,13 @@ Function ${un}AdvReplaceInFile
 FunctionEnd
 !macroend
 
-!insertmacro Func_AdvReplaceInFile ""
-!insertmacro Func_AdvReplaceInFile "un."
+!define Include_AdvReplaceInFile "!insertmacro Include_AdvReplaceInFile"
+!macro Include_AdvReplaceInFile un
+!ifndef ${un}AdvReplaceInFile_INCLUDED
+!define ${un}AdvReplaceInFile_INCLUDED
+${Func_AdvReplaceInFile} "${un}"
+!endif
+!macroend
 
 ${Include_TrimLeadingZeros} ""
 
@@ -1460,6 +1449,7 @@ FunctionEnd
 !ifndef ${un}UnquoteString_INCLUDED
 !define ${un}UnquoteString_INCLUDED
 !include "${_NSIS_SETUP_LIB_ROOT}\src\3dparty\NSISpcre.nsh"
+
 !insertmacro ${un}REMatches
 ${Func_UnquoteString} "${un}"
 !endif
@@ -1576,11 +1566,11 @@ ${__CURRENT_MACRO_LABELID_LoadConfigVarIf_END}:
 !macroend
 
 !define Call_LoadConfigVarIf "!insertmacro Call_LoadConfigVarIf"
-!macro Call_LoadConfigVarIf prefix status_var res_var cmd_option cmd_ini_file local_ini_file ini_section ini_var
+!macro Call_LoadConfigVarIf un status_var res_var cmd_option cmd_ini_file local_ini_file ini_section ini_var
 ${DebugStackEnterFrame} Call_LoadConfigVarIf 0 1
 
 ${PushStack5} `${cmd_option}` `${cmd_ini_file}` `${local_ini_file}` `${ini_section}` `${ini_var}`
-Call ${prefix}LoadConfigVar
+Call ${un}LoadConfigVar
 ${PopStack2} $DEBUG_RET0 $DEBUG_RET1
 
 ${DebugStackExitFrame} Call_LoadConfigVarIf 0 1
@@ -1683,69 +1673,27 @@ Function ${un}LoadConfigVar
 
   end:
   ${DebugStackExitFrame} ${un}LoadConfigVar 1 0
-  ${PushStack2} $R7 $R8
-  ${ExchStackStack2} 8
-  ${PopStack10} $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $R0 $R1
+
+  ${PopPushStack10} "$R7 $R8" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9
 FunctionEnd
 !macroend
 
 !define Include_LoadConfigIni "!insertmacro Include_LoadConfigIni"
-!macro Include_LoadConfigIni prefix
-${Func_LoadConfigVar} "${prefix}"
-!macroend
-
-; dummy function implementation to enforce compilation warnings/errors in case of macro-body function calls
-; (functions implemented via macroses but required compilation warnings/errors as usual functions in case of misuse them in install/uninstall sections)
-
-!macro Func_BeginMacroBodyFunction un
-!ifndef ${un}BeginMacroBodyFunction_INCLUDED
-!define ${un}BeginMacroBodyFunction_INCLUDED
-Function ${un}BeginMacroBodyFunction
-FunctionEnd
+!macro Include_LoadConfigIni un
+!ifndef ${un}LoadConfigIni_INCLUDED
+!define ${un}LoadConfigIni_INCLUDED
+${Func_LoadConfigVar} "${un}"
 !endif
-!macroend
-
-!macro Func_EndMacroBodyFunction un
-!ifndef ${un}EndMacroBodyFunction_INCLUDED
-!define ${un}EndMacroBodyFunction_INCLUDED
-Function ${un}EndMacroBodyFunction
-FunctionEnd
-!endif
-!macroend
-
-!define Include_BeginMacroBodyFunction "!insertmacro Include_BeginMacroBodyFunction"
-!macro Include_BeginMacroBodyFunction prefix
-!insertmacro Func_BeginMacroBodyFunction "${prefix}"
-!macroend
-
-!define Include_EndMacroBodyFunction "!insertmacro Include_EndMacroBodyFunction"
-!macro Include_EndMacroBodyFunction prefix
-!insertmacro Func_EndMacroBodyFunction "${prefix}"
-!macroend
-
-!define BeginMacroBodyFunction "${Call_BeginMacroBodyFunction} ''"
-!define un.BeginMacroBodyFunction "${Call_BeginMacroBodyFunction} 'un.'"
-
-!define EndMacroBodyFunction "${Call_EndMacroBodyFunction} ''"
-!define un.EndMacroBodyFunction "${Call_EndMacroBodyFunction} 'un.'"
-
-!define Call_BeginMacroBodyFunction "!insertmacro Call_BeginMacroBodyFunction"
-!macro Call_BeginMacroBodyFunction prefix
-Call ${prefix}BeginMacroBodyFunction
-!macroend
-
-!define Call_EndMacroBodyFunction "!insertmacro Call_EndMacroBodyFunction"
-!macro Call_EndMacroBodyFunction prefix
-Call ${prefix}EndMacroBodyFunction
 !macroend
 
 !define InstallFileToDirMayReboot "!insertmacro InstallFileToDirMayReboot"
 !macro InstallFileToDirMayReboot from_dir from_file to_dir to_file
-${Push} `${from_dir}`
-${Push} `${from_file}`
-${Push} `${to_dir}`
-${Push} `${to_file}`
+${PushStack4} `${from_dir}` `${from_file}` `${to_dir}` `${to_file}`
+!ifndef __UNINSTALL__
 Call InstallFileToDirMayReboot
+!else
+Call un.InstallFileToDirMayReboot
+!endif
 !macroend
 
 !define Func_InstallFileToDirMayReboot "!insertmacro Func_InstallFileToDirMayReboot"
@@ -1775,17 +1723,17 @@ Function ${un}InstallFileToDirMayReboot
 
   # try to copy w/o reboot
   ClearErrors
-  DetailPrint "Installing: $\"$R0\$R1$\" -> $\"$R2\$R3$\""
+  ${DetailPrint} "Installing: $\"$R0\$R1$\" -> $\"$R2\$R3$\""
   CopyFiles "$R0\$R1" "$R2\$R3"
   ${If} ${Errors}
     # try copy-rename w/ reboot
     ${Rnd} $R8 0 65535
     ${Rnd} $R9 0 65535
-    DetailPrint "Copying: $\"$R0\$R1$\" -> $\"$R2\_reboot_$R8_$R9_$R3$\""
+    ${DetailPrint} "Copying: $\"$R0\$R1$\" -> $\"$R2\_reboot_$R8_$R9_$R3$\""
     ClearErrors
     CopyFiles "$R0\$R1" "$R2\_reboot_$R8_$R9_$R3"
     ${If} ${NoErrors}
-      DetailPrint "Rename on reboot: $\"$R2\_reboot_$R8_$R9_$R3$\" -> $\"$R2\$R3$\""
+      ${DetailPrint} "Rename on reboot: $\"$R2\_reboot_$R8_$R9_$R3$\" -> $\"$R2\$R3$\""
       Rename /REBOOTOK "$R2\_reboot_$R8_$R9_$R3" "$R2\$R3"
     ${Else}
       Call AskSetupInstallAbort
@@ -1798,9 +1746,12 @@ FunctionEnd
 !macroend
 
 !define Include_InstallFileToDirMayReboot "!insertmacro Include_InstallFileToDirMayReboot"
-!macro Include_InstallFileToDirMayReboot prefix
-${Include_Rnd} "${prefix}"
-!insertmacro Func_InstallFileToDirMayReboot "${prefix}"
+!macro Include_InstallFileToDirMayReboot un
+!ifndef ${un}InstallFileToDirMayReboot_INCLUDED
+!define ${un}InstallFileToDirMayReboot_INCLUDED
+${Include_Rnd} "${un}"
+!insertmacro Func_InstallFileToDirMayReboot "${un}"
+!endif
 !macroend
 
 !define FindListItem "!insertmacro FindListItem"
@@ -1815,8 +1766,11 @@ ${PopStack1} `${index_var}`
 !macroend
 
 !define Include_FindListItem "!insertmacro Include_FindListItem"
-!macro Include_FindListItem prefix
-${Func_FindListItem} "${prefix}"
+!macro Include_FindListItem un
+!ifndef ${un}FindListItem_INCLUDED
+!define ${un}FindListItem_INCLUDED
+${Func_FindListItem} "${un}"
+!endif
 !macroend
 
 !define Func_FindListItem "!insertmacro Func_FindListItem"
@@ -1867,10 +1821,7 @@ Function ${un}FindListItem
   StrCpy $R9 -1
 
   return:
-  ${Push} $R9
-  ${Exch} 10
-
-  ${PopStack10} $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $R0
+  ${PopPushStack10} "$R9" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9
 FunctionEnd
 !macroend
 
@@ -1898,7 +1849,5 @@ FunctionEnd
 #
 #${MacroPopStack6} "${out_var}" "$R9" $R0 $R1 $R2 $R3 $R8 $R9
 #!macroend
-
-${Include_FindListItem} ""
 
 !endif

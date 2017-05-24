@@ -133,27 +133,30 @@ Function ${un}PostInitUserWin32
 FunctionEnd
 !macroend
 
-#!define UAC_PreInit "!insertmacro Call_UAC_PreInit ''"
-#!define un.UAC_PreInit "!insertmacro Call_UAC_PreInit 'un.'"
-!define UAC_PostInitAndReadShellGlobals "!insertmacro Call_UAC_PostInitAndReadShellGlobals ''"
-!define un.UAC_PostInitAndReadShellGlobals "!insertmacro Call_UAC_PostInitAndReadShellGlobals 'un.'"
+!define UAC_PreInit "!insertmacro UAC_PreInit"
+!macro UAC_PreInit
+${DebugStackEnterFrame} UAC_PreInit 0 1
 
-!define Call_UAC_PreInit "!insertmacro Call_UAC_PreInit"
-!macro Call_UAC_PreInit prefix
-${DebugStackEnterFrame} Call_UAC_PreInit 0 1
+!ifndef __UNINSTALL__
+Call UAC_PreInit
+!else
+Call un.UAC_PreInit
+!endif
 
-Call ${prefix}UAC_PreInit
-
-${DebugStackExitFrame} Call_UAC_PreInit 0 1
+${DebugStackExitFrame} UAC_PreInit 0 1
 !macroend
 
-!define Call_UAC_PostInitAndReadShellGlobals "!insertmacro Call_UAC_PostInitAndReadShellGlobals"
-!macro Call_UAC_PostInitAndReadShellGlobals prefix
-${DebugStackEnterFrame} ${prefix}UAC_PostInitAndReadShellGlobals 0 1
+!define UAC_PostInitAndReadShellGlobals "!insertmacro UAC_PostInitAndReadShellGlobals"
+!macro UAC_PostInitAndReadShellGlobals
+${DebugStackEnterFrame} UAC_PostInitAndReadShellGlobals 0 1
 
-Call ${prefix}UAC_PostInitAndReadShellGlobals
+!ifndef __UNINSTALL__
+Call UAC_PostInitAndReadShellGlobals
+!else
+Call un.UAC_PostInitAndReadShellGlobals
+!endif
 
-${DebugStackExitFrame} ${prefix}UAC_PostInitAndReadShellGlobals 0 1
+${DebugStackExitFrame} UAC_PostInitAndReadShellGlobals 0 1
 !macroend
 
 !define Func_UAC_PreInit "!insertmacro Func_UAC_PreInit"
@@ -161,7 +164,7 @@ ${DebugStackExitFrame} ${prefix}UAC_PostInitAndReadShellGlobals 0 1
 Function ${un}UAC_PreInit
   ${PushStack20} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
 
-  ${DebugStackEnterFrame} `${un}UAC_PreInit` 1 0
+  ${DebugStackEnterFrame} ${un}UAC_PreInit 1 0
 
   ; input: calling process id, output: called process id
   StrCpy $R0 $PROCESS_ID
@@ -175,7 +178,7 @@ Function ${un}UAC_PreInit
     StrCpy $UAC_PROCESS_ELEVATION_STATUS_FLAGS $R1
   ${EndIf}
 
-  ${DebugStackExitFrame} `${un}UAC_PreInit` 1 0
+  ${DebugStackExitFrame} ${un}UAC_PreInit 1 0
 
   ${PopStack20} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
 FunctionEnd
@@ -186,7 +189,7 @@ FunctionEnd
 Function ${un}UAC_PostInitAndReadShellGlobals
   ${PushStack20} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
 
-  ${DebugStackEnterFrame} `${un}UAC_PostInitAndReadShellGlobals` 1 0
+  ${DebugStackEnterFrame} ${un}UAC_PostInitAndReadShellGlobals 1 0
 
   !insertmacro UAC_AsUser_Call Function ${un}PostInitUserWin32 0
 
@@ -200,32 +203,36 @@ Function ${un}UAC_PostInitAndReadShellGlobals
   !insertmacro UAC_AsUser_GetGlobalVar $SMPROGRAMS_CURRENT
   !insertmacro UAC_AsUser_GetGlobalVar $SMPROGRAMS_ALL
 
-  ${DebugStackExitFrame} `${un}UAC_PostInitAndReadShellGlobals` 1 0
+  ${DebugStackExitFrame} ${un}UAC_PostInitAndReadShellGlobals 1 0
 
   ${PopStack20} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
 FunctionEnd
 !macroend
 
 !define Include_UAC "!insertmacro Include_UAC"
-!macro Include_UAC prefix
-${Func_UAC_RunElevation} "${prefix}"
-${Func_PreInitUserWin32} "${prefix}"
-${Func_UAC_PreInit} "${prefix}"
-${Func_PostInitUserWin32} "${prefix}"
-${Func_UAC_PostInitAndReadShellGlobals} "${prefix}"
-${Include_Win32Registry} "${prefix}"
+!macro Include_UAC un
+!ifndef ${un}UAC_INCLUDED
+!define ${un}UAC_INCLUDED
+${Func_UAC_RunElevation} "${un}"
+${Func_PreInitUserWin32} "${un}"
+${Func_UAC_PreInit} "${un}"
+${Func_PostInitUserWin32} "${un}"
+${Func_UAC_PostInitAndReadShellGlobals} "${un}"
+${Include_Win32Registry} "${un}"
+!endif
 !macroend
 
-!define UAC_RunElevation "!insertmacro Call_UAC_RunElevation ''"
-!define un.UAC_RunElevation "!insertmacro Call_UAC_RunElevation 'un.'"
+!define UAC_RunElevation "!insertmacro UAC_RunElevation"
+!macro UAC_RunElevation
+${DebugStackEnterFrame} UAC_RunElevation 0 1
 
-!define Call_UAC_RunElevation "!insertmacro Call_UAC_RunElevation"
-!macro Call_UAC_RunElevation prefix
-${DebugStackEnterFrame} Call_UAC_RunElevation 0 1
+!ifndef __UNINSTALL__
+Call UAC_RunElevation
+!else
+Call un.UAC_RunElevation
+!endif
 
-Call ${prefix}UAC_RunElevation
-
-${DebugStackExitFrame} Call_UAC_RunElevation 0 1
+${DebugStackExitFrame} UAC_RunElevation 0 1
 !macroend
 
 !define Func_UAC_RunElevation "!insertmacro Func_UAC_RunElevation"
@@ -271,7 +278,7 @@ Function ${un}UAC_RunElevation
     ${Break} ; just in case
   ${EndSwitch}
 
-  ${Call_UAC_PreInit} "${un}"
+  ${UAC_PreInit}
 
   ${DebugStackExitFrame} `${un}UAC_RunElevation` 1 0
 
@@ -619,14 +626,14 @@ Function ${un}RegReadToAllocValue
 
   System::Call "advapi32::RegOpenKey(i R3, t R1, *i.R6) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegReadToAllocValue: advapi32::RegOpenKey error: code=$R4 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    ${DetailPrint} "RegReadToAllocValue: advapi32::RegOpenKey error: code=$R4 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
     MessageBox MB_OK "RegReadToAllocValue: advapi32::RegOpenKey error: code=$R4 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R2, i 0, *i .R5, p 0, *i 0 R7) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegReadToAllocValue: advapi32::RegQueryValueEx (1) error: code=$R4 size=$R7 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    ${DetailPrint} "RegReadToAllocValue: advapi32::RegQueryValueEx (1) error: code=$R4 size=$R7 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
     MessageBox MB_OK "RegReadToAllocValue: advapi32::RegQueryValueEx (1) error: code=$R4 size=$R7 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -637,14 +644,14 @@ Function ${un}RegReadToAllocValue
   System::Alloc $R8
   Pop $0
   ${If} $0 = 0
-    DetailPrint "RegReadToAllocValue: System::Alloc (1) error: size=$R8 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    ${DetailPrint} "RegReadToAllocValue: System::Alloc (1) error: size=$R8 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
     MessageBox MB_OK "RegReadToAllocValue: System::Alloc (1) error: size=$R8 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R2, i 0, i 0, p r0, *i R8 R7) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegReadToAllocValue: advapi32::RegQueryValueEx (2) error: code=$R4 size=$R7 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    ${DetailPrint} "RegReadToAllocValue: advapi32::RegQueryValueEx (2) error: code=$R4 size=$R7 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
     MessageBox MB_OK "RegReadToAllocValue: advapi32::RegQueryValueEx (2) error: code=$R4 size=$R7 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -652,10 +659,7 @@ Function ${un}RegReadToAllocValue
 exit:
   System::Call "advapi32::RegCloseKey(i $R6)"
 
-  ${PushStack3} $R5 $0 $R7
-  ${ExchStackStack3} 7
-
-  ${PopStack10} $R3 $R4 $R5 $R6 $R7 $R8 $0 $R0 $R1 $R2
+  ${PopPushStack10} "$R5 $0 $R7" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $0
 FunctionEnd
 !macroend
 
@@ -706,7 +710,7 @@ Function ${un}RegSetAllocValue
 
   System::Call "advapi32::RegOpenKey(i R8, t R1, *i.R6) i.R9"
   ${If} $R9 <> 0
-    DetailPrint "RegSetAllocValue: advapi32::RegOpenKey error: code=$R9 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    ${DetailPrint} "RegSetAllocValue: advapi32::RegOpenKey error: code=$R9 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
     MessageBox MB_OK "RegSetAllocValue: advapi32::RegOpenKey error: code=$R9 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -717,7 +721,7 @@ Function ${un}RegSetAllocValue
     System::Call "advapi32::RegSetValueEx(i R6, t R2, i 0, i R5, t '', i ${NSIS_CHAR_SIZE}) i.R9"
   ${EndIf}
   ${If} $R9 <> 0
-    DetailPrint "RegSetAllocValue: advapi32::RegSetValueEx error: code=$R9 size=$R3 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
+    ${DetailPrint} "RegSetAllocValue: advapi32::RegSetValueEx error: code=$R9 size=$R3 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\""
     MessageBox MB_OK "RegSetAllocValue: advapi32::RegSetValueEx error: code=$R9 size=$R3 var=$\"$R2$\" hive=$\"$R0$\" key=$\"$R1$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -809,14 +813,14 @@ Function ${un}RegAddPathToVar
 
   System::Call "advapi32::RegOpenKey(i R8, t R2, *i.R6) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegAddPathToVar: advapi32::RegOpenKey error: code=$R4 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegAddPathToVar: advapi32::RegOpenKey error: code=$R4 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegAddPathToVar: advapi32::RegOpenKey error: code=$R4 hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R3, i 0, *i .r9, p 0, *i 0 R7) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegAddPathToVar: advapi32::RegQueryValueEx (1) error: code=$R4 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegAddPathToVar: advapi32::RegQueryValueEx (1) error: code=$R4 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegAddPathToVar: advapi32::RegQueryValueEx (1) error: code=$R4 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -834,14 +838,14 @@ Function ${un}RegAddPathToVar
   System::Alloc $R5
   Pop $0
   ${If} $0 = 0
-    DetailPrint "RegAddPathToVar: System::Alloc (1) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegAddPathToVar: System::Alloc (1) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegAddPathToVar: System::Alloc (1) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R3, i 0, i 0, p r0, *i R5 R7) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegAddPathToVar: advapi32::RegQueryValueEx (2) error: code=$R4 size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegAddPathToVar: advapi32::RegQueryValueEx (2) error: code=$R4 size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegAddPathToVar: advapi32::RegQueryValueEx (2) error: code=$R4 size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -876,7 +880,7 @@ strip_loop1:
   System::Alloc $R5
   Pop $1
   ${If} $1 = 0
-    DetailPrint "RegAddPathToVar: System::Alloc (2) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegAddPathToVar: System::Alloc (2) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegAddPathToVar: System::Alloc (2) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -886,7 +890,7 @@ strip_loop1:
   IntOp $R9 $1 + ${NSIS_CHAR_SIZE}
   System::Call "kernel32::lstrcpyn(p R9, p r0, i R7) p.R4"
   ${If} $R4 = 0
-    DetailPrint "RegAddPathToVar: kernel32::lstrcpyn (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegAddPathToVar: kernel32::lstrcpyn (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegAddPathToVar: kernel32::lstrcpyn (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -905,7 +909,7 @@ strip_loop1:
   System::Alloc $R5
   Pop $2
   ${If} $2 = 0
-    DetailPrint "RegAddPathToVar: System::Alloc (3) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegAddPathToVar: System::Alloc (3) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegAddPathToVar: System::Alloc (3) error: size=$R5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -919,7 +923,7 @@ strip_loop1:
   IntOp $R9 $2 + ${NSIS_CHAR_SIZE}
   System::Call "kernel32::lstrcpy(p R9, t R0) p.R4"
   ${If} $R4 = 0
-    DetailPrint "RegAddPathToVar: kernel32::lstrcpy (2) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegAddPathToVar: kernel32::lstrcpy (2) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegAddPathToVar: kernel32::lstrcpy (2) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -958,7 +962,7 @@ empty:
 
   System::Call "kernel32::lstrcpy(p R9, t R0) p.R4"
   ${If} $R4 = 0
-    DetailPrint "RegAddPathToVar: kernel32::lstrcpy (3) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegAddPathToVar: kernel32::lstrcpy (3) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegAddPathToVar: kernel32::lstrcpy (3) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -971,7 +975,7 @@ empty:
 
   System::Call "advapi32::RegSetValueEx(i R6, t R3, i 0, i r9, p r0, i R5) i.R4"
   ${If} $R4 <> 0
-    DetailPrint "RegAddPathToVar: advapi32::RegSetValueEx (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegAddPathToVar: advapi32::RegSetValueEx (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegAddPathToVar: advapi32::RegSetValueEx (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -1065,14 +1069,14 @@ Function ${un}RegRemovePathFromVar
 
   System::Call "advapi32::RegOpenKey(i R8, t R2, *i.R6) i.R9"
   ${If} $R9 <> 0
-    DetailPrint "RegRemovePathFromVar: advapi32::RegOpenKey error: code=$R9 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegRemovePathFromVar: advapi32::RegOpenKey error: code=$R9 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegOpenKey error: code=$R9 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R3, i 0, *i .r9, p 0, *i 0 R7) i.R9"
   ${If} $R9 <> 0
-    DetailPrint "RegRemovePathFromVar: advapi32::RegQueryValueEx (1) error: code=$R9 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegRemovePathFromVar: advapi32::RegQueryValueEx (1) error: code=$R9 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegQueryValueEx (1) error: code=$R9 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -1090,7 +1094,7 @@ Function ${un}RegRemovePathFromVar
   System::Alloc $5
   Pop $0
   ${If} $0 = 0
-    DetailPrint "RegRemovePathFromVar: System::Alloc (1) error: size=$5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegRemovePathFromVar: System::Alloc (1) error: size=$5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegRemovePathFromVar: System::Alloc (1) error: size=$5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -1099,7 +1103,7 @@ Function ${un}RegRemovePathFromVar
   System::Alloc $5
   Pop $1
   ${If} $1 = 0
-    DetailPrint "RegRemovePathFromVar: System::Alloc (2) error: size=$5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegRemovePathFromVar: System::Alloc (2) error: size=$5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegRemovePathFromVar: System::Alloc (2) error: size=$5 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -1110,7 +1114,7 @@ Function ${un}RegRemovePathFromVar
 
   System::Call "advapi32::RegQueryValueEx(i R6, t R3, i 0, i 0, p R9, *i r5 R7) i.r4"
   ${If} $4 <> 0
-    DetailPrint "RegRemovePathFromVar: advapi32::RegQueryValueEx (2) error: code=$4 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegRemovePathFromVar: advapi32::RegQueryValueEx (2) error: code=$4 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegQueryValueEx (2) error: code=$4 size=$R7 var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -1159,14 +1163,14 @@ Function ${un}RegRemovePathFromVar
       ; string move through the double copy
       System::Call "kernel32::lstrcpy(p r1, p r8) p.r4"
       ${If} $4 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        ${DetailPrint} "RegRemovePathFromVar: kernel32::lstrcpy (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
         MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
 
       System::Call "kernel32::lstrcpy(p R9, p r1) p.r4"
       ${If} $4 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (2) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        ${DetailPrint} "RegRemovePathFromVar: kernel32::lstrcpy (2) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
         MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (2) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
@@ -1188,14 +1192,14 @@ Function ${un}RegRemovePathFromVar
       ; string move through the double copy
       System::Call "kernel32::lstrcpy(p r1, p r8) p.r4"
       ${If} $4 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (3) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        ${DetailPrint} "RegRemovePathFromVar: kernel32::lstrcpy (3) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
         MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (3) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
 
       System::Call "kernel32::lstrcpy(p R9, p r1) p.r4"
       ${If} $4 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (4) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        ${DetailPrint} "RegRemovePathFromVar: kernel32::lstrcpy (4) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
         MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (4) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
@@ -1320,14 +1324,14 @@ excludes_check_end:
       ; string move through the double copy
       System::Call "kernel32::lstrcpy(p r1, p R7) p.r6"
       ${If} $6 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (5) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        ${DetailPrint} "RegRemovePathFromVar: kernel32::lstrcpy (5) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
         MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (5) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
 
       System::Call "kernel32::lstrcpy(p R9, p r1) p.r6"
       ${If} $6 = 0
-        DetailPrint "RegRemovePathFromVar: kernel32::lstrcpy (6) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+        ${DetailPrint} "RegRemovePathFromVar: kernel32::lstrcpy (6) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
         MessageBox MB_OK "RegRemovePathFromVar: kernel32::lstrcpy (6) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
         Goto exit
       ${EndIf}
@@ -1365,7 +1369,7 @@ ready_to_update:
 
   System::Call "advapi32::RegSetValueEx(i R6, t R3, i 0, i r9, p R9, i r4) i.r6"
   ${If} $6 <> 0
-    DetailPrint "RegRemovePathFromVar: advapi32::RegSetValueEx (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
+    ${DetailPrint} "RegRemovePathFromVar: advapi32::RegSetValueEx (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\""
     MessageBox MB_OK "RegRemovePathFromVar: advapi32::RegSetValueEx (1) error: var=$\"$R3$\" hive=$\"$R1$\" key=$\"$R2$\"" /SD IDOK
     Goto exit
   ${EndIf}
@@ -1405,6 +1409,9 @@ Call un.RegRemovePathFromVar
 
 !define Include_RegRemovePathFromVar "!insertmacro Include_RegRemovePathFromVar"
 !macro Include_RegRemovePathFromVar un
+!ifndef ${un}RegRemovePathFromVar_INCLUDED
+!define ${un}RegRemovePathFromVar_INCLUDED
+
 !ifndef WORDFUNC_INCLUDED
 !include "WordFunc.nsh"
 !insertmacro WordFind
@@ -1415,11 +1422,10 @@ Call un.RegRemovePathFromVar
 !insertmacro Locate
 !endif
 
-!ifndef ${un}RegRemovePathFromVar_INCLUDED
-!define ${un}RegRemovePathFromVar_INCLUDED
 ${Include_TrimLeadingChars} "${un}"
 ${Include_TrimTrailingChars} "${un}"
 ${Include_ExpandEnvironmentString} "${un}"
+
 !insertmacro Func_RegRemovePathFromVar "${un}"
 !endif
 !macroend
@@ -1442,8 +1448,6 @@ ${Include_ExpandEnvironmentString} "${un}"
 ;   ${Push} "<embed_ctx>"    ; context of call
 ;   Call RegAddWindowsFirewallRule
 !macro Func_RegAddWindowsFirewallRule un
-!ifndef ${un}RegAddWindowsFirewallRule_INCLUDED
-!define ${un}RegAddWindowsFirewallRule_INCLUDED
 Function ${un}RegAddWindowsFirewallRule
   ${ExchStack12} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1
 
@@ -1503,69 +1507,50 @@ Done:
 
   ${PopStack20} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
 FunctionEnd
-!endif
 !macroend
 
-!define Call_RegAddWindowsFirewallRule "!insertmacro Call_RegAddWindowsFirewallRule"
-!macro Call_RegAddWindowsFirewallRule prefix key_name version action active direction protocol profile app svc name desc embed_ctx
-${DebugStackEnterFrame} Call_RegAddWindowsFirewallRule 0 1
+!define RegAddWindowsFirewallRule "!insertmacro RegAddWindowsFirewallRule"
+!macro RegAddWindowsFirewallRule key_name version action active direction protocol profile app svc name desc embed_ctx
+${DebugStackEnterFrame} RegAddWindowsFirewallRule 0 1
 
-${Push} `${key_name}`
-${Push} `${version}`
-${Push} `${action}`
-${Push} `${active}`
-${Push} `${direction}`
-${Push} `${protocol}`
-${Push} `${profile}`
-${Push} `${app}`
-${Push} `${svc}`
-${Push} `${name}`
-${Push} `${desc}`
-${Push} `${embed_ctx}`
-Call ${prefix}RegAddWindowsFirewallRule
+${PushStack12} `${key_name}` `${version}` `${action}` `${active}` `${direction}` `${protocol}` `${profile}` `${app}` `${svc}` `${name}` `${desc}` `${embed_ctx}`
+!ifndef __UNINSTALL__
+Call RegAddWindowsFirewallRule
+!else
+Call un.RegAddWindowsFirewallRule
+!endif
 
-${DebugStackExitFrame} Call_RegAddWindowsFirewallRule 0 1
+${DebugStackExitFrame} RegAddWindowsFirewallRule 0 1
 !macroend
 
 !define Include_RegAddWindowsFirewallRule "!insertmacro Include_RegAddWindowsFirewallRule"
-!macro Include_RegAddWindowsFirewallRule prefix
-!if "${prefix}" == ""
-!ifndef StrRep_INCLUDED
-${StrRep}
-!endif
-!else
-!if "${prefix}" == "un."
-!ifndef UnStrRep_INCLUDED
-${UnStrRep}
-!endif
-!endif
-!endif
-!insertmacro Func_RegAddWindowsFirewallRule "${prefix}"
-!macroend
+!macro Include_RegAddWindowsFirewallRule un
+!ifndef ${un}RegAddWindowsFirewallRule_INCLUDED
+!define ${un}RegAddWindowsFirewallRule_INCLUDED
 
-!define RegAddWindowsFirewallRule "${Call_RegAddWindowsFirewallRule} ''"
-!define un.RegAddWindowsFirewallRule "${Call_RegAddWindowsFirewallRule} 'un.'"
+!if "${un}" != "un."
+  !ifndef StrRep_INCLUDED
+  ${StrRep}
+  !endif
+!else
+  !ifndef UnStrRep_INCLUDED
+  ${StrRep}
+  !endif
+!endif
+
+!insertmacro Func_RegAddWindowsFirewallRule "${un}"
+!endif
+!macroend
 
 ; RegRemoveWindowsFirewallRule
-!define Include_RegRemoveWindowsFirewallRule "!insertmacro Include_RegRemoveWindowsFirewallRule"
-!macro Include_RegRemoveWindowsFirewallRule prefix
-${Include_BeginMacroBodyFunction} "${prefix}"
-${Include_EndMacroBodyFunction} "${prefix}"
-!macroend
+!define RegRemoveWindowsFirewallRule "!insertmacro RegRemoveWindowsFirewallRule"
+!macro RegRemoveWindowsFirewallRule key_name
+${DebugStackEnterFrame} RegRemoveWindowsFirewallRule 0 1
 
-!define Call_RegRemoveWindowsFirewallRule "!insertmacro Call_RegRemoveWindowsFirewallRule"
-!macro Call_RegRemoveWindowsFirewallRule prefix key_name
-${DebugStackEnterFrame} Call_RegRemoveWindowsFirewallRule 0 1
-
-${Call_BeginMacroBodyFunction} "${prefix}"
 ${DeleteRegValue} HKLM "${WIN_FIREWALL_RULES_REGKEY}" "${key_name}"
-${Call_EndMacroBodyFunction} "${prefix}"
 
-${DebugStackExitFrame} Call_RegRemoveWindowsFirewallRule 0 1
+${DebugStackExitFrame} RegRemoveWindowsFirewallRule 0 1
 !macroend
-
-!define RegRemoveWindowsFirewallRule "${Call_RegRemoveWindowsFirewallRule} ''"
-!define un.RegRemoveWindowsFirewallRule "${Call_RegRemoveWindowsFirewallRule} 'un.'"
 
 ; RegEnableWindowsFirewallRule - Enables existing Windows Firewall rule directly from the registry
 ;   WARNING: You must restart firewall to make changes applied for the firewall!
@@ -1575,8 +1560,6 @@ ${DebugStackExitFrame} Call_RegRemoveWindowsFirewallRule 0 1
 ;   ${Push} "<value>"        ; 0 or 1
 ;   Call RegEnableWindowsFirewallRule
 !macro Func_RegEnableWindowsFirewallRule un
-!ifndef ${un}RegEnableWindowsFirewallRule_INCLUDED
-!define ${un}RegEnableWindowsFirewallRule_INCLUDED
 Function ${un}RegEnableWindowsFirewallRule
   ${ExchStack2} $R0 $R1
   ;R0 - key_name
@@ -1587,9 +1570,17 @@ Function ${un}RegEnableWindowsFirewallRule
 
   ${ReadRegStr} $R3 HKLM "${WIN_FIREWALL_RULES_REGKEY}" $R0
   ${If} $R1 <> 0
-    ${StrRep} $R3 $R3 '|Active=FALSE|' '|Active=TRUE|'
+    !if "${un}" != "un."
+      ${StrRep} $R3 $R3 '|Active=FALSE|' '|Active=TRUE|'
+    !else
+      ${UnStrRep} $R3 $R3 '|Active=FALSE|' '|Active=TRUE|'
+    !endif
   ${Else}
-    ${StrRep} $R3 $R3 '|Active=TRUE|' '|Active=FALSE|'
+    !if "${un}" != "un."
+      ${StrRep} $R3 $R3 '|Active=TRUE|' '|Active=FALSE|'
+    !else
+      ${UnStrRep} $R3 $R3 '|Active=TRUE|' '|Active=FALSE|'
+    !endif
   ${EndIf}
   ${WriteRegStr} HKLM "${WIN_FIREWALL_RULES_REGKEY}" $R0 $R3
 
@@ -1598,38 +1589,40 @@ Done:
 
   ${PopStack3} $R0 $R1 $R3
 FunctionEnd
-!endif
 !macroend
 
-!define Call_RegEnableWindowsFirewallRule "!insertmacro Call_RegEnableWindowsFirewallRule"
-!macro Call_RegEnableWindowsFirewallRule prefix key_name value
-${DebugStackEnterFrame} Call_RegEnableWindowsFirewallRule 0 1
+!define RegEnableWindowsFirewallRule "!insertmacro RegEnableWindowsFirewallRule"
+!macro RegEnableWindowsFirewallRule key_name value
+${DebugStackEnterFrame} RegEnableWindowsFirewallRule 0 1
 
-${Push} `${key_name}`
-${Push} `${value}`
-Call ${prefix}RegEnableWindowsFirewallRule
+${PushStack2} `${key_name}` `${value}`
+!ifndef __UNINSTALL__
+Call RegEnableWindowsFirewallRule
+!else
+Call un.RegEnableWindowsFirewallRule
+!endif
 
-${DebugStackExitFrame} Call_RegEnableWindowsFirewallRule 0 1
+${DebugStackExitFrame} RegEnableWindowsFirewallRule 0 1
 !macroend
 
 !define Include_RegEnableWindowsFirewallRule "!insertmacro Include_RegEnableWindowsFirewallRule"
-!macro Include_RegEnableWindowsFirewallRule prefix
-!if "${prefix}" == ""
-!ifndef StrRep_INCLUDED
-${StrRep}
-!endif
-!else
-!if "${prefix}" == "un."
-!ifndef UnStrRep_INCLUDED
-${UnStrRep}
-!endif
-!endif
-!endif
-!insertmacro Func_RegEnableWindowsFirewallRule "${prefix}"
-!macroend
+!macro Include_RegEnableWindowsFirewallRule un
+!ifndef ${un}RegEnableWindowsFirewallRule_INCLUDED
+!define ${un}RegEnableWindowsFirewallRule_INCLUDED
 
-!define RegEnableWindowsFirewallRule "${Call_RegEnableWindowsFirewallRule} ''"
-!define un.RegEnableWindowsFirewallRule "${Call_RegEnableWindowsFirewallRule} 'un.'"
+!if "${un}" != "un."
+  !ifndef StrRep_INCLUDED
+  ${StrRep}
+  !endif
+!else
+  !ifndef UnStrRep_INCLUDED
+  ${UnStrRep}
+  !endif
+!endif
+
+!insertmacro Func_RegEnableWindowsFirewallRule "${un}"
+!endif
+!macroend
 
 ; RegReplaceWindowsFirewallRuleByStrFromAppPath - Replaces all existing
 ;   Windows Firewall rules directly from the registry by a pattern string.
@@ -1642,8 +1635,6 @@ ${UnStrRep}
 ;   ${Push} "<str_for_replace>"  ; string for replace
 ;   Call RegReplaceWindowsFirewallRuleByStrFromAppPath
 !macro Func_RegReplaceWindowsFirewallRuleByStrFromAppPath un
-!ifndef ${un}RegReplaceWindowsFirewallRuleByStrFromAppPath_INCLUDED
-!define ${un}RegReplaceWindowsFirewallRuleByStrFromAppPath_INCLUDED
 Function ${un}RegReplaceWindowsFirewallRuleByStrFromAppPath
   ${ExchStack4} $R0 $R1 $R2 $R3
   ;R0 - app
@@ -1678,46 +1669,46 @@ Done:
 
   ${PopStack8} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7
 FunctionEnd
-!endif
 !macroend
 
-!define Call_RegReplaceWindowsFirewallRuleByStrFromAppPath "!insertmacro Call_RegReplaceWindowsFirewallRuleByStrFromAppPath"
-!macro Call_RegReplaceWindowsFirewallRuleByStrFromAppPath prefix app name str_to_replace str_for_replace
-${DebugStackEnterFrame} Call_RegReplaceWindowsFirewallRuleByStrFromAppPath 0 1
+!define RegReplaceWindowsFirewallRuleByStrFromAppPath "!insertmacro RegReplaceWindowsFirewallRuleByStrFromAppPath"
+!macro RegReplaceWindowsFirewallRuleByStrFromAppPath app name str_to_replace str_for_replace
+${DebugStackEnterFrame} RegReplaceWindowsFirewallRuleByStrFromAppPath 0 1
 
-${Push} `${app}`
-${Push} `${name}`
-${Push} `${str_to_replace}`
-${Push} `${str_for_replace}`
-Call ${prefix}RegReplaceWindowsFirewallRuleByStrFromAppPath
+${PushStack4} `${app}` `${name}` `${str_to_replace}` `${str_for_replace}`
+!ifndef __UNINSTALL__
+Call RegReplaceWindowsFirewallRuleByStrFromAppPath
+!else
+Call un.RegReplaceWindowsFirewallRuleByStrFromAppPath
+!endif
 
-${DebugStackExitFrame} Call_RegReplaceWindowsFirewallRuleByStrFromAppPath 0 1
+${DebugStackExitFrame} RegReplaceWindowsFirewallRuleByStrFromAppPath 0 1
 !macroend
 
 !define Include_RegReplaceWindowsFirewallRuleByStrFromAppPath "!insertmacro Include_RegReplaceWindowsFirewallRuleByStrFromAppPath"
-!macro Include_RegReplaceWindowsFirewallRuleByStrFromAppPath prefix
-!if "${prefix}" == ""
-!ifndef StrStr_INCLUDED
-${StrStr}
-!endif
-!ifndef StrRep_INCLUDED
-${StrRep}
-!endif
-!else
-!if "${prefix}" == "un."
-!ifndef UnStrStr_INCLUDED
-${UnStrStr}
-!endif
-!ifndef UnStrRep_INCLUDED
-${UnStrRep}
-!endif
-!endif
-!endif
-!insertmacro Func_RegReplaceWindowsFirewallRuleByStrFromAppPath "${prefix}"
-!macroend
+!macro Include_RegReplaceWindowsFirewallRuleByStrFromAppPath un
+!ifndef ${un}RegReplaceWindowsFirewallRuleByStrFromAppPath_INCLUDED
+!define ${un}RegReplaceWindowsFirewallRuleByStrFromAppPath_INCLUDED
 
-!define RegReplaceWindowsFirewallRuleByStrFromAppPath "${Call_RegReplaceWindowsFirewallRuleByStrFromAppPath} ''"
-!define un.RegReplaceWindowsFirewallRuleByStrFromAppPath "${Call_RegReplaceWindowsFirewallRuleByStrFromAppPath} 'un.'"
+!if "${un}" != "un."
+  !ifndef StrStr_INCLUDED
+  ${StrStr}
+  !endif
+  !ifndef StrRep_INCLUDED
+  ${StrRep}
+  !endif
+!else
+  !ifndef UnStrStr_INCLUDED
+  ${UnStrStr}
+  !endif
+  !ifndef UnStrRep_INCLUDED
+  ${UnStrRep}
+  !endif
+!endif
+
+!insertmacro Func_RegReplaceWindowsFirewallRuleByStrFromAppPath "${un}"
+!endif
+!macroend
 
 !define AddWindowsFirewallRuleOnceFromAppPath "!insertmacro AddWindowsFirewallRuleOnceFromAppPath"
 !macro AddWindowsFirewallRuleOnceFromAppPath app name profile
@@ -1727,16 +1718,16 @@ ${PushStack1} $R0
 
 ${DebugStackEnterFrame} AddWindowsFirewallRuleOnceFromAppPath 1 0
 
-DetailPrint "liteFirewall::RemoveRule $\"${app}$\" $\"${name}$\""
+${DetailPrint} "liteFirewall::RemoveRule $\"${app}$\" $\"${name}$\""
 liteFirewall::RemoveRule "${app}" "${name}"
 ${Pop} $R0
-DetailPrint "Last error code: $R0"
+${DetailPrint} "Last error code: $R0"
 
-DetailPrint "liteFirewall::AddRule $\"${app}$\" $\"${name}$\""
+${DetailPrint} "liteFirewall::AddRule $\"${app}$\" $\"${name}$\""
 ; Default registry value: #v2.10|Action=Allow|Active=TRUE|Dir=In|Profile=Private|App=${app}|Name=${name}|
 liteFirewall::AddRule "${app}" "${name}"
 ${Pop} $R0
-DetailPrint "Last error code: $R0"
+${DetailPrint} "Last error code: $R0"
 
 ${If} "${profile}" != ""
   ${RegReplaceWindowsFirewallRuleByStrFromAppPath} "${app}" "${name}" "|Profile=Private|" "|${profile}|"
@@ -1757,16 +1748,16 @@ ${PushStack1} $R0
 
 ${DebugStackEnterFrame} AddWindowsFirewallRuleOnceFromAppPathAndPorts 1 0
 
-DetailPrint "liteFirewall::RemoveRule $\"${app}$\" $\"${name}$\""
+${DetailPrint} "liteFirewall::RemoveRule $\"${app}$\" $\"${name}$\""
 liteFirewall::RemoveRule "${app}" "${name}"
 ${Pop} $R0
-DetailPrint "Last error code: $R0"
+${DetailPrint} "Last error code: $R0"
 
-DetailPrint "liteFirewall::AddRule $\"${app}$\" $\"${name}$\""
+${DetailPrint} "liteFirewall::AddRule $\"${app}$\" $\"${name}$\""
 ; Default registry value: #v2.10|Action=Allow|Active=TRUE|Dir=In|Profile=Private|App=${app}|Name=${name}|
 liteFirewall::AddRule "${app}" "${name}"
 ${Pop} $R0
-DetailPrint "Last error code: $R0"
+${DetailPrint} "Last error code: $R0"
 
 ${If} "${profile}" != ""
   ${RegReplaceWindowsFirewallRuleByStrFromAppPath} "${app}" "${name}" "|Dir=In|Profile=Private|App=" "|Dir=In|${profile}|App="
@@ -1892,40 +1883,42 @@ Function ${un}CreateShortCutImplEnd
 FunctionEnd
 !macroend
 
-!define Call_CreateShortCut "!insertmacro Call_CreateShortCut"
-!macro Call_CreateShortCut prefix type product_regkey shell_ctx base_path rel_path exec_file args icon_file icon_index
-${DebugStackEnterFrame} Call_CreateShortCut 0 1
+!define CreateShortCut "!insertmacro CreateShortCut"
+!macro CreateShortCut type product_regkey shell_ctx base_path rel_path exec_file args icon_file icon_index
+${DebugStackEnterFrame} CreateShortCut 0 1
 
 ${PushShellVarContext} "${shell_ctx}"
 
-${Push} `${type}`
-${Push} `${product_regkey}`
-${Push} `${base_path}`
-${Push} `${rel_path}`
-${Push} `${exec_file}`
-${Push} `${args}`
-${Push} `${icon_file}`
+${PushStack7} `${type}` `${product_regkey}` `${base_path}` `${rel_path}` `${exec_file}` `${args}` `${icon_file}`
 ; must be called as a Function to force parameters evaluation before the use
-Call ${prefix}CreateShortCutImplBegin
+!ifndef __UNINSTALL__
+Call CreateShortCutImplBegin
+!else
+Call unCreateShortCutImplBegin
+!endif
 ClearErrors
 ; WARNING: Have to call CreateShortCut in a macro because ${icon_index} argument is not evaluatable from a Function
 ;         (error message: "cannot interpret icon index")
 CreateShortCut "$R2\$R3" "$R4" "$R5" "$R6" ${icon_index}
-Call ${prefix}CreateShortCutImplEnd
+!ifndef __UNINSTALL__
+Call CreateShortCutImplEnd
+!else
+Call un.CreateShortCutImplEnd
+!endif
 
 ${PopShellVarContext}
 
-${DebugStackExitFrame} Call_CreateShortCut 0 1
+${DebugStackExitFrame} CreateShortCut 0 1
 !macroend
 
 !define Include_CreateShortCut "!insertmacro Include_CreateShortCut"
-!macro Include_CreateShortCut prefix
-${Func_CreateShortCutImplBegin} "${prefix}"
-${Func_CreateShortCutImplEnd} "${prefix}"
+!macro Include_CreateShortCut un
+!ifndef ${un}CreateShortCut_INCLUDED
+!define ${un}CreateShortCut_INCLUDED
+${Func_CreateShortCutImplBegin} "${un}"
+${Func_CreateShortCutImplEnd} "${un}"
+!endif
 !macroend
-
-!define CreateShortCut "${Call_CreateShortCut} ''"
-!define un.CreateShortCut "${Call_CreateShortCut} 'un.'"
 
 !define Func_DeleteAllShortcuts "!insertmacro Func_DeleteAllShortcuts"
 !macro Func_DeleteAllShortcuts un
@@ -2004,19 +1997,19 @@ Function ${un}DeleteAllShortcuts
       ${AndIf} $R6 == $R8
         Delete "$R2\$R4"
         ; try to remove shortcut directory after remove a shortcut file
-        ${Call_RemoveEmptyDirectoryPathImpl} "${un}" $R2 $R4
+        ${RemoveEmptyDirectoryPathImpl} $R2 $R4
         #; current user shortcuts basically override public shortcuts (for all users),
         #; so we have to remove them too to avoid shortcuts obscuring and cleanup current user
         #; shortcut folders.
         #${If} $SHELL_VAR_CTX == "all"
         #  Delete "$R3\$R4"
-        #  ${Call_RemoveEmptyDirectoryPathImpl} "${un}" $R3 $R4
+        #  ${RemoveEmptyDirectoryPathImpl} $R3 $R4
         #${EndIf}
       ${Else}
-        DetailPrint "DeleteAllShortcuts: warning: shortcut has been changed, deletion ignored: $\"$R2\$R4$\""
+        ${DetailPrint} "DeleteAllShortcuts: warning: shortcut has been changed, deletion ignored: $\"$R2\$R4$\""
       ${EndIf}
     ${Else}
-      DetailPrint "DeleteAllShortcuts: error: shortcut is not found: $\"$R2\$R4$\""
+      ${DetailPrint} "DeleteAllShortcuts: error: shortcut is not found: $\"$R2\$R4$\""
     ${EndIf}
 
     ${If} $R3 = 0
@@ -2054,15 +2047,13 @@ Function ${un}DeleteAllShortcuts
 FunctionEnd
 !macroend
 
-!define Call_DeleteAllShortcuts "!insertmacro Call_DeleteAllShortcuts"
-!macro Call_DeleteAllShortcuts prefix type product_regkey shell_ctx base_path
-${DebugStackEnterFrame} Call_DeleteAllShortcuts 0 1
+!define DeleteAllShortcuts "!insertmacro DeleteAllShortcuts"
+!macro DeleteAllShortcuts type product_regkey shell_ctx base_path
+${DebugStackEnterFrame} DeleteAllShortcuts 0 1
 
 ${PushShellVarContext} "${shell_ctx}"
 
-${Push} `${type}`
-${Push} `${product_regkey}`
-${Push} `${base_path}`
+${PushStack3} `${type}` `${product_regkey}` `${base_path}`
 #${If} "${shell_ctx}" != "current"
 #  ${PushShellVarContext} current
 #
@@ -2073,21 +2064,25 @@ ${Push} `${base_path}`
 #${Else}
 #  ${Push} `${base_path}`
 #${EndIf}
-Call ${prefix}DeleteAllShortcuts
+!ifndef __UNINSTALL__
+Call DeleteAllShortcuts
+!else
+Call un.DeleteAllShortcuts
+!endif
 
 ${PopShellVarContext}
 
-${DebugStackExitFrame} Call_DeleteAllShortcuts 0 1
+${DebugStackExitFrame} DeleteAllShortcuts 0 1
 !macroend
 
 !define Include_DeleteAllShortcuts "!insertmacro Include_DeleteAllShortcuts"
-!macro Include_DeleteAllShortcuts prefix
-${Include_RemoveEmptyDirectoryPath} "${prefix}"
-${Func_DeleteAllShortcuts} "${prefix}"
+!macro Include_DeleteAllShortcuts un
+!ifndef ${un}DeleteAllShortcuts_INCLUDED
+!define ${un}DeleteAllShortcuts_INCLUDED
+${Include_RemoveEmptyDirectoryPath} "${un}"
+${Func_DeleteAllShortcuts} "${un}"
+!endif
 !macroend
-
-!define DeleteAllShortcuts "${Call_DeleteAllShortcuts} ''"
-!define un.DeleteAllShortcuts "${Call_DeleteAllShortcuts} 'un.'"
 
 !define Func_PinShortcut "!insertmacro Func_PinShortcut"
 !macro Func_PinShortcut un
@@ -2118,7 +2113,7 @@ Function ${un}PinShortcut
 
   ${DebugStackCheckFrame} `${un}PinShortcut` 1 0
 
-  DetailPrint "Pinned shortcut $\"$R2\$R3$\" to start menu: $R8"
+  ${DetailPrint} "Pinned shortcut $\"$R2\$R3$\" to start menu: $R8"
   ${UpdateSilentSetupNotify}
 
   ${DebugStackExitFrame} `${un}PinShortcut` 1 0
@@ -2127,31 +2122,31 @@ Function ${un}PinShortcut
 FunctionEnd
 !macroend
 
-!define Call_PinShortcut "!insertmacro Call_PinShortcut"
-!macro Call_PinShortcut prefix type product_regkey shell_ctx base_path shortcut_file_ansi shortcut_file_utf_8
-${DebugStackEnterFrame} Call_PinShortcut 0 1
+!define PinShortcut "!insertmacro PinShortcut"
+!macro PinShortcut type product_regkey shell_ctx base_path shortcut_file_ansi shortcut_file_utf_8
+${DebugStackEnterFrame} PinShortcut 0 1
 
 ${PushShellVarContext} "${shell_ctx}"
 
-${Push} `${type}`
-${Push} `${product_regkey}`
-${Push} `${base_path}`
-${Push} `${shortcut_file_ansi}`
-${Push} `${shortcut_file_utf_8}`
-Call ${prefix}PinShortcut
+${PushStack5} `${type}` `${product_regkey}` `${base_path}` `${shortcut_file_ansi}` `${shortcut_file_utf_8}`
+!ifndef __UNINSTALL__
+Call PinShortcut
+!else
+Call un.PinShortcut
+!endif
 
 ${PopShellVarContext}
 
-${DebugStackExitFrame} Call_PinShortcut 0 1
+${DebugStackExitFrame} PinShortcut 0 1
 !macroend
 
 !define Include_PinShortcut "!insertmacro Include_PinShortcut"
-!macro Include_PinShortcut prefix
-${Func_PinShortcut} "${prefix}"
+!macro Include_PinShortcut un
+!ifndef ${un}PinShortcut_INCLUDED
+!define ${un}PinShortcut_INCLUDED
+${Func_PinShortcut} "${un}"
+!endif
 !macroend
-
-!define PinShortcut "${Call_PinShortcut} ''"
-!define un.PinShortcut "${Call_PinShortcut} 'un.'"
 
 !define Func_UnpinAllShortcuts "!insertmacro Func_UnpinAllShortcuts"
 !macro Func_UnpinAllShortcuts un
@@ -2181,7 +2176,7 @@ Function ${un}UnpinAllShortcuts
 
     ${DebugStackCheckFrame} `${un}UnpinAllShortcuts` 1 0
 
-    DetailPrint "Unpinned shortcut $\"$R4\$R5$\" from start menu: $R8"
+    ${DetailPrint} "Unpinned shortcut $\"$R4\$R5$\" from start menu: $R8"
 
     ; Previous unpin may fail if FolderItemVerb with `Изъять из меню "Пуск"` won't be found on the list of items.
     ; So to workaround shortcut duplication bug in next call to pin: try additionally to unpin from current user AppData directory.
@@ -2192,7 +2187,7 @@ Function ${un}UnpinAllShortcuts
 
     ${DebugStackCheckFrame} `${un}UnpinAllShortcuts` 1 0
 
-    DetailPrint "Unpinned shortcut $\"$R4\$R5$\" from start menu: $R8"
+    ${DetailPrint} "Unpinned shortcut $\"$R4\$R5$\" from start menu: $R8"
 
     #${PopShellVarContext}
 
@@ -2224,7 +2219,7 @@ Function ${un}UnpinAllShortcuts
 
     ${DebugStackCheckFrame} `${un}UnpinAllShortcuts` 1 0
 
-    DetailPrint "Unpinned shortcut $\"$R4\$R5$\" from start menu: $R8"
+    ${DetailPrint} "Unpinned shortcut $\"$R4\$R5$\" from start menu: $R8"
 
     ; Previous unpin may fail if FolderItemVerb with `Изъять из меню "Пуск"` won't be found on the list of items.
     ; So to workaround shortcut duplication bug in next call to pin: try additionally to unpin from AppData directory.
@@ -2235,7 +2230,7 @@ Function ${un}UnpinAllShortcuts
 
     ${DebugStackCheckFrame} `${un}UnpinAllShortcuts` 1 0
 
-    DetailPrint "Unpinned shortcut $\"$R4\$R5$\" from start menu: $R8"
+    ${DetailPrint} "Unpinned shortcut $\"$R4\$R5$\" from start menu: $R8"
 
     #${PopShellVarContext}
 
@@ -2261,28 +2256,31 @@ Function ${un}UnpinAllShortcuts
 FunctionEnd
 !macroend
 
-!define Call_UnpinAllShortcuts "!insertmacro Call_UnpinAllShortcuts"
-!macro Call_UnpinAllShortcuts prefix type product_regkey shell_ctx
-${DebugStackEnterFrame} Call_UnpinAllShortcuts 0 1
+!define UnpinAllShortcuts "!insertmacro UnpinAllShortcuts"
+!macro UnpinAllShortcuts type product_regkey shell_ctx
+${DebugStackEnterFrame} UnpinAllShortcuts 0 1
 
 ${PushShellVarContext} "${shell_ctx}"
 
-${Push} `${type}`
-${Push} `${product_regkey}`
-Call ${prefix}UnpinAllShortcuts
+${PushStack2} `${type}` `${product_regkey}`
+!ifndef __UNINSTALL__
+Call UnpinAllShortcuts
+!else
+Call un.UnpinAllShortcuts
+!endif
 
 ${PopShellVarContext}
 
-${DebugStackExitFrame} Call_UnpinAllShortcuts 0 1
+${DebugStackExitFrame} UnpinAllShortcuts 0 1
 !macroend
 
 !define Include_UnpinAllShortcuts "!insertmacro Include_UnpinAllShortcuts"
-!macro Include_UnpinAllShortcuts prefix
-${Func_UnpinAllShortcuts} "${prefix}"
+!macro Include_UnpinAllShortcuts un
+!ifndef ${un}UnpinAllShortcuts_INCLUDED
+!define ${un}UnpinAllShortcuts_INCLUDED
+${Func_UnpinAllShortcuts} "${un}"
+!endif
 !macroend
-
-!define UnpinAllShortcuts "${Call_UnpinAllShortcuts} ''"
-!define un.UnpinAllShortcuts "${Call_UnpinAllShortcuts} 'un.'"
 
 ; Register installation file copy
 !define Func_RegInstallFileCopy "!insertmacro Func_RegInstallFileCopy"
@@ -2329,32 +2327,34 @@ Function ${un}RegInstallFileCopy
 FunctionEnd
 !macroend
 
-!define Call_RegInstallFileCopy "!insertmacro Call_RegInstallFileCopy"
-!macro Call_RegInstallFileCopy prefix res_var product_regkey shell_ctx dir_path path_to
-${DebugStackEnterFrame} Call_RegInstallFileCopy 0 1
+!define RegInstallFileCopy "!insertmacro RegInstallFileCopy"
+!macro RegInstallFileCopy res_var product_regkey shell_ctx dir_path path_to
+${DebugStackEnterFrame} RegInstallFileCopy 0 1
 
 ${PushShellVarContext} "${shell_ctx}"
 
-${Push} `${product_regkey}`
-${Push} `${dir_path}`
-${Push} `${path_to}`
-Call ${prefix}RegInstallFileCopy
+${PushStack3} `${product_regkey}` `${dir_path}` `${path_to}`
+!ifndef __UNINSTALL__
+Call RegInstallFileCopy
+!else
+Call un.RegInstallFileCopy
+!endif
 ${Pop} $DEBUG_RET0
 
 ${PopShellVarContext}
 
-${DebugStackExitFrame} Call_RegInstallFileCopy 0 1
+${DebugStackExitFrame} RegInstallFileCopy 0 1
 
 StrCpy `${res_var}` $DEBUG_RET0
 !macroend
 
 !define Include_RegInstallFileCopy "!insertmacro Include_RegInstallFileCopy"
-!macro Include_RegInstallFileCopy prefix
-${Func_RegInstallFileCopy} "${prefix}"
+!macro Include_RegInstallFileCopy un
+!ifndef ${un}RegInstallFileCopy_INCLUDED
+!define ${un}RegInstallFileCopy_INCLUDED
+${Func_RegInstallFileCopy} "${un}"
+!endif
 !macroend
-
-!define RegInstallFileCopy "${Call_RegInstallFileCopy} ''"
-!define un.RegInstallFileCopy "${Call_RegInstallFileCopy} 'un.'"
 
 ; Installation files copy with registration
 !define Func_CopyInstallFiles "!insertmacro Func_CopyInstallFiles"
@@ -2416,33 +2416,34 @@ Function ${un}CopyInstallFiles
 FunctionEnd
 !macroend
 
-!define Call_CopyInstallFiles "!insertmacro Call_CopyInstallFiles"
-!macro Call_CopyInstallFiles prefix res_var product_regkey shell_ctx dir_path path_from path_to
-${DebugStackEnterFrame} Call_CopyInstallFiles 0 1
+!define CopyInstallFiles "!insertmacro CopyInstallFiles"
+!macro CopyInstallFiles res_var product_regkey shell_ctx dir_path path_from path_to
+${DebugStackEnterFrame} CopyInstallFiles 0 1
 
 ${PushShellVarContext} "${shell_ctx}"
 
-${Push} `${product_regkey}`
-${Push} `${dir_path}`
-${Push} `${path_from}`
-${Push} `${path_to}`
-Call ${prefix}CopyInstallFiles
+${PushStack4} `${product_regkey}` `${dir_path}` `${path_from}` `${path_to}`
+!ifndef __UNINSTALL__
+Call CopyInstallFiles
+!else
+Call un.CopyInstallFiles
+!endif
 ${Pop} $DEBUG_RET0
 
 ${PopShellVarContext}
 
-${DebugStackExitFrame} Call_CopyInstallFiles 0 1
+${DebugStackExitFrame} CopyInstallFiles 0 1
 
 StrCpy `${res_var}` $DEBUG_RET0
 !macroend
 
 !define Include_CopyInstallFiles "!insertmacro Include_CopyInstallFiles"
-!macro Include_CopyInstallFiles prefix
-${Func_CopyInstallFiles} "${prefix}"
+!macro Include_CopyInstallFiles un
+!ifndef ${un}CopyInstallFiles_INCLUDED
+!define ${un}CopyInstallFiles_INCLUDED
+${Func_CopyInstallFiles} "${un}"
+!endif
 !macroend
-
-!define CopyInstallFiles "${Call_CopyInstallFiles} ''"
-!define un.CopyInstallFiles "${Call_CopyInstallFiles} 'un.'"
 
 !define Func_DeleteInstallFilesCopy "!insertmacro Func_DeleteInstallFilesCopy"
 !macro Func_DeleteInstallFilesCopy un
@@ -2469,7 +2470,7 @@ Function ${un}DeleteInstallFilesCopy
       Delete "$R2$R1"
 
       ; Remove file not persistent parent directories if they having no files
-      ${Call_RemoveEmptyDirectoryPathImpl} "${un}" $R2 $R1 ; no shell context because all variables already must be expanded here!
+      ${RemoveEmptyDirectoryPathImpl} $R2 $R1 ; no shell context because all variables already must be expanded here!
     ${Else}
       ; old implementation
       Delete "$R1"
@@ -2507,8 +2508,11 @@ ${DebugStackExitFrame} DeleteInstallFilesCopy 0 1
 !macroend
 
 !define Include_DeleteInstallFilesCopy "!insertmacro Include_DeleteInstallFilesCopy"
-!macro Include_DeleteInstallFilesCopy prefix
-${Func_DeleteInstallFilesCopy} "${prefix}"
+!macro Include_DeleteInstallFilesCopy un
+!ifndef ${un}DeleteInstallFilesCopy_INCLUDED
+!define ${un}DeleteInstallFilesCopy_INCLUDED
+${Func_DeleteInstallFilesCopy} "${un}"
+!endif
 !macroend
 
 !define IsRebootRequired "!insertmacro IsRebootRequired"
@@ -2537,7 +2541,7 @@ Function ${un}IsRebootRequiredImpl_HKCU
   EnumRegValue $R1 HKCU "Software\Microsoft\Windows\CurrentVersion\RunOnce" 0
   ${If} ${NoErrors} # if no properties but the key exists then no errors
     ${If} $R1 != "" # having properties?
-      DetailPrint "IsRebootRequired (x86): HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+      ${DetailPrint} "IsRebootRequired (x86): HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce"
       IntOp $R0 $R0 | 0x00000008
     ${EndIf}
   ${EndIf}
@@ -2548,7 +2552,7 @@ Function ${un}IsRebootRequiredImpl_HKCU
     EnumRegValue $R1 HKCU "Software\Microsoft\Windows\CurrentVersion\RunOnce" 0
     ${If} ${NoErrors} # if no properties but the key exists then no errors
       ${If} $R1 != "" # having properties?
-        DetailPrint "IsRebootRequired (x64): HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+        ${DetailPrint} "IsRebootRequired (x64): HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce"
         IntOp $R0 $R0 | 0x00000010
       ${EndIf}
     ${EndIf}
@@ -2573,7 +2577,7 @@ Function ${un}IsRebootRequired
   IfRebootFlag RebootFlag NoRebootFlag
 
   RebootFlag:
-  DetailPrint "IsRebootRequired: NSIS IfRebootFlag"
+  ${DetailPrint} "IsRebootRequired: NSIS IfRebootFlag"
   IntOp $R0 $R0 | 0x00000001
 
   NoRebootFlag:
@@ -2583,7 +2587,7 @@ Function ${un}IsRebootRequired
   EnumRegValue $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\RunOnce" 0
   ${If} ${NoErrors} # if no properties but the key exists then no errors
     ${If} $R1 != "" # having properties?
-      DetailPrint "IsRebootRequired (x86): HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+      ${DetailPrint} "IsRebootRequired (x86): HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce"
       IntOp $R0 $R0 | 0x00000002
     ${Endif}
   ${EndIf}
@@ -2593,7 +2597,7 @@ Function ${un}IsRebootRequired
     EnumRegValue $R1 HKLM "Software\Microsoft\Windows\CurrentVersion\RunOnce" 0
     ${If} ${NoErrors} # if no properties but the key exists then no errors
       ${If} $R1 != "" # having properties?
-        DetailPrint "IsRebootRequired (x64): HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+        ${DetailPrint} "IsRebootRequired (x64): HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce"
         IntOp $R0 $R0 | 0x00000004
       ${Endif}
     ${EndIf}
@@ -2644,7 +2648,7 @@ Function ${un}IsRebootRequired
   ClearErrors
   EnumRegValue $R1 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired" 0
   ${If} ${NoErrors}
-    DetailPrint "IsRebootRequired (x86): HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired"
+    ${DetailPrint} "IsRebootRequired (x86): HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired"
     IntOp $R0 $R0 | 0x00000020
   ${EndIf}
   ; check in WOW64 mode
@@ -2653,7 +2657,7 @@ Function ${un}IsRebootRequired
     ClearErrors
     EnumRegValue $R1 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired" 0
     ${If} ${NoErrors}
-      DetailPrint "IsRebootRequired (x64): HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired"
+      ${DetailPrint} "IsRebootRequired (x64): HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired"
       IntOp $R0 $R0 | 0x00000040
     ${EndIf}
     SetRegView lastused
@@ -2664,7 +2668,7 @@ Function ${un}IsRebootRequired
   ${registry::Read} "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager" "PendingFileRenameOperations" $R1 $R2
   #${ReadRegStr} $R1 HKLM "SYSTEM\CurrentControlSet\Control\Session Manager" "PendingFileRenameOperations"
   ${If} $R1 != ""
-    DetailPrint "IsRebootRequired (x86): HKLM\SYSTEM\CurrentControlSet\Control\Session Manager: PendingFileRenameOperations"
+    ${DetailPrint} "IsRebootRequired (x86): HKLM\SYSTEM\CurrentControlSet\Control\Session Manager: PendingFileRenameOperations"
     IntOp $R0 $R0 | 0x00000080
   ${EndIf}
   ; check in WOW64 mode
@@ -2673,7 +2677,7 @@ Function ${un}IsRebootRequired
     ${registry::Read} "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager" "PendingFileRenameOperations" $R1 $R2
     #${ReadRegStr} $R1 HKLM "SYSTEM\CurrentControlSet\Control\Session Manager" "PendingFileRenameOperations"
     ${If} $R1 != ""
-      DetailPrint "IsRebootRequired (x64): HKLM\SYSTEM\CurrentControlSet\Control\Session Manager: PendingFileRenameOperations"
+      ${DetailPrint} "IsRebootRequired (x64): HKLM\SYSTEM\CurrentControlSet\Control\Session Manager: PendingFileRenameOperations"
       IntOp $R0 $R0 | 0x00000100
     ${EndIf}
     SetRegView lastused
@@ -2684,7 +2688,7 @@ Function ${un}IsRebootRequired
   ClearErrors
   EnumRegValue $R1 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending" 0
   ${If} ${NoErrors}
-    DetailPrint "IsRebootRequired (x86): HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending"
+    ${DetailPrint} "IsRebootRequired (x86): HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending"
     IntOp $R0 $R0 | 0x00000200
   ${EndIf}
   ; check in WOW64 mode
@@ -2693,7 +2697,7 @@ Function ${un}IsRebootRequired
     ClearErrors
     EnumRegValue $R1 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending" 0
     ${If} ${NoErrors}
-      DetailPrint "IsRebootRequired (x64): HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending"
+      ${DetailPrint} "IsRebootRequired (x64): HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending"
       IntOp $R0 $R0 | 0x00000400
     ${EndIf}
     SetRegView lastused
@@ -2735,9 +2739,12 @@ FunctionEnd
 !macroend
 
 !define Include_IsRebootRequired "!insertmacro Include_IsRebootRequired"
-!macro Include_IsRebootRequired prefix
-${Func_IsRebootRequiredImpl_HKCU} "${prefix}"
-${Func_IsRebootRequired} "${prefix}"
+!macro Include_IsRebootRequired un
+!ifndef ${un}IsRebootRequired_INCLUDED
+!define ${un}IsRebootRequired_INCLUDED
+${Func_IsRebootRequiredImpl_HKCU} "${un}"
+${Func_IsRebootRequired} "${un}"
+!endif
 !macroend
 
 !define UpdateRebootStatus "!insertmacro UpdateRebootStatus"
@@ -2780,8 +2787,11 @@ FunctionEnd
 !macroend
 
 !define Include_UpdateRebootStatus "!insertmacro Include_UpdateRebootStatus"
-!macro Include_UpdateRebootStatus prefix
-${Func_UpdateRebootStatus} "${prefix}"
+!macro Include_UpdateRebootStatus un
+!ifndef ${un}UpdateRebootStatus_INCLUDED
+!define ${un}UpdateRebootStatus_INCLUDED
+${Func_UpdateRebootStatus} "${un}"
+!endif
 !macroend
 
 !define PostProcessRebootStatus "!insertmacro PostProcessRebootStatus"
@@ -2814,10 +2824,13 @@ FunctionEnd
 !macroend
 
 !define Include_RebootStatus "!insertmacro Include_RebootStatus"
-!macro Include_RebootStatus prefix
-${Include_IsRebootRequired} "${prefix}"
-${Include_UpdateRebootStatus} "${prefix}"
-${Func_PostProcessRebootStatus} "${prefix}"
+!macro Include_RebootStatus un
+!ifndef ${un}RebootStatus_INCLUDED
+!define ${un}RebootStatus_INCLUDED
+${Include_IsRebootRequired} "${un}"
+${Include_UpdateRebootStatus} "${un}"
+${Func_PostProcessRebootStatus} "${un}"
+!endif
 !macroend
 
 !define GetAbsolutePath "!insertmacro GetAbsolutePath"
@@ -2846,11 +2859,11 @@ ${__CURRENT_MACRO_LABELID_GetAbsolutePathIfEmpty_END}:
 !macroend
 
 !define Call_GetAbsolutePath "!insertmacro Call_GetAbsolutePath"
-!macro Call_GetAbsolutePath prefix var path
+!macro Call_GetAbsolutePath un var path
 ${DebugStackEnterFrame} Call_GetAbsolutePath 0 1
 
 ${Push} `${path}`
-Call ${prefix}GetAbsolutePath
+Call ${un}GetAbsolutePath
 ${Pop} $DEBUG_RET0
 
 ${DebugStackExitFrame} Call_GetAbsolutePath 0 1
@@ -2901,28 +2914,26 @@ FunctionEnd
 !macroend
 
 !define Include_GetAbsolutePath "!insertmacro Include_GetAbsolutePath"
-!macro Include_GetAbsolutePath prefix
-${Func_GetAbsolutePath} "${prefix}"
+!macro Include_GetAbsolutePath un
+!ifndef ${un}GetAbsolutePath_INCLUDED
+!define ${un}GetAbsolutePath_INCLUDED
+${Func_GetAbsolutePath} "${un}"
+!endif
 !macroend
 
 !define GetLongPathName "!insertmacro GetLongPathName"
 !macro GetLongPathName var path
-!ifndef __UNINSTALL__
-${Call_GetLongPathName} "" `${var}` `${path}`
-!else
-${Call_GetLongPathName} "un." `${var}` `${path}`
-!endif
-!macroend
-
-!define Call_GetLongPathName "!insertmacro Call_GetLongPathName"
-!macro Call_GetLongPathName prefix var path
-${DebugStackEnterFrame} Call_GetLongPathName 0 1
+${DebugStackEnterFrame} GetLongPathName 0 1
 
 ${Push} `${path}`
-Call ${prefix}GetLongPathName
+!ifndef __UNINSTALL__
+Call GetLongPathName
+!else
+Call un.GetLongPathName
+!endif
 ${Pop} $DEBUG_RET0
 
-${DebugStackExitFrame} Call_GetLongPathName 0 1
+${DebugStackExitFrame} GetLongPathName 0 1
 
 StrCpy `${var}` $DEBUG_RET0
 !macroend
@@ -2955,8 +2966,11 @@ FunctionEnd
 !macroend
 
 !define Include_GetLongPathName "!insertmacro Include_GetLongPathName"
-!macro Include_GetLongPathName prefix
-${Func_GetLongPathName} "${prefix}"
+!macro Include_GetLongPathName un
+!ifndef ${un}GetLongPathName_INCLUDED
+!define ${un}GetLongPathName_INCLUDED
+${Func_GetLongPathName} "${un}"
+!endif
 !macroend
 
 ; ReadRegStr
@@ -2987,13 +3001,11 @@ ${__CURRENT_MACRO_LABELID_ReadRegStrIfEmpty_END}:
 !macroend
 
 !define Call_ReadRegStr "!insertmacro Call_ReadRegStr"
-!macro Call_ReadRegStr prefix var hive_name key_path key
+!macro Call_ReadRegStr un var hive_name key_path key
 ${DebugStackEnterFrame} Call_ReadRegStr 0 1
 
-${Push} `${hive_name}`
-${Push} `${key_path}`
-${Push} `${key}`
-Call ${prefix}ReadRegStr
+${PushStack3} `${hive_name}` `${key_path}` `${key}`
+Call ${un}ReadRegStr
 
 ${PopAndSetErrors}
 ${Pop} $DEBUG_RET0
@@ -3040,10 +3052,7 @@ Function ${un}ReadRegStr
 
   ${If} $UAC_PROCESS_ELEVATION_STATUS_FLAGS < 1
   ${OrIf} ${UAC_IsInnerInstance}
-    ${PushStack2} $R9 $R8
-    ${ExchStackStack2} 18
-
-    ${PopStack20} $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 $R0 $R1
+    ${PopPushStack20} "$R9 $R8" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
   ${EndIf}
 FunctionEnd
 !macroend
@@ -3076,13 +3085,13 @@ ${__CURRENT_MACRO_LABELID_ReadRegDWORDIfEmpty_END}:
 !macroend
 
 !define Call_ReadRegDWORD "!insertmacro Call_ReadRegDWORD"
-!macro Call_ReadRegDWORD prefix var hive_name key_path key
+!macro Call_ReadRegDWORD un var hive_name key_path key
 ${DebugStackEnterFrame} Call_ReadRegDWORD 0 1
 
 ${Push} `${hive_name}`
 ${Push} `${key_path}`
 ${Push} `${key}`
-Call ${prefix}ReadRegDWORD
+Call ${un}ReadRegDWORD
 
 ${PopAndSetErrors}
 ${Pop} $DEBUG_RET0
@@ -3129,10 +3138,7 @@ Function ${un}ReadRegDWORD
 
   ${If} $UAC_PROCESS_ELEVATION_STATUS_FLAGS < 1
   ${OrIf} ${UAC_IsInnerInstance}
-    ${PushStack2} $R9 $R8
-    ${ExchStackStack2} 18
-
-    ${PopStack20} $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 $R0 $R1
+    ${PopPushStack20} "$R9 $R8" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
   ${EndIf}
 FunctionEnd
 !macroend
@@ -3149,14 +3155,14 @@ ${Call_WriteRegStr} "un." `${hive_name}` `${key_path}` `${key}` `${value}`
 !macroend
 
 !define Call_WriteRegStr "!insertmacro Call_WriteRegStr"
-!macro Call_WriteRegStr prefix hive_name key_path key value
+!macro Call_WriteRegStr un hive_name key_path key value
 ${DebugStackEnterFrame} Call_WriteRegStr 0 1
 
 ${Push} `${hive_name}`
 ${Push} `${key_path}`
 ${Push} `${key}`
 ${Push} `${value}`
-Call ${prefix}WriteRegStr
+Call ${un}WriteRegStr
 
 ${PopAndSetErrors}
 
@@ -3200,10 +3206,7 @@ Function ${un}WriteRegStr
 
   ${If} $UAC_PROCESS_ELEVATION_STATUS_FLAGS < 1
   ${OrIf} ${UAC_IsInnerInstance}
-    ${PushStack1} $R8
-    ${ExchStackStack1} 19
-
-    ${PopStack20} $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 $R0
+    ${PopPushStack20} "$R8" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
   ${EndIf}
 FunctionEnd
 !macroend
@@ -3220,14 +3223,14 @@ ${Call_WriteRegExpandStr} "un." `${hive_name}` `${key_path}` `${key}` `${value}`
 !macroend
 
 !define Call_WriteRegExpandStr "!insertmacro Call_WriteRegExpandStr"
-!macro Call_WriteRegExpandStr prefix hive_name key_path key value
+!macro Call_WriteRegExpandStr un hive_name key_path key value
 ${DebugStackEnterFrame} Call_WriteRegExpandStr 0 1
 
 ${Push} `${hive_name}`
 ${Push} `${key_path}`
 ${Push} `${key}`
 ${Push} `${value}`
-Call ${prefix}WriteRegExpandStr
+Call ${un}WriteRegExpandStr
 
 ${PopAndSetErrors}
 
@@ -3271,10 +3274,7 @@ Function ${un}WriteRegExpandStr
 
   ${If} $UAC_PROCESS_ELEVATION_STATUS_FLAGS < 1
   ${OrIf} ${UAC_IsInnerInstance}
-    ${PushStack1} $R8
-    ${ExchStackStack1} 19
-
-    ${PopStack20} $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 $R0
+    ${PopPushStack20} "$R8" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
   ${EndIf}
 FunctionEnd
 !macroend
@@ -3291,14 +3291,14 @@ ${Call_WriteRegDWORD} "un." `${hive_name}` `${key_path}` `${key}` `${value}`
 !macroend
 
 !define Call_WriteRegDWORD "!insertmacro Call_WriteRegDWORD"
-!macro Call_WriteRegDWORD prefix hive_name key_path key value
+!macro Call_WriteRegDWORD un hive_name key_path key value
 ${DebugStackEnterFrame} Call_WriteRegDWORD 0 1
 
 ${Push} `${hive_name}`
 ${Push} `${key_path}`
 ${Push} `${key}`
 ${Push} `${value}`
-Call ${prefix}WriteRegDWORD
+Call ${un}WriteRegDWORD
 
 ${PopAndSetErrors}
 
@@ -3342,10 +3342,7 @@ Function ${un}WriteRegDWORD
 
   ${If} $UAC_PROCESS_ELEVATION_STATUS_FLAGS < 1
   ${OrIf} ${UAC_IsInnerInstance}
-    ${PushStack1} $R8
-    ${ExchStackStack1} 19
-
-    ${PopStack20} $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 $R0
+    ${PopPushStack20} "$R8" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
   ${EndIf}
 FunctionEnd
 !macroend
@@ -3368,12 +3365,12 @@ ${Call_DeleteRegKey} "un." `${hive_name}` `${key_path}`
 !macroend
 
 !define Call_DeleteRegKey "!insertmacro Call_DeleteRegKey"
-!macro Call_DeleteRegKey prefix hive_name key_path
+!macro Call_DeleteRegKey un hive_name key_path
 ${DebugStackEnterFrame} Call_DeleteRegKey 0 1
 
 ${Push} `${hive_name}`
 ${Push} `${key_path}`
-Call ${prefix}DeleteRegKey
+Call ${un}DeleteRegKey
 
 ${PopAndSetErrors}
 
@@ -3415,10 +3412,7 @@ Function ${un}DeleteRegKey
 
   ${If} $UAC_PROCESS_ELEVATION_STATUS_FLAGS < 1
   ${OrIf} ${UAC_IsInnerInstance}
-    ${PushStack1} $R8
-    ${ExchStackStack1} 19
-
-    ${PopStack20} $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 $R0
+    ${PopPushStack20} "$R8" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
   ${EndIf}
 FunctionEnd
 !macroend
@@ -3435,12 +3429,12 @@ ${Call_DeleteRegKeyIfEmpty} "un." `${hive_name}` `${key_path}`
 !macroend
 
 !define Call_DeleteRegKeyIfEmpty "!insertmacro Call_DeleteRegKeyIfEmpty"
-!macro Call_DeleteRegKeyIfEmpty prefix hive_name key_path
+!macro Call_DeleteRegKeyIfEmpty un hive_name key_path
 ${DebugStackEnterFrame} Call_DeleteRegKeyIfEmpty 0 1
 
 ${Push} `${hive_name}`
 ${Push} `${key_path}`
-Call ${prefix}DeleteRegKeyIfEmpty
+Call ${un}DeleteRegKeyIfEmpty
 
 ${PopAndSetErrors}
 
@@ -3493,10 +3487,7 @@ Function ${un}DeleteRegKeyIfEmpty
 
   ${If} $UAC_PROCESS_ELEVATION_STATUS_FLAGS < 1
   ${OrIf} ${UAC_IsInnerInstance}
-    ${PushStack1} $R8
-    ${ExchStackStack1} 19
-
-    ${PopStack20} $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 $R0
+    ${PopPushStack20} "$R8" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
   ${EndIf}
 FunctionEnd
 !macroend
@@ -3513,13 +3504,13 @@ ${Call_DeleteRegValue} "un." `${hive_name}` `${key_path}` `${key}`
 !macroend
 
 !define Call_DeleteRegValue "!insertmacro Call_DeleteRegValue"
-!macro Call_DeleteRegValue prefix hive_name key_path key
+!macro Call_DeleteRegValue un hive_name key_path key
 ${DebugStackEnterFrame} Call_DeleteRegValue 0 1
 
 ${Push} `${hive_name}`
 ${Push} `${key_path}`
 ${Push} `${key}`
-Call ${prefix}DeleteRegValue
+Call ${un}DeleteRegValue
 
 ${PopAndSetErrors}
 
@@ -3562,10 +3553,7 @@ Function ${un}DeleteRegValue
 
   ${If} $UAC_PROCESS_ELEVATION_STATUS_FLAGS < 1
   ${OrIf} ${UAC_IsInnerInstance}
-    ${PushStack1} $R8
-    ${ExchStackStack1} 19
-
-    ${PopStack20} $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 $R0
+    ${PopPushStack20} "$R8" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
   ${EndIf}
 FunctionEnd
 !macroend
@@ -3582,12 +3570,12 @@ ${Call_DeleteUninstallRegKey} "un." `${hive_name}` `${key_path}`
 !macroend
 
 !define Call_DeleteUninstallRegKey "!insertmacro Call_DeleteUninstallRegKey"
-!macro Call_DeleteUninstallRegKey prefix hive_name key_path
+!macro Call_DeleteUninstallRegKey un hive_name key_path
 ${DebugStackEnterFrame} Call_DeleteUninstallRegKey 0 1
 
 ${Push} `${hive_name}`
 ${Push} `${key_path}`
-Call ${prefix}DeleteUninstallRegKey
+Call ${un}DeleteUninstallRegKey
 
 ${PopAndSetErrors}
 
@@ -3631,36 +3619,36 @@ Function ${un}DeleteUninstallRegKey
 
   ${If} $UAC_PROCESS_ELEVATION_STATUS_FLAGS < 1
   ${OrIf} ${UAC_IsInnerInstance}
-    ${PushStack1} $R8
-    ${ExchStackStack1} 19
-
-    ${PopStack20} $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9 $R0
+    ${PopPushStack20} "$R8" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
   ${EndIf}
 FunctionEnd
 !macroend
 
 !define Include_Win32Registry "!insertmacro Include_Win32Registry"
-!macro Include_Win32Registry prefix
-${Func_ReadRegStr} "${prefix}"
-${Func_ReadRegDWORD} "${prefix}"
-${Func_WriteRegStr} "${prefix}"
-${Func_WriteRegExpandStr} "${prefix}"
-${Func_WriteRegDWORD} "${prefix}"
-${Func_DeleteRegKey} "${prefix}"
-${Func_DeleteRegKeyIfEmpty} "${prefix}"
-${Func_DeleteRegValue} "${prefix}"
-${Func_DeleteUninstallRegKey} "${prefix}"
+!macro Include_Win32Registry un
+!ifndef ${un}Win32Registry_INCLUDED
+!define ${un}Win32Registry_INCLUDED
+${Func_ReadRegStr} "${un}"
+${Func_ReadRegDWORD} "${un}"
+${Func_WriteRegStr} "${un}"
+${Func_WriteRegExpandStr} "${un}"
+${Func_WriteRegDWORD} "${un}"
+${Func_DeleteRegKey} "${un}"
+${Func_DeleteRegKeyIfEmpty} "${un}"
+${Func_DeleteRegValue} "${un}"
+${Func_DeleteUninstallRegKey} "${un}"
+!endif
 !macroend
 
 !define IsServiceRunning "${Call_IsServiceRunning} ''"
 !define un.IsServiceRunning "${Call_IsServiceRunning} 'un.'"
 
 !define Call_IsServiceRunning "!insertmacro Call_IsServiceRunning"
-!macro Call_IsServiceRunning prefix var service_name
+!macro Call_IsServiceRunning un var service_name
 ${DebugStackEnterFrame} Call_IsServiceRunning 0 1
 
 ${Push} `${service_name}`
-Call ${prefix}IsServiceRunning
+Call ${un}IsServiceRunning
 ${Pop} $DEBUG_RET0
 
 ${DebugStackExitFrame} Call_IsServiceRunning 0 1
@@ -3683,7 +3671,7 @@ Function ${un}IsServiceRunning
 
   ${DebugStackCheckFrame} `${un}IsServiceRunning` 1 0
 
-  DetailPrint "SimpleSC::ServiceIsRunning $\"$R0$\": $LAST_ERROR $R1"
+  ${DetailPrint} "SimpleSC::ServiceIsRunning $\"$R0$\": $LAST_ERROR $R1"
 
   ${If} $LAST_ERROR = 0
   ${AndIf} $R1 <> 0
@@ -3702,19 +3690,22 @@ FunctionEnd
 !macroend
 
 !define Include_IsServiceRunning "!insertmacro Include_IsServiceRunning"
-!macro Include_IsServiceRunning prefix
-${Func_IsServiceRunning} "${prefix}"
+!macro Include_IsServiceRunning un
+!ifndef ${un}IsServiceRunning_INCLUDED
+!define ${un}IsServiceRunning_INCLUDED
+${Func_IsServiceRunning} "${un}"
+!endif
 !macroend
 
 !define IsServiceEnabled "${Call_IsServiceEnabled} ''"
 !define un.IsServiceEnabled "${Call_IsServiceEnabled} 'un.'"
 
 !define Call_IsServiceEnabled "!insertmacro Call_IsServiceEnabled"
-!macro Call_IsServiceEnabled prefix var service_name
+!macro Call_IsServiceEnabled un var service_name
 ${DebugStackEnterFrame} Call_IsServiceEnabled 0 1
 
 ${Push} `${service_name}`
-Call ${prefix}IsServiceEnabled
+Call ${un}IsServiceEnabled
 ${Pop} $DEBUG_RET0
 
 ${DebugStackExitFrame} Call_IsServiceEnabled 0 1
@@ -3737,7 +3728,7 @@ Function ${un}IsServiceEnabled
 
   ${DebugStackCheckFrame} `${un}IsServiceEnabled` 1 0
 
-  DetailPrint "SimpleSC::GetServiceStartType $\"$R0$\": $LAST_ERROR $R1"
+  ${DetailPrint} "SimpleSC::GetServiceStartType $\"$R0$\": $LAST_ERROR $R1"
 
   ${If} $LAST_ERROR <> 0
   ${OrIf} $R1 = 4 ; SERVICE_DISABLED
@@ -3756,19 +3747,22 @@ FunctionEnd
 !macroend
 
 !define Include_IsServiceEnabled "!insertmacro Include_IsServiceEnabled"
-!macro Include_IsServiceEnabled prefix
-${Func_IsServiceEnabled} "${prefix}"
+!macro Include_IsServiceEnabled un
+!ifndef ${un}IsServiceEnabled_INCLUDED
+!define ${un}IsServiceEnabled_INCLUDED
+${Func_IsServiceEnabled} "${un}"
+!endif
 !macroend
 
 !define EnableServiceStartOnDemand "${Call_EnableServiceStartOnDemand} ''"
 !define un.EnableServiceStartOnDemand "${Call_EnableServiceStartOnDemand} 'un.'"
 
 !define Call_EnableServiceStartOnDemand "!insertmacro Call_EnableServiceStartOnDemand"
-!macro Call_EnableServiceStartOnDemand prefix service_name
+!macro Call_EnableServiceStartOnDemand un service_name
 ${DebugStackEnterFrame} Call_EnableServiceStartOnDemand 0 1
 
 ${Push} `${service_name}`
-Call ${prefix}EnableServiceStartOnDemand
+Call ${un}EnableServiceStartOnDemand
 
 ${DebugStackExitFrame} Call_EnableServiceStartOnDemand 0 1
 !macroend
@@ -3787,7 +3781,7 @@ Function ${un}EnableServiceStartOnDemand
 
   ${DebugStackCheckFrame} `${un}EnableServiceStartOnDemand` 1 0
 
-  DetailPrint "SimpleSC::SetServiceStartType $\"$R0$\" 3: $LAST_ERROR"
+  ${DetailPrint} "SimpleSC::SetServiceStartType $\"$R0$\" 3: $LAST_ERROR"
 
   ${DebugStackExitFrame} `${un}EnableServiceStartOnDemand` 1 0
 
@@ -3796,20 +3790,23 @@ FunctionEnd
 !macroend
 
 !define Include_EnableServiceStartOnDemand "!insertmacro Include_EnableServiceStartOnDemand"
-!macro Include_EnableServiceStartOnDemand prefix
-${Func_EnableServiceStartOnDemand} "${prefix}"
+!macro Include_EnableServiceStartOnDemand un
+!ifndef ${un}EnableServiceStartOnDemand_INCLUDED
+!define ${un}EnableServiceStartOnDemand_INCLUDED
+${Func_EnableServiceStartOnDemand} "${un}"
+!endif
 !macroend
 
 !define StartService "${Call_StartService} ''"
 !define un.StartService "${Call_StartService} 'un.'"
 
 !define Call_StartService "!insertmacro Call_StartService"
-!macro Call_StartService prefix service_name wait_timeout
+!macro Call_StartService un service_name wait_timeout
 ${DebugStackEnterFrame} Call_StartService 0 1
 
 ${Push} `${service_name}`
 ${Push} `${wait_timeout}`
-Call ${prefix}StartService
+Call ${un}StartService
 
 ${DebugStackExitFrame} Call_StartService 0 1
 !macroend
@@ -3828,7 +3825,7 @@ Function ${un}StartService
 
   ${DebugStackCheckFrame} `${un}StartService` 1 0
 
-  DetailPrint "SimpleSC::StartService $\"$R0$\" $\"$\" $R1: $LAST_ERROR"
+  ${DetailPrint} "SimpleSC::StartService $\"$R0$\" $\"$\" $R1: $LAST_ERROR"
 
   ${DebugStackExitFrame} `${un}StartService` 1 0
 
@@ -3837,19 +3834,22 @@ FunctionEnd
 !macroend
 
 !define Include_StartService "!insertmacro Include_StartService"
-!macro Include_StartService prefix
-${Func_StartService} "${prefix}"
+!macro Include_StartService un
+!ifndef ${un}StartService_INCLUDED
+!define ${un}StartService_INCLUDED
+${Func_StartService} "${un}"
+!endif
 !macroend
 
 !define DisableService "${Call_DisableService} ''"
 !define un.DisableService "${Call_DisableService} 'un.'"
 
 !define Call_DisableService "!insertmacro Call_DisableService"
-!macro Call_DisableService prefix service_name
+!macro Call_DisableService un service_name
 ${DebugStackEnterFrame} Call_DisableService 0 1
 
 ${Push} `${service_name}`
-Call ${prefix}DisableService
+Call ${un}DisableService
 
 ${DebugStackExitFrame} Call_DisableService 0 1
 !macroend
@@ -3867,7 +3867,7 @@ Function ${un}DisableService
 
   ${DebugStackCheckFrame} `${un}DisableService` 1 0
 
-  DetailPrint "SimpleSC::SetServiceStartType $\"$R0$\" 4: $LAST_ERROR"
+  ${DetailPrint} "SimpleSC::SetServiceStartType $\"$R0$\" 4: $LAST_ERROR"
 
   ${DebugStackExitFrame} `${un}DisableService` 1 0
 
@@ -3876,20 +3876,23 @@ FunctionEnd
 !macroend
 
 !define Include_DisableService "!insertmacro Include_DisableService"
-!macro Include_DisableService prefix
-${Func_DisableService} "${prefix}"
+!macro Include_DisableService un
+!ifndef ${un}DisableService_INCLUDED
+!define ${un}DisableService_INCLUDED
+${Func_DisableService} "${un}"
+!endif
 !macroend
 
 !define StopService "${Call_StopService} ''"
 !define un.StopService "${Call_StopService} 'un.'"
 
 !define Call_StopService "!insertmacro Call_StopService"
-!macro Call_StopService prefix service_name wait_timeout
+!macro Call_StopService un service_name wait_timeout
 ${DebugStackEnterFrame} Call_StopService 0 1
 
 ${Push} `${service_name}`
 ${Push} `${wait_timeout}`
-Call ${prefix}StopService
+Call ${un}StopService
 
 ${DebugStackExitFrame} Call_StopService 0 1
 !macroend
@@ -3908,7 +3911,7 @@ Function ${un}StopService
 
   ${DebugStackCheckFrame} `${un}StopService` 1 0
 
-  DetailPrint "SimpleSC::StopService $\"$R0$\" 1 $R1: $LAST_ERROR"
+  ${DetailPrint} "SimpleSC::StopService $\"$R0$\" 1 $R1: $LAST_ERROR"
 
   ${DebugStackExitFrame} `${un}StopService` 1 0
 
@@ -3917,8 +3920,11 @@ FunctionEnd
 !macroend
 
 !define Include_StopService "!insertmacro Include_StopService"
-!macro Include_StopService prefix
-${Func_StopService} "${prefix}"
+!macro Include_StopService un
+!ifndef ${un}StopService_INCLUDED
+!define ${un}StopService_INCLUDED
+${Func_StopService} "${un}"
+!endif
 !macroend
 
 !define EnterWindowsUpdateSection "!insertmacro EnterWindowsUpdateSection"
@@ -3933,11 +3939,11 @@ ${Func_StopService} "${prefix}"
 
   ${If} `${var_is_enabled}` = 0
     ; Temporary enable service to install Windows Updates
-    DetailPrint "Enabling Windows Update service..."
+    ${DetailPrint} "Enabling Windows Update service..."
     ${EnableServiceStartOnDemand} `${section}`
   ${EndIf}
   ${If} `${var_is_running}` = 0
-    DetailPrint "Starting Windows Update service..."
+    ${DetailPrint} "Starting Windows Update service..."
     ${StartService} `${section}` `${wait_timeout}` ; timeout to unlock
   ${EndIf}
 
@@ -3950,11 +3956,11 @@ ${Func_StopService} "${prefix}"
 
   ; Restore Windows Update service states
   ${If} `${var_is_enabled}` = 0
-    DetailPrint "Disabling Windows Update service..."
+    ${DetailPrint} "Disabling Windows Update service..."
     ${DisableService} `${section}`
   ${EndIf}
   ${If} `${var_is_running}` = 0
-    DetailPrint "Stopping Windows Update service..."
+    ${DetailPrint} "Stopping Windows Update service..."
     ${StopService} `${section}` `${wait_timeout}` ; timeout to unlock
   ${EndIf}
 
@@ -4036,13 +4042,16 @@ ${EndIf}
 !macroend
 
 !define Include_WindowsUpdateSection "!insertmacro Include_WindowsUpdateSection"
-!macro Include_WindowsUpdateSection prefix
-${Include_IsServiceRunning} "${prefix}"
-${Include_IsServiceEnabled} "${prefix}"
-${Include_EnableServiceStartOnDemand} "${prefix}"
-${Include_DisableService} "${prefix}"
-${Include_StartService} "${prefix}"
-${Include_StopService} "${prefix}"
+!macro Include_WindowsUpdateSection un
+!ifndef ${un}WindowsUpdateSection_INCLUDED
+!define ${un}WindowsUpdateSection_INCLUDED
+${Include_IsServiceRunning} "${un}"
+${Include_IsServiceEnabled} "${un}"
+${Include_EnableServiceStartOnDemand} "${un}"
+${Include_DisableService} "${un}"
+${Include_StartService} "${un}"
+${Include_StopService} "${un}"
+!endif
 !macroend
 
 !endif

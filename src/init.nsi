@@ -45,6 +45,7 @@ Var /GLOBAL SECTION_SCOPE_INDEX ; if not 0 - section is executing between DebugS
 Var /GLOBAL DEBUG
 Var /GLOBAL DEBUG_FRAME_ID
 Var /GLOBAL INSTDIR_PARAM
+Var /GLOBAL INSTDIR_TMP ; auto remove on exit temporary install directory
 
 ; registers for debug routines between stack usage
 Var /GLOBAL DEBUG_R0
@@ -96,7 +97,7 @@ Var /GLOBAL MACRO_ARG17
 Var /GLOBAL MACRO_ARG18
 Var /GLOBAL MACRO_ARG19
 
-; temporary registers to pop/return values into/from 0-9/R0-R9 registers in a macros by a register name
+; temporary registers to pop/return values into/from 0-9/R0-R9 registers in a macros/functions by a register name
 Var /GLOBAL MACRO_POP_VAR0
 Var /GLOBAL MACRO_POP_VAR1
 Var /GLOBAL MACRO_POP_VAR2
@@ -200,14 +201,12 @@ ${!define_guid16} _NSIS_SETUP_LIB_BUILD_GUID16
 
 !include "${_NSIS_SETUP_LIB_ROOT}\src\builtin.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\stack.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\log.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\debug.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\notify.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\uninit.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\win32.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\utils.nsi"
-
-${Include_BeginMacroBodyFunction} ""
-${Include_EndMacroBodyFunction} ""
 
 
 !define InitInstall "!insertmacro InitInstall"
@@ -391,7 +390,7 @@ Function Init_ImplBegin
     ${Else}
       ${GetAbsolutePath} $ADMINISTRATIVE_INSTALL_PATH "$ADMINISTRATIVE_INSTALL_PATH"
     ${EndIf}
-    DetailPrint "Making administrative installation into $\"$ADMINISTRATIVE_INSTALL_PATH$\"..."
+    ${DetailPrint} "Making administrative installation into $\"$ADMINISTRATIVE_INSTALL_PATH$\"..."
   ${Else}
     StrCpy $ADMINISTRATIVE_INSTALL 0
   ${EndIf}
@@ -504,6 +503,8 @@ Function Init_ImplEnd
     ${StrRep} $R9 $R1 '{{SYSDRIVE}}' '$SYSDRIVE'
     StrCpy $INSTDIR $R9 ; Update install path variable
   ${EndIf}
+
+  StrCpy $INSTDIR_TMP "" ; must be initialized by the user later
 
   ; Language selection
   ${GetOptions} $CMDLINE "/L=" $LANG_PARAM
@@ -633,9 +634,10 @@ ${StrLoc}
 !ifndef StrStr_INCLUDED
 ${StrStr}
 !endif
-${GetLanguageStrings}
-${GetSysDrive}
-${GetComputerName}
+${Include_DetailPrint} ""
+${Include_GetLanguageStrings} ""
+${Include_GetSysDrive} ""
+${Include_GetComputerName} ""
 ${Include_GetAbsolutePath} ""
 ${Include_UAC} ""
 ${Include_UnquoteString} ""
@@ -790,7 +792,7 @@ Function un.Init
   ${DebugStackCheckFrame} un.Init 1 0
 
   ; UAC promotion
-  ${un.UAC_RunElevation} ; fork elevated process and quit, otherwise continue
+  ${UAC_RunElevation} ; fork elevated process and quit, otherwise continue
 
   ${DebugStackCheckFrame} un.Init 1 0
 
@@ -834,7 +836,7 @@ Function un.Init
     ${EndIf}
   ${EndIf}
 
-  ${un.GetSysDrive} $SYSDRIVE
+  ${GetSysDrive} $SYSDRIVE
 
   ${DebugStackCheckFrame} un.Init 1 0
 
@@ -846,7 +848,7 @@ Function un.Init
   #  StrCpy $LANGUAGE $LANG_PARAM
   #${EndIf}
 
-  ${un.GetLanguageStrings} $LANG_GROUP_COUNTRY_STR $LANG_SHORT_STR $LANG_LONG_STR $LANGUAGE
+  ${GetLanguageStrings} $LANG_GROUP_COUNTRY_STR $LANG_SHORT_STR $LANG_LONG_STR $LANGUAGE
 
   !ifdef APP_NAME_PREFIX
   StrCpy $APP_NAME "${APP_NAME_PREFIX}"
@@ -859,7 +861,7 @@ Function un.Init
   StrCpy $APP_NAME $(APP_NAME)
   !endif
 
-  ${un.GetComputerName} $COMPUTERNAME
+  ${GetComputerName} $COMPUTERNAME
 
   StrCpy $MSG_NOTIFY_PRODUCT_SETUP_BEGIN      "$(MSG_NOTIFY_PRODUCT_UNINSTALL_BEGIN)"
   StrCpy $MSG_NOTIFY_PRODUCT_SETUP_COMPLETED  "$(MSG_NOTIFY_PRODUCT_UNINSTALL_COMPLETED)"
@@ -875,7 +877,7 @@ Function un.Init
 
   InitPluginsDir
 
-  ${un.UAC_PostInitAndReadShellGlobals}
+  ${UAC_PostInitAndReadShellGlobals}
 
   ; create handles from plugins here
   ${stack::dll_create} $WNDPROC_STACK_HANDLE
@@ -903,9 +905,10 @@ ${UnStrLoc}
 !ifndef UnStrStr_INCLUDED
 ${UnStrStr}
 !endif
-${un.GetLanguageStrings}
-${un.GetSysDrive}
-${un.GetComputerName}
+${Include_DetailPrint} "un."
+${Include_GetLanguageStrings} "un."
+${Include_GetSysDrive} "un."
+${Include_GetComputerName} "un."
 ${Include_GetAbsolutePath} "un."
 ${Include_UAC} "un."
 ${Include_UnquoteString} "un."
@@ -966,14 +969,14 @@ ${If} $UNINSTALL_STRING != ""
     CopyFiles "$UNINSTALL_STRING" "$PluginsDir\"
     #Sleep 500 ; CopyFiles sync
     ${GetFileName} "$UNINSTALL_STRING" $R0
-    DetailPrint "Executing uninstaller: $\"$PluginsDir\$R0$\""
+    ${DetailPrint} "Executing uninstaller: $\"$PluginsDir\$R0$\""
     #MessageBox MB_YESNO "$PluginsDir\$R0 : $INSTDIR"
     ${If} ${Silent}
       ${ExecWait} '"$PluginsDir\$R0"' '/S /R /L=$LANGUAGE _?=$INSTDIR' $LAST_ERROR
     ${Else}
       ${ExecWait} '"$PluginsDir\$R0"' '/R /L=$LANGUAGE _?=$INSTDIR' $LAST_ERROR
     ${EndIf}
-    DetailPrint "Last error code: $LAST_ERROR"
+    ${DetailPrint} "Last error code: $LAST_ERROR"
     Delete "$PluginsDir\$R0"
 
     ${IsSilentSetupNotify} $R1
@@ -1006,8 +1009,6 @@ ${DebugStackExitFrame} ExecuteUninstallFromInstall 0 1
 
 !define GetLastNsisSetupExitStatus "!insertmacro GetLastNsisSetupExitStatus"
 !macro GetLastNsisSetupExitStatus event_msg_var event_str_var cmd args setup_ini_out
-${Call_BeginMacroBodyFunction} "" ; macro currently available in installation section ONLY
-
 ${DebugStackEnterFrame} GetLastNsisSetupExitStatus 0 1
 
 ${PushStack3} `${cmd}` `${args}` `${setup_ini_out}`
@@ -1022,8 +1023,6 @@ ${DebugStackExitFrame} GetLastNsisSetupExitStatus 0 1
 
 StrCpy `${event_msg_var}` $DEBUG_RET1
 StrCpy `${event_str_var}` $DEBUG_RET0
-
-${Call_EndMacroBodyFunction} ""
 !macroend
 
 !define Func_GetLastNsisSetupExitStatus "!insertmacro Func_GetLastNsisSetupExitStatus"
@@ -1071,16 +1070,16 @@ Function ${un}GetLastNsisSetupExitStatus
 
   ${DebugStackExitFrame} ${un}GetLastNsisSetupExitStatus 1 0
 
-  ${PushStack2} $R9 $R8
-  ${ExchStackStack2} 4
-
-  ${PopStack6} $R2 $R7 $R8 $R9 $R0 $R1
+  ${PopPushStack6} "$R9 $R8" " " $R0 $R1 $R2 $R7 $R8 $R9
 FunctionEnd
 !macroend
 
 !define Include_GetLastNsisSetupExitStatus "!insertmacro Include_GetLastNsisSetupExitStatus"
-!macro Include_GetLastNsisSetupExitStatus prefix
-${Func_GetLastNsisSetupExitStatus} "${prefix}"
+!macro Include_GetLastNsisSetupExitStatus un
+!ifndef ${un}GetLastNsisSetupExitStatus_INCLUDED
+!define ${un}GetLastNsisSetupExitStatus_INCLUDED
+${Func_GetLastNsisSetupExitStatus} "${un}"
+!endif
 !macroend
 
 !define Exec "!insertmacro Exec"
@@ -1123,9 +1122,12 @@ FunctionEnd
 !macroend
 
 !define Include_Exec "!insertmacro Include_Exec"
-!macro Include_Exec prefix
-${Include_UnquoteString} "${prefix}"
-${Func_Exec} "${prefix}"
+!macro Include_Exec un
+!ifndef ${un}Exec_INCLUDED
+!define ${un}Exec_INCLUDED
+${Include_UnquoteString} "${un}"
+${Func_Exec} "${un}"
+!endif
 !macroend
 
 !define ExecWait "!insertmacro ExecWait"
@@ -1167,17 +1169,17 @@ Function ${un}ExecWait
   exit:
   ${DebugStackExitFrame} ${un}ExecWait 1 0
 
-  ${PushStack1} $R9
-  ${ExchStack1} 3
-
-  ${PopStack3} $R1 $R9 $R0
+  ${PopPushStack3} "$R9" " " $R0 $R1 $R9
 FunctionEnd
 !macroend
 
 !define Include_ExecWait "!insertmacro Include_ExecWait"
-!macro Include_ExecWait prefix
-${Include_UnquoteString} "${prefix}"
-${Func_ExecWait} "${prefix}"
+!macro Include_ExecWait un
+!ifndef ${un}ExecWait_INCLUDED
+!define ${un}ExecWait_INCLUDED
+${Include_UnquoteString} "${un}"
+${Func_ExecWait} "${un}"
+!endif
 !macroend
 
 !define ExecShell "!insertmacro ExecShell"
@@ -1239,9 +1241,12 @@ FunctionEnd
 !macroend
 
 !define Include_ExecShell "!insertmacro Include_ExecShell"
-!macro Include_ExecShell prefix
-${Include_UnquoteString} "${prefix}"
-${Func_ExecShell} "${prefix}"
+!macro Include_ExecShell un
+!ifndef ${un}ExecShell_INCLUDED
+!define ${un}ExecShell_INCLUDED
+${Include_UnquoteString} "${un}"
+${Func_ExecShell} "${un}"
+!endif
 !macroend
 
 !define ExecWaitNsisSetup "!insertmacro ExecWaitNsisSetup"
@@ -1305,17 +1310,17 @@ Function ${un}ExecWaitNsisSetup
   exit:
   ${DebugStackExitFrame} ${un}ExecWaitNsisSetup 1 0
 
-  ${PushStack1} $R9
-  ${ExchStack1} 5
-
-  ${PopStack5} $R1 $R2 $R8 $R9 $R0
+  ${PopPushStack5} "$R9" " " $R0 $R1 $R2 $R8 $R9
 FunctionEnd
 !macroend
 
 !define Include_ExecWaitNsisSetup "!insertmacro Include_ExecWaitNsisSetup"
-!macro Include_ExecWaitNsisSetup prefix
-${Include_UnquoteString} "${prefix}"
-${Func_ExecWaitNsisSetup} "${prefix}"
+!macro Include_ExecWaitNsisSetup un
+!ifndef ${un}ExecWaitNsisSetup_INCLUDED
+!define ${un}ExecWaitNsisSetup_INCLUDED
+${Include_UnquoteString} "${un}"
+${Func_ExecWaitNsisSetup} "${un}"
+!endif
 !macroend
 
 !define ExecWaitNoStdout "!insertmacro ExecWaitNoStdout"
@@ -1354,10 +1359,10 @@ Function ${un}ExecWaitNoStdout
   ${EndIf}
 
   ${If} $R1 != ""
-    DetailPrint 'Executing: "$R9" $R1'
+    ${DetailPrint} 'Executing: "$R9" $R1'
     nsExec::Exec '"$R9" $R1' ; use requoted $R0 to cover case w/o quotes
   ${Else}
-    DetailPrint 'Executing: "$R9"'
+    ${DetailPrint} 'Executing: "$R9"'
     nsExec::Exec '"$R9"' ; use requoted $R0 to cover case w/o quotes
   ${EndIf}
   ${Pop} $LAST_STATUS_STR
@@ -1366,28 +1371,28 @@ Function ${un}ExecWaitNoStdout
   ${If} $LAST_STATUS_STR != 0 ; as string comparison
   ${AndIf} $LAST_STATUS_STR = 0 ; arithmetic comparison, any not-a-number string will be converted to 0 before the comparison!
     StrCpy $R9 -1 ; unknown
-    DetailPrint "Last error code: N/A ($LAST_STATUS_STR)"
+    ${DetailPrint} "Last error code: N/A ($LAST_STATUS_STR)"
   ${Else}
     ; the last status string is error code number
     StrCpy $R9 $LAST_STATUS_STR
     StrCpy $LAST_STATUS_STR ""
-    DetailPrint "Last error code: $R9"
+    ${DetailPrint} "Last error code: $R9"
   ${EndIf}
 
   exit:
   ${DebugStackExitFrame} ${un}ExecWaitNoStdout 1 0
 
-  ${PushStack1} $R9
-  ${ExchStack1} 3
-
-  ${PopStack3} $R1 $R9 $R0
+  ${PopPushStack3} "$R9" " " $R0 $R1 $R9
 FunctionEnd
 !macroend
 
 !define Include_ExecWaitNoStdout "!insertmacro Include_ExecWaitNoStdout"
-!macro Include_ExecWaitNoStdout prefix
-${Include_UnquoteString} "${prefix}"
-${Func_ExecWaitNoStdout} "${prefix}"
+!macro Include_ExecWaitNoStdout un
+!ifndef ${un}ExecWaitNoStdout_INCLUDED
+!define ${un}ExecWaitNoStdout_INCLUDED
+${Include_UnquoteString} "${un}"
+${Func_ExecWaitNoStdout} "${un}"
+!endif
 !macroend
 
 !define ExecWaitStdoutToLog "!insertmacro ExecWaitStdoutToLog"
@@ -1426,10 +1431,10 @@ Function ${un}ExecWaitStdoutToLog
   ${EndIf}
 
   ${If} $R1 != ""
-    DetailPrint 'Executing: "$R9" $R1'
+    ${DetailPrint} 'Executing: "$R9" $R1'
     nsExec::ExecToLog '"$R9" $R1' ; use requoted $R0 to cover case w/o quotes
   ${Else}
-    DetailPrint 'Executing: "$R9"'
+    ${DetailPrint} 'Executing: "$R9"'
     nsExec::ExecToLog '"$R9"' ; use requoted $R0 to cover case w/o quotes
   ${EndIf}
   ${Pop} $LAST_STATUS_STR
@@ -1438,28 +1443,28 @@ Function ${un}ExecWaitStdoutToLog
   ${If} $LAST_STATUS_STR != 0 ; as string comparison
   ${AndIf} $LAST_STATUS_STR = 0 ; arithmetic comparison, any not-a-number string will be converted to 0 before the comparison!
     StrCpy $R9 -1 ; unknown
-    DetailPrint "Last error code: N/A ($LAST_STATUS_STR)"
+    ${DetailPrint} "Last error code: N/A ($LAST_STATUS_STR)"
   ${Else}
     ; the last status string is error code number
     StrCpy $R9 $LAST_STATUS_STR
     StrCpy $LAST_STATUS_STR ""
-    DetailPrint "Last error code: $R9"
+    ${DetailPrint} "Last error code: $R9"
   ${EndIf}
 
   exit:
   ${DebugStackExitFrame} ${un}ExecWaitStdoutToLog 1 0
 
-  ${PushStack1} $R9
-  ${ExchStack1} 3
-
-  ${PopStack3} $R1 $R9 $R0
+  ${PopPushStack3} "$R9" " " $R0 $R1 $R9
 FunctionEnd
 !macroend
 
 !define Include_ExecWaitStdoutToLog "!insertmacro Include_ExecWaitStdoutToLog"
-!macro Include_ExecWaitStdoutToLog prefix
-${Include_UnquoteString} "${prefix}"
-${Func_ExecWaitStdoutToLog} "${prefix}"
+!macro Include_ExecWaitStdoutToLog un
+!ifndef ${un}ExecWaitStdoutToLog_INCLUDED
+!define ${un}ExecWaitStdoutToLog_INCLUDED
+${Include_UnquoteString} "${un}"
+${Func_ExecWaitStdoutToLog} "${un}"
+!endif
 !macroend
 
 !define ExecWaitWusaSetup "!insertmacro ExecWaitWusaSetup"
@@ -1496,13 +1501,13 @@ Function ${un}ExecWaitWusaSetup
     Goto exit
   ${EndIf}
 
-  #DetailPrint `Executing: "$SYSDIR32\wusa.exe" $R0`
+  #${DetailPrint} `Executing: "$SYSDIR32\wusa.exe" $R0`
   ${If} $R1 != ""
     ${ExecWait} '"$SYSDIR32\wusa.exe"' '"$R9" $R1' $R9 ; use requoted $R0 to cover case w/o quotes
   ${Else}
     ${ExecWait} '"$SYSDIR32\wusa.exe"' '"$R9"' $R9 ; use requoted $R0 to cover case w/o quotes
   ${EndIf}
-  DetailPrint "Last error code: $R9"
+  ${DetailPrint} "Last error code: $R9"
   ${UpdateSilentSetupNotify}
   ${If} $R9 <> 0
   ${AndIf} $R9 <> 3010 ; Soft reboot flagged
@@ -1522,17 +1527,17 @@ Function ${un}ExecWaitWusaSetup
   exit:
   ${DebugStackExitFrame} ${un}ExecWaitWusaSetup 1 0
 
-  ${PushStack1} $R9
-  ${ExchStack1} 3
-
-  ${PopStack3} $R1 $R9 $R0
+  ${PopPushStack3} "$R9" " " $R0 $R1 $R9
 FunctionEnd
 !macroend
 
 !define Include_ExecWaitWusaSetup "!insertmacro Include_ExecWaitWusaSetup"
-!macro Include_ExecWaitWusaSetup prefix
-${Include_UnquoteString} "${prefix}"
-${Func_ExecWaitWusaSetup} "${prefix}"
+!macro Include_ExecWaitWusaSetup un
+!ifndef ${un}ExecWaitWusaSetup_INCLUDED
+!define ${un}ExecWaitWusaSetup_INCLUDED
+${Include_UnquoteString} "${un}"
+${Func_ExecWaitWusaSetup} "${un}"
+!endif
 !macroend
 
 !define DeclareInstallFromArchive "!insertmacro DeclareInstallFromArchive"

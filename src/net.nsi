@@ -27,24 +27,22 @@ Function ${un}GetComputerName
 FunctionEnd
 !macroend
 
-!define Call_GetComputerName "!insertmacro Call_GetComputerName"
-!macro Call_GetComputerName prefix name_var
-Call ${prefix}GetComputerName
+!define GetComputerName "!insertmacro GetComputerName"
+!macro GetComputerName name_var
+!ifndef __UNINSTALL__
+Call GetComputerName
+!else
+Call un.GetComputerName
+!endif
 ${Pop} ${name_var}
 !macroend
 
-!define GetComputerName "!insertmacro GetComputerName"
-!macro GetComputerName
-!insertmacro Func_GetComputerName ""
-!undef GetComputerName
-!define GetComputerName "!insertmacro Call_GetComputerName ''"
-!macroend
-
-!define un.GetComputerName "!insertmacro un.GetComputerName"
-!macro un.GetComputerName
-!insertmacro Func_GetComputerName "un."
-!undef un.GetComputerName
-!define un.GetComputerName "!insertmacro Call_GetComputerName 'un.'"
+!define Include_GetComputerName "!insertmacro Include_GetComputerName"
+!macro Include_GetComputerName un
+!ifndef ${un}GetComputerName_INCLUDED
+!define ${un}GetComputerName_INCLUDED
+${Func_GetComputerName} "${un}"
+!endif
 !macroend
 
 !define GetPrimaryIP4OfFirstEnabledAdapter "!insertmacro GetPrimaryIP4OfFirstEnabledAdapter"

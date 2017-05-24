@@ -729,10 +729,7 @@ Function EnableNextButton
 
   ${DebugStackExitFrame} EnableNextButton 1 0
 
-  ${Push} $R1
-  ${Exch} 2
-
-  ${PopStack2} $R2 $R1
+  ${PopPushStack2} "$R1" " " $R1 $R2
 FunctionEnd
 
 !define GetNextButtonText "!insertmacro GetNextButtonText"
@@ -757,10 +754,7 @@ Function GetNextButtonText
 
   ${DebugStackExitFrame} GetNextButtonText 1 0
 
-  ${Push} $R1
-  ${Exch} 2
-
-  ${PopStack2} $R2 $R1
+  ${PopPushStack2} "$R1" " " $R1 $R2
 FunctionEnd
 
 !define SetNextButtonText "!insertmacro SetNextButtonText"
@@ -908,10 +902,7 @@ Function GetWindowWidthHeight
 
   ${DebugStackExitFrame} GetWindowWidthHeight 1 0
 
-  ${PushStack2} $R6 $R5
-  ${ExchStackStack2} 6
-
-  ${PopStack8} $R2 $R3 $R4 $R5 $R6 $R9 $R0 $R1
+  ${PopPushStack8} "$R6 $R5" " " $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R9
 FunctionEnd
 
 !define GetWindowTextHeight "!insertmacro GetWindowTextHeight"
@@ -942,10 +933,7 @@ Function GetWindowTextHeight
 
   ${DebugStackExitFrame} GetWindowTextHeight 1 0
 
-  ${Push} $R3
-  ${Exch} 4
-
-  ${PopStack4} $R1 $R2 $R3 $R0
+  ${PopPushStack4} "$R3" " " $R0 $R1 $R2 $R3
 FunctionEnd
 
 !define GUIConvertUnitPointsToPixels "!insertmacro GUIConvertUnitPointsToPixels"
@@ -995,10 +983,7 @@ Function GUIConvertUnitPointsToPixels
 
   ${DebugStackExitFrame} GUIConvertUnitPointsToPixels 1 0
 
-  ${Push} $R9
-  ${Exch} 5
-
-  ${PopStack5} $R1 $R2 $R8 $R9 $R0
+  ${PopPushStack5} "$R9" " " $R0 $R1 $R2 $R8 $R9
 FunctionEnd
 
 !define ColorRGB2BGR "!insertmacro ColorRGB2BGR"
@@ -1057,7 +1042,7 @@ Function SetWindowClassCtlColors
 
     System::Call "user32::SetWindowLong(p,i,l)l ($R0, ${GWL_USERDATA}, $R5) .R8"
 
-    ${PushStack2} $R9 $R8
+    ${PopPushStack6} "$R9 $R8" " " $R0 $R1 $R2 $R5 $R8 $R9
   ${Else}
     ${If} $R2 != ""
     ${AndIf} $R2 != transparent
@@ -1074,15 +1059,12 @@ Function SetWindowClassCtlColors
 
       System::Call "user32::SetWindowLong(p,i,l)l ($R0, ${GWL_USERDATA}, $R5) .R8"
 
-      ${PushStack2} $R9 $R8
+      ${PopPushStack6} "$R9 $R8" " " $R0 $R1 $R2 $R5 $R8 $R9
     ${Else}
-      ${PushStack2} 0 -1 ; not allocated and not set
+      ; not allocated and not set
+      ${PopPushStack6} "0 -1" " " $R0 $R1 $R2 $R5 $R8 $R9
     ${EndIf}
   ${EndIf}
-
-  ${ExchStackStack2} 4
-
-  ${PopStack6} $R2 $R5 $R8 $R9 $R0 $R1
 FunctionEnd
 
 !define SetWindowClassCtlColors "!insertmacro SetWindowClassCtlColors"

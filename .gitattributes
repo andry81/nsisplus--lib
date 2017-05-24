@@ -55,6 +55,7 @@ build/nsisPlus.vcxproj -text
 build/src/nsisPlus.cpp -text
 build/src/nsisPlus.h -text
 /license.txt -text
+src/3dparty.nsi -text
 src/3dparty/CommCtrl.nsh -text
 src/3dparty/CommCtrl.txt -text
 src/3dparty/Locate.nsh -text
@@ -83,6 +84,7 @@ src/killproc.nsi -text
 src/killproc_lang.nsi -text
 src/killproc_lang_en.nsi -text
 src/killproc_lang_ru.nsi -text
+src/log.nsi -text
 src/net.nsi -text
 src/notify.nsi -text
 src/ppcmd.nsi -text
@@ -111,6 +113,8 @@ tests/test_RegAddRemovePathGUI/main.nsi -text
 tests/test_RegAddRemovePathGUI/test.bin -text
 tests/test_cmd_line_ansi/build.bat -text
 tests/test_cmd_line_ansi/main.nsi -text
+tests/test_debug_stack/build.bat -text
+tests/test_debug_stack/main.nsi -text
 tools/7zip/7-zip.chm -text
 tools/7zip/7z.exe -text
 tools/7zip/7za.dll -text
