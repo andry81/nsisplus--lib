@@ -181,7 +181,7 @@ Function ${un}DebugStackCheckFrameImpl_ImplAskAbort
     ${EndIf}
     Return
 
-    ; Workaround for Abort/Quit call from a page control window procedure handler.
+    ; Workaround for Abort call from a page control window procedure handler.
     ; Call !Abort again in case if it has been called already from such handler.
 
     abort:
@@ -201,8 +201,7 @@ Function ${un}DebugStackCheckFrameImpl_ImplAskAbort
     Call un.!Abort
     !endif
   !else
-    Abort
-    Quit ; if not aborted
+    ${!AbortOrQuit}
   !endif
 FunctionEnd
 
@@ -649,7 +648,7 @@ Function ${un}DebugStackPopAllRegsAndCheck_ImplAskAbort
     ${EndIf}
     Return
 
-    ; Workaround for Abort/Quit call from a page control window procedure handler.
+    ; Workaround for Abort call from a page control window procedure handler.
     ; Call !Abort again in case if it has been called already from such handler.
 
     abort:
@@ -669,8 +668,7 @@ Function ${un}DebugStackPopAllRegsAndCheck_ImplAskAbort
     Call un.!Abort
     !endif
   !else
-    Abort
-    Quit ; if not aborted
+    ${!AbortOrQuit}
   !endif
 FunctionEnd
 

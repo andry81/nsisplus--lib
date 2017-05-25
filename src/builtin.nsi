@@ -1,4 +1,4 @@
-; implementation based only on runtime builtin functionality and does not dependent on not builtin runtime functionality
+; implementation based only on runtime builtin functionality and does not dependent on not builtin runtime functionality, but may depend on init variables.
 
 !ifndef _NSIS_SETUP_LIB_BUILTIN_NSI
 !define _NSIS_SETUP_LIB_BUILTIN_NSI
@@ -49,6 +49,28 @@ SetErrors
 !macro PopAndSetErrors
 ${Pop} $ERRORS
 ${SetErrors} $ERRORS
+!macroend
+
+!define !AbortOrQuit "!insertmacro !AbortOrQuit"
+!macro !AbortOrQuit
+; CAUTION:
+;   Abort function call from a page control window procedure handler does NOT initiate installer to quit!
+;   To workaround this issue we have at least to call the installer process to exit directly from the Win32 API
+;   instead of call to Quit if Abort or even Quit has been called already.
+;
+
+IntCmp $QUITCALLED 0 0 +2 +2
+Goto +5
+IfSilent +2
+SendMessage $HWNDPARENT ${WM_CLOSE} 0 0 ; send gui messages only in non silent mode if already tried to quit in gui
+Quit ; try last quit call again
+Goto +6 ; skip everything after just in case
+StrCpy $QUITCALLED 1
+StrCmp $QUIT_CMD "Quit" 0 +2
+Quit
+StrCmp $QUIT_CMD "Abort" 0 +2
+Abort
+; nothing more can do here
 !macroend
 
 !endif

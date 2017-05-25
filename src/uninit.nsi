@@ -79,12 +79,12 @@ ${If} $QUITTING = 0
 ${EndIf}
 
 ; ASSUMPTION:
-;   Abort/Quit call from a page control window procedure handler does NOT initiate installer to quit!
+;   Abort function call from a page control window procedure handler does NOT initiate installer to quit!
 ;   To workaround this issue we have at least to call the installer process to exit directly from the Win32 API
-;   instead of call to Abort/Quit again if Abort/Quit has been called already.
+;   instead of call to Quit if Abort or even Quit has been called already.
 ;
 
-StrCpy $QUITCALLED 1 ; just in case
+StrCpy $QUITCALLED 1
 Quit
 ; nothing more can do here
 !macroend
@@ -119,24 +119,7 @@ ${If} $QUITTING = 0
   !endif
 ${EndIf}
 
-; ASSUMPTION:
-;   Abort/Quit call from a page control window procedure handler does NOT initiate installer to quit!
-;   To workaround this issue we have at least to call the installer process to exit directly from the Win32 API
-;   instead of call to Abort/Quit again if Abort/Quit has been called already.
-;
-
-IntCmp $QUITCALLED 0 0 +2 +2
-Goto +5
-IfSilent +2
-SendMessage $HWNDPARENT ${WM_CLOSE} 0 0 ; send gui messages only in non silent mode if already tried to quit in gui
-Quit ; try last quit call again
-Goto +6 ; skip everything after just in case
-StrCpy $QUITCALLED 1
-StrCmp $QUIT_CMD "Quit" 0 +2
-Quit
-StrCmp $QUIT_CMD "Abort" 0 +2
-Abort
-; nothing more can do here
+${!AbortOrQuit}
 !macroend
 
 !define Func_Exit "!insertmacro Func_Exit"
@@ -230,7 +213,8 @@ ${!AbortCall} Abort "Abort" `${msg}`
 ${!AbortCall} Quit "Abort" `${msg}`
 !macroend
 
-; Abort/Quit can't be executed, for example, from a page control window procedure handler, so call it again to accomplish already initiated abort through another way
+; Abort function may not be executed from a page control window procedure handler, but instead would be skipped with raised abort flag.
+; Call it again to accomplish already initiated abort
 !define !ExecutePostponedAbort "!insertmacro !ExecutePostponedAbort"
 !macro !ExecutePostponedAbort
 ${If} $QUITCALLED <> 0

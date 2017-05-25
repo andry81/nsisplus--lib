@@ -17,7 +17,7 @@ Function ${un}DebugStackPopExchOutOfStack_ImplAskAbort
     ${EndIf}
     Return
 
-    ; Workaround for Abort/Quit call from a page control window procedure handler.
+    ; Workaround for Abort call from a page control window procedure handler.
     ; Call !Abort again in case if it has been called already from such handler.
 
     abort:
@@ -50,7 +50,7 @@ Function ${un}DebugStackInvalidCall_ImplAskAbort
     ${EndIf}
     Return
 
-    ; Workaround for Abort/Quit call from a page control window procedure handler.
+    ; Workaround for Abort call from a page control window procedure handler.
     ; Call !Abort again in case if it has been called already from such handler.
 
     abort:
