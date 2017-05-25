@@ -476,7 +476,7 @@ ${!define_if_valid_var} "" 1 "${arg}" "${var_name_def}"
   !define __CURRENT_MACRO_UnfoldMacroArgumentList_LIST_SEPARATOR_ESCAPED_next_elems_def "" ; compile error if already exists
   !searchreplace __CURRENT_MACRO_UnfoldMacroArgumentList_LIST_SEPARATOR_ESCAPED_next_elems_def "${${next_elems_def}}" "${list_separator_str}" "*${list_separator_str}*"
   !if "${__CURRENT_MACRO_UnfoldMacroArgumentList_LIST_SEPARATOR_ESCAPED_next_elems_def}" S!= "${${next_elems_def}}" ; list separator is found
-    !if ! "${elem_prefix_str}" == "" ; double negation to avoid error in case if elem_prefix_str="!"
+    !if ! "${elem_prefix_str}" == "" ; negation to avoid error in case if elem_prefix_str="!"
       ; !searchparse will error on not found prefix or separator strings!
       !define __CURRENT_MACRO_UnfoldMacroArgumentList_VAR_PREFIX_CHAR_ESCAPED_next_elems_def "" ; compile error if already exists
       !searchreplace __CURRENT_MACRO_UnfoldMacroArgumentList_VAR_PREFIX_CHAR_ESCAPED_next_elems_def "${${next_elems_def}}" "${elem_prefix_str}" "*${elem_prefix_str}*"
@@ -490,7 +490,7 @@ ${!define_if_valid_var} "" 1 "${arg}" "${var_name_def}"
       !searchparse "${${next_elems_def}}" "" ${current_elem_def} "${list_separator_str}" ${next_elems_def}
     !endif
   !else
-    !if ! "${elem_prefix_str}" == "" ; double negation to avoid error in case if elem_prefix_str="!"
+    !if ! "${elem_prefix_str}" == "" ; negation to avoid error in case if elem_prefix_str="!"
       ; !searchparse will error on not found prefix or separator strings!
       !define __CURRENT_MACRO_UnfoldMacroArgumentList_VAR_PREFIX_CHAR_ESCAPED_next_elems_def "" ; compile error if already exists
       !searchreplace __CURRENT_MACRO_UnfoldMacroArgumentList_VAR_PREFIX_CHAR_ESCAPED_next_elems_def "${${next_elems_def}}" "${elem_prefix_str}" "*${elem_prefix_str}*"

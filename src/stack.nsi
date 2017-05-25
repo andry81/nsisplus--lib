@@ -3289,12 +3289,12 @@ ${!undef_ifdef} PushStackByList__next_vars_def
 !verbose pop
 !macroend
 
-!macro PushStackByList__impl_recur vars_list separator current_var_def next_var_def
+!macro PushStackByList__impl_recur vars_list separator current_var_def next_vars_def
 ${UnfoldMacroArgumentList} "${vars_list}" ${current_var_def} ${next_vars_def} "" "${separator}" "" ; space separated list w/o prefix
 
 !verbose pop
 
-!ifdef ${current_var_def}
+!if "${${current_var_def}}" != "" ; must be not empty (there is no difference between list with one empty item and empty list)
   Push `${${current_var_def}}`
 !endif
 
@@ -3302,10 +3302,8 @@ ${UnfoldMacroArgumentList} "${vars_list}" ${current_var_def} ${next_vars_def} ""
 !verbose ${_NSIS_SETUP_LIB_STACK_PUSHPOP_VERBOSE_LEVEL}
 
 ; recursive macro call
-!ifdef ${current_var_def}
 !if "${${next_vars_def}}" != ""
-  !insertmacro PushStackByList__impl_recur "${${next_vars_def}}" "${separator}" ${current_var_def} ${next_var_def}
-!endif
+  !insertmacro PushStackByList__impl_recur "${${next_vars_def}}" "${separator}" ${current_var_def} ${next_vars_def}
 !endif
 !macroend
 
