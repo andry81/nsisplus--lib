@@ -5,15 +5,15 @@
 
 !include "${_NSIS_SETUP_LIB_ROOT}\src\preprocessor.nsi"
 
-; ${DetailPrint} with workarounds
+; DetailPrint with workarounds
 !define Func_DetailPrint "!insertmacro Func_DetailPrint"
 !macro Func_DetailPrint un
 Function ${un}DetailPrint
   Exch $R0
   !if "${un}" != "un."
-    ${StrRep} $R0 $R0 "$\n" " " ; replace all line returns in the message to fix the ${DetailPrint} tooltip cut off before a line return
+    ${StrRep} $R0 $R0 "$\n" " " ; replace all line returns in the message to fix the DetailPrint tooltip cut off before a line return
   !else
-    ${UnStrRep} $R0 $R0 "$\n" " " ; replace all line returns in the message to fix the ${DetailPrint} tooltip cut off before a line return
+    ${UnStrRep} $R0 $R0 "$\n" " " ; replace all line returns in the message to fix the DetailPrint tooltip cut off before a line return
   !endif
   DetailPrint $R0
   Pop $R0
