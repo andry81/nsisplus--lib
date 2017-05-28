@@ -1,13 +1,14 @@
 * README_EN.txt
-* 2017.05.20
+* 2017.05.28
 * NsisSetupLib
 
 1. DESCRIPTION
 2. LICENSE
-3. PREREQUISITES
-4. DEPLOY
-5. TESTS
-6. AUTHOR EMAIL
+3. REPOSITORIES
+4. PREREQUISITES
+5. DEPLOY
+6. TESTS
+7. AUTHOR EMAIL
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -29,17 +30,25 @@ The MIT license (see included text file "license.txt" or
 https://en.wikipedia.org/wiki/MIT_License)
 
 -------------------------------------------------------------------------------
-3. PREREQUISITES
+3. REPOSITORIES
+-------------------------------------------------------------------------------
+Primary:
+  * https://svn.code.sf.net/p/nsisplus/NsisSetupLib/trunk
+Secondary:
+  * https://github.com/andry81/nsisplus--NsisSetupLib.git
+
+-------------------------------------------------------------------------------
+4. PREREQUISITES
 -------------------------------------------------------------------------------
 1. NSIS v3.0
 
 -------------------------------------------------------------------------------
-4. DEPLOY
+5. DEPLOY
 -------------------------------------------------------------------------------
 No examples here. It is in the TODO list.
 
 -------------------------------------------------------------------------------
-5. TESTS
+6. TESTS
 -------------------------------------------------------------------------------
 1. Run tests/configure.bat.
 2. Edit tests/configure.user.bat for correct environment variables.
@@ -49,6 +58,6 @@ No examples here. It is in the TODO list.
 5. Run tests/<TestName>/test.exe to run a test.
 
 -------------------------------------------------------------------------------
-6. AUTHOR EMAIL
+7. AUTHOR EMAIL
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)
