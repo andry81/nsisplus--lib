@@ -589,7 +589,7 @@ Function Init_ImplEnd
 
     ; Extract files from setup executable via external 7-zip command line tool (must be UNICODE version, not ANSI version!)
     ; The result will be raw NSIS archive file system.
-    File "/oname=$PluginsDir\7z.exe" "${TOOLS_PATH}\7zip\7z.exe"
+    File "/oname=$PluginsDir\7z.exe" "${CONTOOLS_ROOT}\7zip\7z.exe"
     CreateDirectory "$ADMINISTRATIVE_INSTALL_PATH"
     SetOverwrite on
     SetOutPath "$ADMINISTRATIVE_INSTALL_PATH" ; Working directory

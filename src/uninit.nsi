@@ -105,7 +105,12 @@ ${If} $QUITTING = 0
   ; system won't call anything after Abort, so we must call UninitInstall/UninistUninstall at least with special exit code
   !if "${msg}" != ""
   ${DetailPrint} "!AbortCall: ${msg}"
-  MessageBox MB_OK|MB_TOPMOST|MB_SETFOREGROUND "${msg}" /SD IDOK
+  ${If} $DEBUG = 0
+    MessageBox MB_OK|MB_TOPMOST|MB_SETFOREGROUND "${msg}" /SD IDOK
+  ${Else}
+    ; ignore silent mode
+    MessageBox MB_OK|MB_TOPMOST|MB_SETFOREGROUND "${msg}"
+  ${EndIf}
   StrCpy $MSG_ABORT "${msg}"
   !endif
   !ifdef Init_INCLUDED
@@ -491,7 +496,12 @@ Function AskSetupInstallAbort
   ${IfNot} ${Silent}
   ${OrIf} $COMPONENTS_SILENT_INSTALL = 0
     ${DetailPrint} "$(MSG_SETUP_INSTALL_ABORT_LOG)"
-    MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$(MSG_SETUP_INSTALL_ABORT_ASKING)" /SD IDNO IDYES abort
+    ${If} $DEBUG = 0
+      MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$(MSG_SETUP_INSTALL_ABORT_ASKING)" /SD IDNO IDYES abort
+    ${Else}
+      ; ignore silent mode
+      MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$(MSG_SETUP_INSTALL_ABORT_ASKING)" IDYES abort
+    ${EndIf}
   ${EndIf}
   Goto end
 
@@ -553,7 +563,12 @@ Function ${un}ProcessLastNsisSetupExitStatus
           SetErrorLevel $R3
 
           ${DetailPrint} "$(MSG_SETUP_INSTALL_ABORT_LOG)"
-          MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$R9$\n$\n$(MSG_SETUP_INSTALL_ABORT_ASKING)" /SD IDNO IDYES 0 IDNO continue
+          ${If} $DEBUG = 0
+            MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$R9$\n$\n$(MSG_SETUP_INSTALL_ABORT_ASKING)" /SD IDNO IDYES 0 IDNO continue
+          ${Else}
+            ; ignore silent mode
+            MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$R9$\n$\n$(MSG_SETUP_INSTALL_ABORT_ASKING)" IDYES 0 IDNO continue
+          ${EndIf}
 
           ${!AbortCall} Abort $R8 ""
         ${EndIf}
@@ -570,7 +585,12 @@ Function ${un}ProcessLastNsisSetupExitStatus
       SetErrorLevel $R3
 
       ${DetailPrint} "$(MSG_SETUP_INSTALL_ABORT_LOG)"
-      MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$(MSG_SETUP_INSTALL_ABORT_ASKING)" /SD IDNO IDYES 0 IDNO continue
+      ${If} $DEBUG = 0
+        MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$(MSG_SETUP_INSTALL_ABORT_ASKING)" /SD IDNO IDYES 0 IDNO continue
+      ${Else}
+        ; ignore silent mode
+        MessageBox MB_YESNO|MB_TOPMOST|MB_SETFOREGROUND "$(MSG_SETUP_INSTALL_ABORT_ASKING)" IDYES 0 IDNO continue
+      ${EndIf}
 
       ${!Abort}
     ${EndIf}
