@@ -115,6 +115,8 @@ tests/test_cmd_line_ansi/build.bat -text
 tests/test_cmd_line_ansi/main.nsi -text
 tests/test_debug_stack/build.bat -text
 tests/test_debug_stack/main.nsi -text
+tests/test_dummy/build.bat -text
+tests/test_dummy/main.nsi -text
 tools/7zip/7-zip.chm -text
 tools/7zip/7z.exe -text
 tools/7zip/7za.dll -text
