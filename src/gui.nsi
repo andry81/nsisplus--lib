@@ -119,6 +119,18 @@ ${GUIWindowProcBeginMarkerFrame} NSD_CB_SafeSelectString 0
 ${GUIWindowProcEndMarkerFrame} NSD_CB_SafeSelectString 0
 !macroend
 
+!define /redef NSD_CB_SelectStringByIndex "!insertmacro NSD_CB_SelectStringByIndex"
+!macro NSD_CB_SelectStringByIndex id index
+${GUIWindowProcBeginMarkerFrame} NSD_CB_SelectStringByIndex 0
+
+${If} ${index} <> ${CB_ERR} ; otherwise will be clear!
+${AndIf} ${index} >= 0
+  SendMessage ${id} ${CB_SETCURSEL} ${index} ""
+${EndIf}
+
+${GUIWindowProcEndMarkerFrame} NSD_CB_SelectStringByIndex 0
+!macroend
+
 !define /redef NSD_CB_GetSelection "!insertmacro NSD_CB_SafeGetSelection"
 !macro NSD_CB_SafeGetSelection id var
 ${GUIWindowProcBeginMarkerFrame} NSD_CB_SafeGetSelection 0
@@ -126,6 +138,15 @@ ${GUIWindowProcBeginMarkerFrame} NSD_CB_SafeGetSelection 0
 !insertmacro __NSD_CB_GetSelection_Call "${id}" ${var}
 
 ${GUIWindowProcEndMarkerFrame} NSD_CB_SafeGetSelection 0
+!macroend
+
+!define /redef NSD_CB_GetSelectionIndex "!insertmacro NSD_CB_SafeGetSelectionIndex"
+!macro NSD_CB_SafeGetSelectionIndex id value_var index_var
+${GUIWindowProcBeginMarkerFrame} NSD_CB_SafeGetSelectionIndex 0
+
+!insertmacro __NSD_CB_GetSelectionIndex_Call "${id}" ${value_var} ${index_var}
+
+${GUIWindowProcEndMarkerFrame} NSD_CB_SafeGetSelectionIndex 0
 !macroend
 
 !define /redef NSD_CB_AddString "!insertmacro NSD_CB_SafeAddString"
@@ -465,6 +486,44 @@ ${DebugStackEnterFrame} GUISelectComboBoxText 0 0
 ${NSD_CB_SelectString} "${id}" "${text}"
 
 ${DebugStackExitFrame} GUISelectComboBoxText 0 0
+!macroend
+
+; select and get
+!define GUISelectGetComboBoxTextExact "!insertmacro GUISelectGetComboBoxTextExact"
+!macro GUISelectGetComboBoxTextExact id text var
+${DebugStackEnterFrame} GUISelectComboBoxTextExact 0 0
+
+${PushStack1} $R0
+
+SendMessage ${id} ${CB_FINDSTRINGEXACT} -1 "STR:${text}" $R0
+${If} $R0 <> ${CB_ERR}
+  ${NSD_CB_SelectStringByIndex} "${id}" $R0
+${Else}
+  StrCpy $R0 "" ; empty if not selected
+${EndIf}
+
+${MacroPopStack1} "${var}" "$R0" $R0
+
+${DebugStackExitFrame} GUISelectComboBoxTextExact 0 0
+!macroend
+
+; select or set
+!define GUISelectSetComboBoxTextExact "!insertmacro GUISelectSetComboBoxTextExact"
+!macro GUISelectSetComboBoxTextExact id text
+${DebugStackEnterFrame} GUISelectSetComboBoxTextExact 0 0
+
+${PushStack1} $R0
+
+SendMessage ${id} ${CB_FINDSTRINGEXACT} -1 "STR:${text}" $R0
+${If} $R0 <> ${CB_ERR}
+  ${NSD_CB_SelectStringByIndex} "${id}" $R0
+${Else}
+  ${NSD_SetText} "${id}" "${text}"
+${EndIf}
+
+${PopStack1} $R0
+
+${DebugStackExitFrame} GUISelectSetComboBoxTextExact 0 0
 !macroend
 
 !define GUISelectGetComboBoxText "!insertmacro GUISelectGetComboBoxText"

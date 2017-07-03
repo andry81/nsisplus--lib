@@ -1467,6 +1467,34 @@ ${DEFINE} NSD_CB_GetCount `!insertmacro __NSD_CB_GetCount`
 
 ${DEFINE} NSD_CB_GetSelection `!insertmacro __NSD_CB_GetSelection_Call`
 
+#################################################################
+# ${NSD_CB_GetSelectionIndex} combo_HWND value_var index_var    #
+# Retrieves the selected string with index from a combobox      #
+#################################################################
+
+!macro __NSD_CB_GetSelectionIndex_Call CONTROL VAR INDEX
+	!verbose push
+	!verbose ${_COMMCTRL_NSH_VERBOSE}
+  Push `${CONTROL}`
+  ${CallArtificialFunction} __NSD_CB_GetSelectionIndex_
+  Pop `${INDEX}`
+  Pop `${VAR}`
+  !verbose pop
+!macroend
+
+!macro __NSD_CB_GetSelectionIndex_
+  System::Store SR0
+  System::Call `user32::SendMessage(iR0,i${CB_GETCURSEL},i0,i0)i.R1`
+  IntCmp $R1 ${CB_ERR} +4
+    System::Call `user32::SendMessage(iR0,i${CB_GETLBTEXT},iR1,t.s)`
+    Push $R1
+  Goto +3
+    Push ""
+    Push ${CB_ERR}
+  System::Store L
+!macroend
+
+${DEFINE} NSD_CB_GetSelectionIndex `!insertmacro __NSD_CB_GetSelectionIndex_Call`
 
 #################################################################
 # ${NSD_LB_DelString} listbox_HWND string                       #
