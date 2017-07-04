@@ -430,26 +430,7 @@ ${DebugStackCheckFrameImpl} DebugStackPushAllRegs DebugStackEnterFrame `${code_i
 
 !if ${ENABLE_DEBUG_STACK_FRAMES} <> 0
 ${Push} $DEBUG_FRAME_ID
-${Push} $R0
-${Push} $R1
-${Push} $R2
-${Push} $R3
-${Push} $R4
-${Push} $R5
-${Push} $R6
-${Push} $R7
-${Push} $R8
-${Push} $R9
-${Push} $0
-${Push} $1
-${Push} $2
-${Push} $3
-${Push} $4
-${Push} $5
-${Push} $6
-${Push} $7
-${Push} $8
-${Push} $9
+${PushStack20} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
 ${Push} $DEBUG_FRAME_ID ; duplicate the frame marker
 !endif
 
@@ -752,26 +733,7 @@ ${DebugStackPopAllRegsAndCheckImpl} DebugStackPopAllRegsAndCheck DebugStackPushA
 IntOp $SECTION_SCOPE_INDEX $SECTION_SCOPE_INDEX + 1 ; increment before enter to enable Abort call from !Abort, otherwise the Quit will be called from !Abort in below functions!
 
 ${DebugStackEnterFrame} ${section_var_name} 0 0
-${Push} $R0
-${Push} $R1
-${Push} $R2
-${Push} $R3
-${Push} $R4
-${Push} $R5
-${Push} $R6
-${Push} $R7
-${Push} $R8
-${Push} $R9
-${Push} $0
-${Push} $1
-${Push} $2
-${Push} $3
-${Push} $4
-${Push} $5
-${Push} $6
-${Push} $7
-${Push} $8
-${Push} $9
+${PushStack20} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
 ${DebugStackEnterFrame} ${section_var_name} 1 0
 
 !verbose pop
@@ -797,26 +759,7 @@ ${DebugStackCheckFrame} ${section_var_name} 1 0
 !verbose ${_NSIS_SETUP_LIB_DEBUG_STACK_VERBOSE_LEVEL}
 
 ${DebugStackExitFrame} ${section_var_name} 1 0
-${Pop} $9
-${Pop} $8
-${Pop} $7
-${Pop} $6
-${Pop} $5
-${Pop} $4
-${Pop} $3
-${Pop} $2
-${Pop} $1
-${Pop} $0
-${Pop} $R9
-${Pop} $R8
-${Pop} $R7
-${Pop} $R6
-${Pop} $R5
-${Pop} $R4
-${Pop} $R3
-${Pop} $R2
-${Pop} $R1
-${Pop} $R0
+${PopStack20} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
 ${DebugStackExitFrame} ${section_var_name} 0 0
 
 IntOp $SECTION_SCOPE_INDEX $SECTION_SCOPE_INDEX - 1 ; decrement just before exit to enable Abort call from !Abort, otherwise the Quit will be called from !Abort in above functions!
@@ -832,26 +775,7 @@ IntOp $SECTION_SCOPE_INDEX $SECTION_SCOPE_INDEX - 1 ; decrement just before exit
 !verbose ${_NSIS_SETUP_LIB_DEBUG_STACK_VERBOSE_LEVEL}
 
 ${DebugStackEnterFrame} ${function_name} 0 0
-${Push} $R0
-${Push} $R1
-${Push} $R2
-${Push} $R3
-${Push} $R4
-${Push} $R5
-${Push} $R6
-${Push} $R7
-${Push} $R8
-${Push} $R9
-${Push} $0
-${Push} $1
-${Push} $2
-${Push} $3
-${Push} $4
-${Push} $5
-${Push} $6
-${Push} $7
-${Push} $8
-${Push} $9
+${PushStack20} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
 ${DebugStackEnterFrame} ${function_name} 1 0
 
 !verbose pop
@@ -878,26 +802,7 @@ ${DebugStackCheckFrame} ${function_name} 1 0
 
 ${If} $PLUGINS_UNLOADED = 0 ; plugins not unloaded yet, can request debug check
   ${DebugStackExitFrame} ${function_name} 1 0
-  ${Pop} $9
-  ${Pop} $8
-  ${Pop} $7
-  ${Pop} $6
-  ${Pop} $5
-  ${Pop} $4
-  ${Pop} $3
-  ${Pop} $2
-  ${Pop} $1
-  ${Pop} $0
-  ${Pop} $R9
-  ${Pop} $R8
-  ${Pop} $R7
-  ${Pop} $R6
-  ${Pop} $R5
-  ${Pop} $R4
-  ${Pop} $R3
-  ${Pop} $R2
-  ${Pop} $R1
-  ${Pop} $R0
+  ${PopStack20} $R0 $R1 $R2 $R3 $R4 $R5 $R6 $R7 $R8 $R9 $0 $1 $2 $3 $4 $5 $6 $7 $8 $9
   ${DebugStackExitFrame} ${function_name} 0 0
 ${EndIf}
 
