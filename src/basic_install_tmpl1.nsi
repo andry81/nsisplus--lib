@@ -149,6 +149,6 @@ XPStyle on
 ShowUninstDetails show
 ShowInstDetails show
 
-InstallDirRegKey HKLM "${PRODUCT_SETUP_REGKEY}" InstallPath
+InstallDirRegKey HKLM "${PRODUCT_SETUP_REGKEY}" InstallRoot
 
 !endif

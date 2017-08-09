@@ -163,7 +163,7 @@ Var /GLOBAL SILENT_SETUP_NOTIFY_POPUP_SHOW_DELAY
 Var /GLOBAL ROOT_SILENT_SETUP
 Var /GLOBAL COMPONENTS_SILENT_INSTALL
 Var /GLOBAL ADMINISTRATIVE_INSTALL
-Var /GLOBAL ADMINISTRATIVE_INSTALL_PATH
+Var /GLOBAL ADMINISTRATIVE_INSTALL_ROOT
 Var /GLOBAL PARENT_CONTROL_SETUP ; indicating that setup being runned from parent setup
 Var /GLOBAL RAW_PARAM
 Var /GLOBAL SETUP_INI_IN ; will be set only once in initialization
@@ -210,10 +210,10 @@ ${!define_guid16} _NSIS_SETUP_LIB_BUILD_GUID16
 
 
 !define InitInstall "!insertmacro InitInstall"
-!macro InitInstall shell_ctx install_path setup_session_dir user_on_init_before_uac
+!macro InitInstall shell_ctx install_root setup_session_dir user_on_init_before_uac
 ${DebugStackEnterFrame} InitInstall 0 1
 ${Push} `${shell_ctx}`
-${Push} `${install_path}`
+${Push} `${install_root}`
 ${Push} `${setup_session_dir}`
 ${Push} `${user_on_init_before_uac}`
 Call Init_ImplBegin
@@ -252,7 +252,7 @@ ${DebugStackExitFrame} InitInstallGUI 0 1
 Function Init_ImplBegin
   ${ExchStack4} $R0 $R1 $R2 $R3
   ;R0 - shell_ctx
-  ;R1 - install_path
+  ;R1 - install_root
   ;R2 - setup_session_dir
   ;R3 - user_on_init_before_uac
   ${PushStack6} $R4 $R5 $R6 $R7 $R8 $R9
@@ -384,13 +384,13 @@ Function Init_ImplBegin
   ${GetOptions} $CMDLINE "/A" $NULL
   ${If} ${NoErrors}
     StrCpy $ADMINISTRATIVE_INSTALL 1
-    ${GetOptions} $CMDLINE "/A=" $ADMINISTRATIVE_INSTALL_PATH
-    ${If} $ADMINISTRATIVE_INSTALL_PATH == ""
-      StrCpy $ADMINISTRATIVE_INSTALL_PATH "$CURDIR\_$EXEFILE"
+    ${GetOptions} $CMDLINE "/A=" $ADMINISTRATIVE_INSTALL_ROOT
+    ${If} $ADMINISTRATIVE_INSTALL_ROOT == ""
+      StrCpy $ADMINISTRATIVE_INSTALL_ROOT "$CURDIR\_$EXEFILE"
     ${Else}
-      ${GetAbsolutePath} $ADMINISTRATIVE_INSTALL_PATH "$ADMINISTRATIVE_INSTALL_PATH"
+      ${GetAbsolutePath} $ADMINISTRATIVE_INSTALL_ROOT "$ADMINISTRATIVE_INSTALL_ROOT"
     ${EndIf}
-    ${DetailPrint} "Making administrative installation into $\"$ADMINISTRATIVE_INSTALL_PATH$\"..."
+    ${DetailPrint} "Making administrative installation into $\"$ADMINISTRATIVE_INSTALL_ROOT$\"..."
   ${Else}
     StrCpy $ADMINISTRATIVE_INSTALL 0
   ${EndIf}
@@ -501,7 +501,7 @@ Function Init_ImplEnd
   ${Else}
     ; Set some default
     ${StrRep} $R9 $R1 '{{SYSDRIVE}}' '$SYSDRIVE'
-    StrCpy $INSTDIR $R9 ; Update install path variable
+    StrCpy $INSTDIR $R9 ; Update install root variable
   ${EndIf}
 
   StrCpy $INSTDIR_TMP "" ; must be initialized by the user later
@@ -590,10 +590,10 @@ Function Init_ImplEnd
     ; Extract files from setup executable via external 7-zip command line tool (must be UNICODE version, not ANSI version!)
     ; The result will be raw NSIS archive file system.
     File "/oname=$PluginsDir\7z.exe" "${CONTOOLS_ROOT}\7zip\7z.exe"
-    CreateDirectory "$ADMINISTRATIVE_INSTALL_PATH"
+    CreateDirectory "$ADMINISTRATIVE_INSTALL_ROOT"
     SetOverwrite on
-    SetOutPath "$ADMINISTRATIVE_INSTALL_PATH" ; Working directory
-    ${ExecWaitNoStdout} '"$PluginsDir\7z.exe"' 'x -y -o"$ADMINISTRATIVE_INSTALL_PATH" "$EXEPATH"' $LAST_ERROR
+    SetOutPath "$ADMINISTRATIVE_INSTALL_ROOT" ; Working directory
+    ${ExecWaitNoStdout} '"$PluginsDir\7z.exe"' 'x -y -o"$ADMINISTRATIVE_INSTALL_ROOT" "$EXEPATH"' $LAST_ERROR
     Delete "$PluginsDir\7z.exe"
 
     ${UpdateSilentSetupNotify}
