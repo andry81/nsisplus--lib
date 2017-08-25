@@ -20,8 +20,8 @@ Microsoft Visual Studio 2010 including bug fix and new implementation.
 The latest version is here: sf.net/p/nsisplus
 
 WARNING:
-  Use the SVN access to find out new functionality and bug fixes:
-    https://svn.code.sf.net/p/nsisplus/NsisSetupLib/trunk
+  Use the SVN access to find out new functionality and bug fixes.
+  See the REPOSITORIES section.
 
 -------------------------------------------------------------------------------
 2. LICENSE
