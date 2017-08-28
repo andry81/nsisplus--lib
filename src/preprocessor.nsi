@@ -5,6 +5,7 @@
 !define _NSIS_SETUP_LIB_PREPROCESSOR_VERBOSE_LEVEL 3 ; 4 for debug proprocessor macros
 
 !define DOLLAR "$$"
+!define CT_DOLLAR "$"
 
 !define !debug_echo "!insertmacro !debug_echo"
 !macro !debug_echo msg
@@ -1328,7 +1329,7 @@ ${UnfoldMacroArgumentList} "${def_list}" ${current_def_def} ${next_defs_def} "" 
   ${${def_cmd}} ${var_def} ${value}
 !else
   !if "${${var_def}}" != "${value}"
-    !error "$${!define_ifndef_cmd}: previous definition has different value"
+    !error "${CT_DOLLAR}{!define_ifndef_cmd}: previous definition has different value"
   !endif
 !endif
 
@@ -1525,7 +1526,7 @@ ${!define_if} VARIABLE_EXP_TRUE ${flag_var} <> 0
     !ifdef INCLUDE_FILE_EXIST
       !undef INCLUDE_FILE_EXIST
     !else
-      !error "$${IncludeIf}: ($\"${flag_var}$\" defined and not zero) potential include file does not exist: $\"${include_file}$\""
+      !error "${CT_DOLLAR}{IncludeIf}: ($\"${flag_var}$\" defined and not zero) potential include file does not exist: $\"${include_file}$\""
     !endif
   !endif
 !endif
