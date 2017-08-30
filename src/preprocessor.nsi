@@ -613,14 +613,20 @@ ${!define_if_nvalid_var} error_nvar__NOT_VALID_VAR 0 "${str}" ""
 
 ; define a define if compile time expression evaludated to true
 !define !define_if_impl "!insertmacro !define_if_impl"
-!macro !define_if_impl verbose_flag var_def var exp value
+!macro !define_if_impl verbose_flag def_flags var_def var exp value
 !if ${verbose_flag} <> 0
   !verbose push
   !verbose ${_NSIS_SETUP_LIB_PREPROCESSOR_VERBOSE_LEVEL}
 !endif
 
-!ifdef ${var_def}
-  !error "!define_if: ${var_def} must be not defined!"
+!if "${def_flags}" != "/redef"
+  !ifdef ${var_def}
+    !error "!define_if: ${var_def} must be not defined!"
+  !endif
+!else
+  !ifndef ${var_def}
+    !error "!define_if: ${var_def} must be defined!"
+  !endif
 !endif
 
 !ifdef ${var}
@@ -666,7 +672,7 @@ ${!define_if_nvalid_var} error_nvar__NOT_VALID_VAR 0 "${str}" ""
   !if "${!define_if__value0}" ${!define_if__exp} "${!define_if__value1}"
     !verbose pop
 
-    !define ${var_def} 1
+    !define ${def_flags} ${var_def} 1
 
     !verbose push
     !verbose ${_NSIS_SETUP_LIB_PREPROCESSOR_VERBOSE_LEVEL}
@@ -676,7 +682,7 @@ ${!define_if_nvalid_var} error_nvar__NOT_VALID_VAR 0 "${str}" ""
   !if ${!define_if__value0} ${!define_if__exp} ${!define_if__value1}
     !verbose pop
 
-    !define ${var_def} 1
+    !define ${def_flags} ${var_def} 1
 
     !verbose push
     !verbose ${_NSIS_SETUP_LIB_PREPROCESSOR_VERBOSE_LEVEL}
@@ -701,7 +707,18 @@ ${!undef_ifdef} !define_if__strings_exp
 !verbose push
 !verbose ${_NSIS_SETUP_LIB_PREPROCESSOR_VERBOSE_LEVEL}
 
-${!define_if_impl} 0 ${var_def} "${var}" ${exp} "${value}"
+${!define_if_impl} 0 "" ${var_def} "${var}" ${exp} "${value}"
+
+!verbose pop
+!macroend
+
+; redefine a define if compile time expression evaludated to true
+!define !redefine_if "!insertmacro !redefine_if"
+!macro !redefine_if var_def var exp value
+!verbose push
+!verbose ${_NSIS_SETUP_LIB_PREPROCESSOR_VERBOSE_LEVEL}
+
+${!define_if_impl} 0 /redef ${var_def} "${var}" ${exp} "${value}"
 
 !verbose pop
 !macroend
@@ -863,7 +880,7 @@ ${!error_if_empty_NAN} "${default_value}" "!define_enable_flag_impl: default val
 
 #${!define_from_args3} !define_enable_flag_impl__env_var_name 0 ${!define_enable_flag_impl__external_exp_suffix}
 #${!define_from_env} "" "F_ENABLE_${internal_flag_name_def_suffix}" "${!define_enable_flag_impl__env_var_name}"
-${!define_if_impl} 0 "ENABLE_${internal_flag_name_def_suffix}" ${!define_enable_flag_impl__external_exp_suffix}
+${!define_if_impl} 0 "" "ENABLE_${internal_flag_name_def_suffix}" ${!define_enable_flag_impl__external_exp_suffix}
 
 ${!undef_ifdef} F_ENABLE_${internal_flag_name_def_suffix} ; don't leave environment variables defined
 #!undef !define_enable_flag_impl__env_var_name

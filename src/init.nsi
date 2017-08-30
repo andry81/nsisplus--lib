@@ -1542,7 +1542,7 @@ ${Func_ExecWaitWusaSetup} "${un}"
 
 !define DeclareInstallFromArchive "!insertmacro DeclareInstallFromArchive"
 !macro DeclareInstallFromArchive def_if_var_list
-${!define_by_enable_flag} INSTALL_FROM_ARCHIVE 0 ; to enable install APP_DIR from archive
+${!define_by_enable_flag} INSTALL_FROM_ARCHIVE 0 ; to enable install from archive
 
 ${DeclareInstallFromArchiveImpl_Recur} "${def_if_var_list}" \
   DeclareInstallFromArchive__current_elem_def DeclareInstallFromArchive__next_elems_def
@@ -1568,7 +1568,10 @@ ${UnfoldMacroArgumentList} "${def_if_var_list}" ${current_elem_def} ${next_elems
 
 !if ${ENABLE_${${current_elem_def}}} <> 0
   !define /redef ENABLE_INSTALL_FROM_ARCHIVE 1
-!else
+!endif
+
+; recursive macro call
+!if "${${next_elems_def}}" != ""
   ${DeclareInstallFromArchiveImpl_Recur} "${${next_elems_def}}" ${current_elem_def} ${next_elems_def}
 !endif
 !macroend
