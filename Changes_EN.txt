@@ -1,6 +1,46 @@
 * Changes_EN.txt
-* 2017.04.17
+* 2017.09.13
 * NsisSetupLib
 
 review #1 - 2017.04.17 (NsisSetupLib_rv1.zip)
  - Initial release.
+
+review #2 - 2017.09.13 (-)
+ - FIXED: `DetailPrint` tooltip cut on line return characters (see the new
+   `DetailPrint` function).
+ - FIXED: case where `!ExecutePostponedAbort` won't call `Quit` properly if
+   `Abort` has been called.
+ - FIXED: `DeclareInstallFromArchive` recursive macro call.
+ - FIXED: minor fixup and cleanup.
+ - NEW: license change from Boost to MIT.
+ - NEW: nsisPlus plugin as a runtime part of the library.
+ - NEW: 3dparty patched and moded plugins: nsisFile, UserMgr.
+ - NEW: functionality to work with comboboxes: NSD_CB_SelectStringByIndex,
+   NSD_CB_GetSelectionIndex, GUISelectGetComboBoxTextExact,
+   GUISelectSetComboBoxTextExact macro functions.
+ - NEW: PushStackByList*, PopPushStack* (to replace obsoleted
+   PushStack*+ExchStack*+PopStack*) macro functions.
+ - NEW: RegReadToAllocValue, RegSetAllocValue functions.
+ - NEW: GUI externsion: NSD_GetTextAlloc, NSD_SetTextAddr macro functions.
+ - NEW: function return value `Exch` miss usage corruption protection, see
+   PopPushStack* macroses (`DebugStackExitFrame` may miss the stack
+   near-corruption in a particular case where the stack is not actually
+   corrupted, but the return values popped from the stack has had corrupted).
+ - NEW: build scripts.
+ - NEW: tests.
+ - CHANGED: killproc return code detail.
+ - CHANGED: restart suppress flags for MSI installers.
+ - CHANGED: unsilence some message boxes if the DEBUG global variable
+   (command line parameter) has been set.
+ - REFACTOR:
+    * sources restructure.
+    * global variables rename.
+    * include guards.
+    * the `InstallPath` default registry variable has renamed into the
+      `InstallRoot`.
+    * replaced the `Call ${prefix}` invocations by the `!ifndef __UNINSTALL__`
+      usage as more reliable.
+    * parameters related to 3dparty installers moved into separate 3dparty.nsi.
+    * replaced most of the PushStack*+ExchStackStack*+PopStack* sequence by
+      the safer PopPushStack* macro.
+    etc
