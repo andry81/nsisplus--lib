@@ -46,6 +46,7 @@ Var /GLOBAL DEBUG
 Var /GLOBAL DEBUG_FRAME_ID
 Var /GLOBAL INSTDIR_PARAM
 Var /GLOBAL INSTDIR_TMP ; auto remove on exit temporary install directory
+Var /GLOBAL LOCALE_TMP ; to store temporary locale value
 
 ; registers for debug routines between stack usage
 Var /GLOBAL DEBUG_R0
@@ -201,6 +202,7 @@ ${!define_guid16} _NSIS_SETUP_LIB_BUILD_GUID16
 
 !include "${_NSIS_SETUP_LIB_ROOT}\src\builtin.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\stack.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\locale.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\log.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\debug.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\notify.nsi"
@@ -283,6 +285,8 @@ Function Init_ImplBegin
   StrCpy $USER_ABORT_ASK_ACCEPTED 0
   StrCpy $SECTION_SCOPE_INDEX 0
   StrCpy $DEBUG 0
+  StrCpy $INSTDIR_PARAM ""
+  StrCpy $LOCALE_TMP ""
 
   StrCpy $DEBUG_R0 ""
   StrCpy $DEBUG_R1 ""
@@ -518,7 +522,7 @@ Function Init_ImplEnd
 
   ${DebugStackCheckFrame} Init 1 0
 
-  ${GetLanguageStrings} $LANG_GROUP_COUNTRY_STR $LANG_SHORT_STR $LANG_LONG_STR $LANGUAGE
+  ${GetLanguageStringsFromLCID} $LANG_GROUP_COUNTRY_STR $LANG_SHORT_STR $LANG_LONG_STR $LANGUAGE
 
   !ifdef APP_NAME_PREFIX
   StrCpy $APP_NAME "${APP_NAME_PREFIX}"
@@ -635,7 +639,7 @@ ${StrLoc}
 ${StrStr}
 !endif
 ${Include_DetailPrint} ""
-${Include_GetLanguageStrings} ""
+${Include_GetLanguageStringsFromLCID} ""
 ${Include_GetSysDrive} ""
 ${Include_GetComputerName} ""
 ${Include_GetAbsolutePath} ""
@@ -848,7 +852,7 @@ Function un.Init
   #  StrCpy $LANGUAGE $LANG_PARAM
   #${EndIf}
 
-  ${GetLanguageStrings} $LANG_GROUP_COUNTRY_STR $LANG_SHORT_STR $LANG_LONG_STR $LANGUAGE
+  ${GetLanguageStringsFromLCID} $LANG_GROUP_COUNTRY_STR $LANG_SHORT_STR $LANG_LONG_STR $LANGUAGE
 
   !ifdef APP_NAME_PREFIX
   StrCpy $APP_NAME "${APP_NAME_PREFIX}"
@@ -906,7 +910,7 @@ ${UnStrLoc}
 ${UnStrStr}
 !endif
 ${Include_DetailPrint} "un."
-${Include_GetLanguageStrings} "un."
+${Include_GetLanguageStringsFromLCID} "un."
 ${Include_GetSysDrive} "un."
 ${Include_GetComputerName} "un."
 ${Include_GetAbsolutePath} "un."

@@ -84,6 +84,7 @@ src/killproc.nsi -text
 src/killproc_lang.nsi -text
 src/killproc_lang_en.nsi -text
 src/killproc_lang_ru.nsi -text
+src/locale.nsi -text
 src/log.nsi -text
 src/net.nsi -text
 src/notify.nsi -text

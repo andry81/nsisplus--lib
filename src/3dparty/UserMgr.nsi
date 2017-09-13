@@ -1,6 +1,8 @@
 !ifndef USER_MGR_INCLUDED
 !define USER_MGR_INCLUDED
 
+!include "${_NSIS_SETUP_LIB_ROOT}\src\preprocessor.nsi"
+!include "${_NSIS_SETUP_LIB_ROOT}\src\log.nsi"
 !include "${_NSIS_SETUP_LIB_ROOT}\src\win32.nsi"
 
 !define SG_ADMINISTRATORS                 "S-1-5-32-544"
@@ -25,6 +27,8 @@
 !define ASYNC_REQUEST_STATUS_CANCELLED    254   ; asynchronous request is cancelled, thread associated with the request is terminated
 !define ASYNC_REQUEST_STATUS_NOT_FOUND    255   ; handle is not associated to anyone asynchronous request
 
+Var /GLOBAL USER_MGR_LCTYPE_TMP
+Var /GLOBAL USER_MGR_LOCALE_TMP
 
 !define GetUserMgrError "!insertmacro GetUserMgrError"
 !macro GetUserMgrError mgr_msg err_var
@@ -65,6 +69,38 @@ ${Else}
 ${EndIf}
 
 ${MacroPopStack4} "${err_var} ${msg_var}" "$R2 $R9" $R0 $R1 $R2 $R9
+!macroend
+
+; locale macro functions to begin use UNICODE strings from ANSI functions
+!define BeginUserMgrLocaleByLCIDPair "!insertmacro BeginUserMgrLocaleByLCIDPair"
+!macro BeginUserMgrLocaleByLCIDPair lc_type_def first_lcid second_lcid
+  !define BeginUserMgrLocaleByLCIDPair_INCLUDED 1 ; must be included once
+
+  ${!error_ifndef} "${lc_type_def}" "BeginUserMgrLocaleByLCIDPair: lc_type must be valid LCID definition!"
+
+  ${PushStack1} $R0
+
+  StrCpy $USER_MGR_LCTYPE_TMP "${${lc_type_def}}"
+  UserMgr::GetLocale $USER_MGR_LCTYPE_TMP
+  ${Pop} $USER_MGR_LOCALE_TMP
+
+  ${GetCharsetFromLCIDPair} $R0 ${first_lcid} ${second_lcid}
+
+  ${DetailPrint} "Locale change: ${lc_type_def}: $\"$USER_MGR_LOCALE_TMP$\" -> $\"$R0$\""
+  UserMgr::SetLocale ${${lc_type_def}} ".$R0"
+
+  ${PopStack1} $R0
+!macroend
+
+!define EndUserMgrLocale "!insertmacro EndUserMgrLocale"
+!macro EndUserMgrLocale
+  ${!error_ifndef} BeginUserMgrLocaleByLCIDPair_INCLUDED "EndUserMgrLocale: BeginUserMgrLocale* must be used at first!"
+  !undef BeginUserMgrLocaleByLCIDPair_INCLUDED
+
+  ; locale for ANSI logon names
+  UserMgr::SetLocale $USER_MGR_LCTYPE_TMP $USER_MGR_LOCALE_TMP
+  StrCpy $USER_MGR_LCTYPE_TMP ""
+  StrCpy $USER_MGR_LOCALE_TMP ""
 !macroend
 
 !endif

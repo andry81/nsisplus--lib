@@ -113,58 +113,6 @@ ${Push} `${file}`
 !endif
 !macroend
 
-!define Func_GetLanguageStrings "!insertmacro Func_GetLanguageStrings"
-!macro Func_GetLanguageStrings un
-Function ${un}GetLanguageStrings
-  ${ExchStack1} $R0
-  ;R0 - lcid
-  ${PushStack3} $R1 $R2 $R3
-
-  ${Switch} $R0
-    ${Case} 1033
-      StrCpy $R1 "en-us"
-      StrCpy $R2 "en"
-      StrCpy $R3 "English - United States"
-      ${Break}
-    ${Case} 1049
-      StrCpy $R1 "ru"
-      StrCpy $R2 "ru"
-      StrCpy $R3 "Russian"
-      ${Break}
-    ${Default}
-      StrCpy $R1 ""
-      StrCpy $R2 ""
-      StrCpy $R3 ""
-
-      ${DetailPrint} "GetLanguageStrings: unsupported language code: $\"$R0$\""
-      MessageBox MB_OK "GetLanguageStrings: unsupported language code: $\"$R0$\" (${__FILE__}:${__LINE__})" /SD IDOK
-  ${EndSwitch}
-
-  ${PopPushStack4} "$R1 $R2 $R3" " " $R0 $R1 $R2 $R3
-FunctionEnd
-!macroend
-
-!define GetLanguageStrings "!insertmacro GetLanguageStrings"
-!macro GetLanguageStrings var_group_country var_short var_long lcid
-${Push} `${lcid}`
-!ifndef __UNINSTALL__
-Call GetLanguageStrings
-!else
-Call un.GetLanguageStrings
-!endif
-${Pop} `${var_long}`
-${Pop} `${var_short}`
-${Pop} `${var_group_country}`
-!macroend
-
-!define Include_GetLanguageStrings "!insertmacro Include_GetLanguageStrings"
-!macro Include_GetLanguageStrings un
-!ifndef ${un}GetLanguageStrings_INCLUDED
-!define ${un}GetLanguageStrings_INCLUDED
-${Func_GetLanguageStrings} "${un}"
-!endif
-!macroend
-
 !define ValidateIP "!insertmacro ValidateIP"
 !macro ValidateIP ip
 ${Push} `${ip}`
