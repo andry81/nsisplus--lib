@@ -17,7 +17,7 @@ This is an all-in-one library for a setup project under the NSIS 3.x.
 Includes 3dparty forked libraries recompiled with the latest NSIS SDK under the
 Microsoft Visual Studio 2010 including bug fix and new implementation.
 
-The latest version is here: sf.net/p/nsisplus
+The latest version is here: https://sf.net/p/nsisplus
 
 WARNING:
   Use the SVN access to find out new functionality and bug fixes.
