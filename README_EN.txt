@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2017.08.25
+* 2019.11.24
 * NsisSetupLib
 
 1. DESCRIPTION
@@ -33,11 +33,14 @@ https://en.wikipedia.org/wiki/MIT_License)
 3. REPOSITORIES
 -------------------------------------------------------------------------------
 Primary:
-  * https://svn.code.sf.net/p/nsisplus/NsisSetupLib/trunk
+  * https://sf.net/p/nsisplus/NsisSetupLib/HEAD/tree/trunk/
+    https://svn.code.sf.net/p/nsisplus/NsisSetupLib/trunk
 First mirror:
-  * https://github.com/andry81/nsisplus--NsisSetupLib.git
+  * https://github.com/andry81/nsisplus--NsisSetupLib/tree/trunk
+    https://github.com/andry81/nsisplus--NsisSetupLib.git
 Second mirror:
-  * https://bitbucket.org/andry81/nsisplus-NsisSetupLib.git
+  * https://bitbucket.org/andry81/nsisplus-NsisSetupLib/src/trunk
+    https://bitbucket.org/andry81/nsisplus-NsisSetupLib.git
 
 -------------------------------------------------------------------------------
 4. PREREQUISITES

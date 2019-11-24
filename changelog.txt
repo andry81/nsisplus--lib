@@ -1,0 +1,4 @@
+2019.11.24:
+* new: changelog file
+* new: svn/git ignore files
+* changed: readme update

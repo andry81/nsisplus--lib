@@ -1,5 +1,5 @@
 * text=auto !eol
-/Changes_EN.txt -text
+/Changes_EN.old.txt -text
 /README_EN.txt -text
 bin/FindProcDLL.dll -text
 bin/FindProcDLL_Readme.txt -text
@@ -54,6 +54,7 @@ build/nsisPlus.sln -text
 build/nsisPlus.vcxproj -text
 build/src/nsisPlus.cpp -text
 build/src/nsisPlus.h -text
+/changelog.txt -text
 /license.txt -text
 src/3dparty.nsi -text
 src/3dparty/CommCtrl.nsh -text
@@ -105,6 +106,7 @@ src/winbase.nsi -text
 src/winctrl.nsi -text
 src/wingdi.nsi -text
 src/winuser.nsi -text
+tests/.svnignore -text
 tests/_testlib/common.nsi -text
 tests/_testlib/config.nsi -text
 tests/build.impl.bat -text
