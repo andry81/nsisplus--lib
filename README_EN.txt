@@ -1,5 +1,5 @@
 * README_EN.txt
-* 2019.11.24
+* 2020.02.10
 * NsisSetupLib
 
 1. DESCRIPTION
@@ -8,7 +8,7 @@
 4. PREREQUISITES
 5. DEPLOY
 6. TESTS
-7. AUTHOR EMAIL
+7. AUTHOR
 
 -------------------------------------------------------------------------------
 1. DESCRIPTION
@@ -63,6 +63,6 @@ No examples here. It is in the TODO list.
 5. Run tests/<TestName>/test.exe to run a test.
 
 -------------------------------------------------------------------------------
-7. AUTHOR EMAIL
+7. AUTHOR
 -------------------------------------------------------------------------------
 Andrey Dibrov (andry at inbox dot ru)
