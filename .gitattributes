@@ -1,6 +1,7 @@
 * text=auto !eol
 .github/FUNDING.yml -text
 /Changes_EN.old.txt -text
+/README.md -text
 /README_EN.txt -text
 bin/FindProcDLL.dll -text
 bin/FindProcDLL_Readme.txt -text
