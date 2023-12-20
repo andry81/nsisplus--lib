@@ -1,6 +1,6 @@
 * README_EN.txt
-* 2020.02.10
-* NsisSetupLib
+* 2023.12.20
+* nsisplus--lib
 
 1. DESCRIPTION
 2. LICENSE
@@ -17,12 +17,6 @@ This is an all-in-one library for a setup project under the NSIS 3.x.
 Includes 3dparty forked libraries recompiled with the latest NSIS SDK under the
 Microsoft Visual Studio 2010 including bug fix and new implementation.
 
-The latest version is here: https://sf.net/p/nsisplus
-
-WARNING:
-  Use the SVN access to find out new functionality and bug fixes.
-  See the REPOSITORIES section.
-
 -------------------------------------------------------------------------------
 2. LICENSE
 -------------------------------------------------------------------------------
@@ -33,14 +27,14 @@ https://en.wikipedia.org/wiki/MIT_License)
 3. REPOSITORIES
 -------------------------------------------------------------------------------
 Primary:
-  * https://sf.net/p/nsisplus/NsisSetupLib/HEAD/tree/trunk/
-    https://svn.code.sf.net/p/nsisplus/NsisSetupLib/trunk
+  * https://github.com/andry81/nsisplus--lib/branches
+    https://github.com/andry81/nsisplus--lib
 First mirror:
-  * https://github.com/andry81/nsisplus--NsisSetupLib/tree/trunk
-    https://github.com/andry81/nsisplus--NsisSetupLib.git
+  * https://sf.net/p/nsisplus/nsisplus--lib/ci/master/tree
+    https://git.code.sf.net/p/nsisplus/nsisplus--lib
 Second mirror:
-  * https://bitbucket.org/andry81/nsisplus-NsisSetupLib/src/trunk
-    https://bitbucket.org/andry81/nsisplus-NsisSetupLib.git
+  * https://gitlab.com/andry81/nsisplus-lib/-/branches
+    https://gitlab.com/andry81/nsisplus-lib.git
 
 -------------------------------------------------------------------------------
 4. PREREQUISITES
