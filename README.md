@@ -1,4 +1,5 @@
-> **Warning** FOR GIT USERS: To clone including all dependecies you must use [fork](https://github.com/plusone-robotics/vcstool) (has the sparse checkout feature) of the [vcstool](https://github.com/dirk-thomas/vcstool) python module (currently the sparse checkout feature is not merged).
+> [!NOTE]
+> To checkout externals read the details here: https://github.com/andry81/externals
 
 <p align="center">This is an all-in-one library for a setup project under the NSIS 3.x.
 Includes 3dparty forked libraries recompiled with the latest NSIS SDK under the
